@@ -1,6 +1,7 @@
 import unittest
 import dbgateway
 
+
 class DbGatewayTests(unittest.TestCase):
 
     LOCATOR="pq://postgres:password@localhost/perspective"
@@ -16,10 +17,9 @@ class DbGatewayTests(unittest.TestCase):
         dbgw = dbgateway.DbGateway(self.LOCATOR)
         dbgw.delete_all()
 
-    def test_create_item_bootstrap(self):
+    def test_create_item_initial(self):
         dbgw = dbgateway.DbGateway(self.LOCATOR)
-        dbgw.create_item_bootstrap(None, "foo", "1.2", "{ \"raz\": 1 }", "raz")
-
+        dbgw.create_item_initial(None, "foo", "1.2", "{ \"raz\": 1 }", "raz")
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,11 @@
+# This is a json file with comments
+{
+    # Foo
+    "foo": 1,
+    "bar":
+        [
+            # Bar
+            3, 4, 5
+        ]
+}
+# Floop

@@ -2,6 +2,7 @@ import postgresql
 
 
 class DbGateway:
+
     def __init__(self, locator):
         self.connection = postgresql.open(locator)
 
@@ -10,7 +11,7 @@ class DbGateway:
         self.connection.prepare("delete from public.item_versions")()
         self.connection.prepare("delete from public.item_binary_data")()
 
-    def create_item_bootstrap(self, parent_id, name, id_path, json_data, search_text):
+    def create_item_initial(self, parent_id, name, id_path, json_data, search_text):
         sql = ("insert into public.items"
                "(parent_id, name, id_path, json_data, created_at, saved_at, search_text)"
                "values"

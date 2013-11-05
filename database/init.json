@@ -1,0 +1,39 @@
+# Initial items to be load into Perspective database
+[
+    # / account
+    {
+        "path": "/",
+        "type": "account",
+    }
+    # /system folder
+    {
+        "path": "/system",
+        "type": "folder"
+    }
+    # /system/types folder
+    {
+        "path": "/system/types",
+        "type": "folder"
+    }
+
+    # Types ------------------
+
+    # type type
+    {
+        "path": "/system/types/type",
+        "type": "type",
+        "data": {
+            "item_class": "TypeItem"
+        }
+    }
+    # account type
+    {
+        "path": "/system/types/account",
+        "type": "type"
+    }
+    # folder type
+    {
+        "path": "/system/types/folder",
+        "type": "type"
+    }
+]
