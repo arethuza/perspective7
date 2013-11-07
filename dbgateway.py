@@ -37,3 +37,11 @@ class DbGateway:
         else:
             return rows[0][0], rows[0][1]
 
+    def set_item_type_user(self, item_id, type_id, type_id_path, user_id):
+        sql = ("update public.items "
+               "set type_id=$1, type_path=text2ltree($2), created_by=$3, saved_by=$3 "
+               "where"
+               " id=$4")
+        ps = self.connection.prepare(sql)
+        ps(type_id, type_id_path, user_id, item_id)
+

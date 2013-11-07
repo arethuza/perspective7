@@ -4,17 +4,26 @@
     {
         "path": "/",
         "type": "account",
-    }
+        "data": {
+            "title": "Root Account"
+        }
+    },
     # /system folder
     {
         "path": "/system",
-        "type": "folder"
-    }
+        "type": "folder",
+        "data": {
+            "title": "System folder holding items used by Perspective"
+        }
+    },
     # /system/types folder
     {
         "path": "/system/types",
-        "type": "folder"
-    }
+        "type": "folder",
+        "data": {
+            "title": "Items defining types for Items"
+        }
+    },
 
     # Types ------------------
 
@@ -23,17 +32,53 @@
         "path": "/system/types/type",
         "type": "type",
         "data": {
+            "title": "Type Type",
             "item_class": "TypeItem"
         }
-    }
+    },
     # account type
     {
         "path": "/system/types/account",
-        "type": "type"
-    }
+        "type": "type",
+        "data": {
+            "title": "Account Type",
+            "item_class": "AccountItem"
+        }
+    },
     # folder type
     {
         "path": "/system/types/folder",
-        "type": "type"
+        "type": "type",
+        "data": {
+            "title": "Folder Type",
+            "item_class": "FolderItem"
+        }
+    },
+    # user type
+    # folder type
+    {
+        "path": "/system/types/user",
+        "type": "type",
+        "data": {
+            "title": "User Type",
+            "item_class": "UserItem"
+        }
+    },
+
+    # Users ------------------
+    {
+        "path": "/system/users",
+        "type": "folder",
+        "data": {
+            "title": "Users folder"
+        }
+    },
+
+    {
+        "path": "/system/users/system",
+        "type": "user",
+        "data": {
+            "title": "System User"
+        }
     }
 ]

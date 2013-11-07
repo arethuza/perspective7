@@ -42,9 +42,11 @@ create table item_versions
 );
 
 create or replace function items_index_search_text() returns trigger as $$
-begin   
-    new.search_vector = to_tsvector('pg_catalog.english', new.search_text);
-    new.search_text = null;
+begin
+    if new.search_text is not null then
+        new.search_vector = to_tsvector('pg_catalog.english', new.search_text);
+        new.search_text = null;
+    end if;
     return new;
 end;
 $$ language plpgsql;

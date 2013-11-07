@@ -41,6 +41,10 @@ class InitLoaderTests(unittest.TestCase):
         self.assertEquals(found_id, 1)
         self.assertEquals(found_id_path, "1")
 
+    def test_load_init_data(self):
+        init_loader.load_init_data("../database/init.json", self.LOCATOR)
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()
