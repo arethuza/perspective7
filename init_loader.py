@@ -50,7 +50,6 @@ def find_item_id(dbgw, path):
     current_id = 1
     current_id_path = None
     path_parts = path.split("/")[1:]
-    length = len(path_parts)
     for part in path_parts:
         current_id, current_id_path = dbgw.find_id(current_id, part)
         if current_id is None:

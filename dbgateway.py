@@ -24,12 +24,13 @@ class DbGateway:
         rows = ps(parent_id, name, id_path, json_data, search_text)
         return rows[0][0]
 
-    def find_id(self, parent_id, name):
+    def find_id(self, parent_id, name, select_auth=False):
         sql = ("select "
-               "id, id_path "
+               "{0} "
                "from public.items "
                "where "
                "parent_id = $1 and name = $2")
+        sql = sql.format("id, auth" if select_auth else "id, id_path")
         ps = self.connection.prepare(sql)
         rows = ps(parent_id, name)
         if len(rows) == 0:
