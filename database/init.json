@@ -67,7 +67,7 @@
 
     # Users ------------------
     {
-        "path": "/system/users",
+        "path": "/users",
         "type": "folder",
         "data": {
             "title": "Users folder"
@@ -75,7 +75,7 @@
     },
 
     {
-        "path": "/system/users/system",
+        "path": "/users/system",
         "type": "user",
         "data": {
             "title": "System User"

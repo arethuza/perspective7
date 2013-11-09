@@ -35,7 +35,7 @@ def load_init_data(path, locator):
         dbgw.create_item_initial(parent_id, item_name, parent_id_path, json.dumps(item_data), search_text)
         types_to_resolve.append((item_path, item_type))
     type_type_id, _ = find_item_id(dbgw, "/system/types/type")
-    system_user_id, _ = find_item_id(dbgw, "/system/users/system")
+    system_user_id, _ = find_item_id(dbgw, "/users/system")
     for item_path,item_type in types_to_resolve:
         type_path = "/system/types/" + item_type
         type_id, _ = find_item_id(dbgw, type_path)
