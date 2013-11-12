@@ -14,7 +14,6 @@ create table items
     parent_id           int         references items(id),
     name                text        not null,
     version             int         not null default 0,
-    auth                json,
     id_path             ltree,
     type_id             int         references items(id),
     type_path           ltree,

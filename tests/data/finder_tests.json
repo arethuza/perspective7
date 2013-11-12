@@ -1,2 +1,45 @@
 [
+    # /paris test folder
+    {
+        "path": "/paris",
+        "type": "folder"
+    },
+
+    # user bob in paris
+    {
+        "path": "/paris/bob",
+        "type": "user"
+    },
+
+    # a folder called private in paris
+    {
+        "path": "/paris/private",
+        "type": "user",
+        "data": {
+            "auth": [[ "everyone", "none"],
+                     [ "/paris/bob", "editor"]]
+        }
+    },
+
+    # /milan test folder
+    {
+        "path": "/milan",
+        "type": "folder"
+    },
+
+    # user alice in milan
+    {
+        "path": "/milan/alice",
+        "type": "user"
+    },
+
+    # a folder called private in milan
+    {
+        "path": "/milan/private",
+        "type": "user",
+        "data": {
+            "auth": [[ "everyone", "none"],
+                     [ "/milan/alice", "editor"]]
+        }
+    }
 ]

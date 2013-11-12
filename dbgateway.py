@@ -1,5 +1,5 @@
 import postgresql
-
+import json
 
 class DbGateway:
 
@@ -30,13 +30,21 @@ class DbGateway:
                "from public.items "
                "where "
                "parent_id = $1 and name = $2")
-        sql = sql.format("id, auth" if select_auth else "id, id_path")
+        sql = sql.format("id, json_data->'auth'" if select_auth else "id, id_path")
         ps = self.connection.prepare(sql)
         rows = ps(parent_id, name)
         if len(rows) == 0:
-            return None
+            return None, None
+        item_id = rows[0][0]
+        if not select_auth:
+            id_path = rows[0][1]
+            return item_id, id_path
         else:
-            return rows[0][0], rows[0][1]
+            auth_json = rows[0][1]
+            if auth_json is None:
+                return item_id, None
+            else:
+                return item_id, json.loads(auth_json)
 
     def set_item_type_user(self, item_id, type_id, type_id_path, user_id):
         sql = ("update public.items "

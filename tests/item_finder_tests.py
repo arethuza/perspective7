@@ -15,6 +15,7 @@ class ItemFinderTestsInitData(unittest.TestCase):
         dbgw.reset()
         init_loader.load_init_data("../database/init.json", LOCATOR)
         init_loader.load_init_data("data/finder_tests.json", LOCATOR)
+        pass
 
     @classmethod
     def tearDownClass(self):
@@ -47,3 +48,30 @@ class ItemFinderTestsInitData(unittest.TestCase):
             self.assertEquals(handle.user_handle, system_user_handle)
             found_ids.add(handle.item_id)
 
+    def test_bob_read_paris_private(self):
+        bob_handle = self.finder.find("/paris/bob")
+        private_handle = self.finder.find("/paris/private", bob_handle)
+        self.assertEquals(private_handle.auth_level, item_finder.AuthLevels["editor"])
+
+    def test_bob_fail_milan_private(self):
+        bob_handle = self.finder.find("/paris/bob")
+        private_handle = self.finder.find("/milan/private", bob_handle)
+        self.assertEquals(private_handle.auth_level, item_finder.AuthLevels["none"])
+
+    def test_alice_read_milan_private(self):
+        alice_handle = self.finder.find("/milan/alice")
+        private_handle = self.finder.find("/milan/private", alice_handle)
+        self.assertEquals(private_handle.auth_level, item_finder.AuthLevels["editor"])
+
+    def test_bob_fail_milan_private(self):
+        alice_handle = self.finder.find("/milan/alice")
+        private_handle = self.finder.find("/paris/private", alice_handle)
+        self.assertEquals(private_handle.auth_level, item_finder.AuthLevels["none"])
+
+    def test_find_no_item(self):
+        alice_handle = self.finder.find("/milan/alice")
+        no_item_handle = self.finder.find("/not/there", alice_handle)
+        self.assertIsNone(no_item_handle.item_id)
+        self.assertEquals(no_item_handle.path, "/not/there")
+        self.assertEquals(no_item_handle.user_handle.path, "/milan/alice")
+        self.assertEquals(no_item_handle.auth_level, item_finder.AuthLevels["none"])

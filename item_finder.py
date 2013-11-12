@@ -32,7 +32,7 @@ class ItemFinder:
                     break
                 if item_auth:
                     # We have found a child item, and it specifies authorization values
-                    user_auth_level = authorize(item_auth, user_handle)
+                    user_auth_level = self.authorize(item_auth, user_handle)
         else:
             current_id = 1
             if user_handle and user_handle.path == "/users/system":
@@ -46,12 +46,22 @@ class ItemFinder:
         return self.find("/users/system", None)
 
 
-def authorize(item_auth, user_handle):
-    if user_handle is None:
-        return AuthLevels["reader"]
-    for auth_id, auth_level_name, auth_type in item_auth:
-        if user_handle.item_id == auth_id:
-            return AuthLevels[auth_level_name]
+    def authorize(self, item_auth, user_handle):
+        if user_handle is None:
+            return AuthLevels["reader"]
+        auth_level = AuthLevels["reader"]
+        for auth_id, auth_level_name in item_auth:
+            if type(auth_id) is str:
+                if auth_id == "everyone":
+                    auth_level = AuthLevels[auth_level_name]
+                else:
+                    auth_user_handle = self.find(auth_id)
+                    auth_id = auth_user_handle.item_id
+            if user_handle.item_id == auth_id:
+                auth_level = AuthLevels[auth_level_name]
+                break
+        return auth_level
+
 
 def authorize_root(user_handle):
     if user_handle and user_handle.path == "/users/system":
