@@ -43,6 +43,7 @@ class InitLoaderTests(unittest.TestCase):
 
     def test_load_init_data(self):
         init_loader.load_init_data("../database/init.json", self.LOCATOR)
+        pass
 
 
 if __name__ == '__main__':

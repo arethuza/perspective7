@@ -54,3 +54,16 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(type_id, type_id_path, user_id, item_id)
 
+    def load(self, item_id):
+        sql = ("select type_item.json_data->>'item_class',item_instance.json_data "
+               "from items item_instance inner join items type_item "
+               "on item_instance.type_id = type_item.id "
+               "and item_instance.id = $1")
+        ps = self.connection.prepare(sql)
+        rows=ps(item_id)
+        if len(rows) == 0:
+            return None, None
+        else:
+            return rows[0][0], rows[0][1]
+
+
