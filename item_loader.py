@@ -13,7 +13,11 @@ class ItemLoader:
         dbgw = dbgateway.DbGateway(self.locator)
         item_class_name, json_data = dbgw.load(handle.item_id)
         cls = get_class(item_class_name)
-        pass
+        new_item = cls()
+        item_data = json.loads(json_data)
+        for name, value in item_data.items():
+            setattr(new_item, name, value)
+        return  new_item
 
 
 def get_class(name):
