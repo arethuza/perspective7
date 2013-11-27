@@ -1,5 +1,5 @@
 import unittest
-from actionable import WithActions, Action, Actionable, distance_from_actionable, get_class_that_defined_method
+from actionable import WithActions, Action, Actionable, get_distance_from_actionable, get_class_that_defined_method
 
 @WithActions
 class ActionableTest(Actionable):
@@ -31,19 +31,19 @@ class ActionableTest2(ActionableTest):
 class ActionableTests(unittest.TestCase):
 
     def test_distance_object(self):
-        d = distance_from_actionable(object)
+        d = get_distance_from_actionable(object)
         self.assertEquals(d, -1)
 
     def test_distance_actionable(self):
-        d = distance_from_actionable(Actionable)
+        d = get_distance_from_actionable(Actionable)
         self.assertEquals(d, 0)
 
     def test_distance_actionable(self):
-        d = distance_from_actionable(ActionableTest)
+        d = get_distance_from_actionable(ActionableTest)
         self.assertEquals(d, 1)
 
     def test_distance_actionable(self):
-        d = distance_from_actionable(ActionableTest2)
+        d = get_distance_from_actionable(ActionableTest2)
         self.assertEquals(d, 2)
 
     def test_get_class_that_defined_method(self):

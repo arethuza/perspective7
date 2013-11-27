@@ -36,20 +36,18 @@ class Action:
 
 def WithActions(cls):
     cls.actions = []
-    members = inspect.getmembers(cls)
-    for name, method in members:
+    for name, method in inspect.getmembers(cls):
         if hasattr(method, "action_spec"):
             action_spec = getattr(method, "action_spec")
             defining_class = get_class_that_defined_method(cls, name)
-            action_spec[0] = distance_from_actionable(defining_class)
+            action_spec[0] = get_distance_from_actionable(defining_class)
             cls.actions.append(action_spec)
     cls.actions.sort(key=itemgetter(0, 1), reverse=True)
     return cls
 
-def distance_from_actionable(cls):
-    classes = inspect.getmro(cls)
+def get_distance_from_actionable(cls):
     result = 0
-    for c in classes:
+    for c in inspect.getmro(cls):
         if c == object:
             return -1
         elif c == Actionable:
@@ -58,9 +56,7 @@ def distance_from_actionable(cls):
             result += 1
 
 def get_class_that_defined_method(cls, name):
-    classes = list(inspect.getmro(cls))
-    classes.reverse()
-    for c in classes:
+    for c in reversed(inspect.getmro(cls)):
         for member_name, member in inspect.getmembers(c):
             if member_name == name:
                 return c
