@@ -4,26 +4,26 @@ from actionable import WithActions, Action, Actionable, get_distance_from_action
 @WithActions
 class ActionableTest(Actionable):
 
-    @Action("put", "write")
+    @Action("put", "editor")
     def action1(self):
         return 1
 
-    @Action("post", "edit")
+    @Action("post", "editor")
     def action2(self):
         return 2
 
-    @Action("get", "read", foo='bar')
+    @Action("get", "reader", foo='bar')
     def action3(self):
         return 3
 
-    @Action("get", "read")
+    @Action("get", "reader")
     def action0(self):
         return 0
 
 @WithActions
 class ActionableTest2(ActionableTest):
 
-    @Action("put", "write")
+    @Action("put", "editor")
     def action4(self):
         return 10
 
@@ -57,17 +57,17 @@ class ActionableTests(unittest.TestCase):
     def test_single_action(self):
         at = ActionableTest()
         self.assertEqual(len(ActionableTest.actions), 4)
-        self.assertEqual(at.invoke("get", "read"), 0)
-        self.assertEqual(at.invoke("put", "write"), 1)
-        self.assertEqual(at.invoke("post", "edit"), 2)
-        self.assertEqual(at.invoke("get", "read", foo="bar"), 3)
+        self.assertEqual(at.invoke("get", "reader"), 0)
+        self.assertEqual(at.invoke("put", "editor"), 1)
+        self.assertEqual(at.invoke("post", "editor"), 2)
+        self.assertEqual(at.invoke("get", "reader", foo="bar"), 3)
 
     def test_action_subclass(self):
         at2 = ActionableTest2()
         self.assertEqual(len(ActionableTest2.actions), 5)
-        self.assertEqual(at2.invoke("get", "read"), 0)
-        self.assertEqual(at2.invoke("put", "write"), 10)
-        self.assertEqual(at2.invoke("get", "read", foo="bar"), 3)
+        self.assertEqual(at2.invoke("get", "reader"), 0)
+        self.assertEqual(at2.invoke("put", "editor"), 10)
+        self.assertEqual(at2.invoke("get", "reader", foo="bar"), 3)
 
 if __name__ == '__main__':
     unittest.main()

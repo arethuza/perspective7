@@ -2,6 +2,10 @@ import dbgateway
 
 AuthLevels = dict(system=4, admin=3, editor=2, reader=1, none=0)
 
+def get_authorization_level(authorization):
+    if not authorization in AuthLevels:
+        raise Exception("Unknown auth level: {0}".format(authorization))
+    return AuthLevels[authorization]
 
 class ItemHandle:
 
@@ -67,7 +71,6 @@ def authorize_root(user_handle):
     if user_handle and user_handle.path == "/users/system":
         return AuthLevels["system"]
     return AuthLevels["reader"]
-
 
 
 
