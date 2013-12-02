@@ -2,6 +2,10 @@ import inspect
 from operator import itemgetter
 from item_finder import get_authorization_level
 
+
+class NoAuthorizedActionException(Exception):
+    pass
+
 class Actionable():
 
     def invoke(self, verb, user_auth_name, **kwargs):
@@ -9,17 +13,24 @@ class Actionable():
         match_found = False
         for _, _, f, action_verb, action_auth_level, action_args in self.__class__.actions:
             if action_verb == verb and action_auth_level <= user_auth_level:
-                if len(action_args) == 0 and len(kwargs) == 0:
-                    match_found = True
-                else:
-                    for name, value in action_args.items():
-                        if name in kwargs and kwargs[name] == value:
-                            # We know the value of parameter 'name', so don't bother passing it into f
-                            del kwargs[name]
+                if len(action_args) == len(kwargs):
+                    if len(action_args) == 0:
+                        match_found = True
+                        break
+                    else:
+                        matching_count = 0
+                        for name, value in action_args.items():
+                            if name in kwargs and kwargs[name] == value:
+                                # We know the value of parameter 'name', so don't bother passing it into f
+                                del kwargs[name]
+                                matching_count += 1
+                        if matching_count == len(action_args):
                             match_found = True
                             break
-            if match_found:
-                return f(self, **kwargs)
+        if match_found:
+            return f(self, **kwargs)
+        else:
+            raise NoAuthorizedActionException()
 
 
 
