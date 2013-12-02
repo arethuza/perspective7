@@ -29,6 +29,10 @@ class ActionableTest2(ActionableTest):
     def action4(self):
         return 10
 
+    @Action("get", "reader", foo='bar', raz="woof")
+    def action4(self):
+        return 20
+
 
 class ActionableTests(unittest.TestCase):
 
@@ -61,7 +65,7 @@ class ActionableTests(unittest.TestCase):
         self.assertEqual(len(ActionableTest.actions), 4)
         self.assertEqual(at.invoke("get", "reader"), 0)
 
-    def test_action_with_args(self):
+    def test_action_with_arg(self):
         at = ActionableTest()
         self.assertEqual(len(ActionableTest.actions), 4)
         self.assertEqual(at.invoke("get", "reader", foo="bar"), 3)
@@ -71,7 +75,12 @@ class ActionableTests(unittest.TestCase):
         at2 = ActionableTest2()
         self.assertEqual(len(ActionableTest2.actions), 5)
         self.assertEqual(at2.invoke("get", "reader"), 0)
+
+    def test_action_subclass_args(self):
+        at2 = ActionableTest2()
+        self.assertEqual(len(ActionableTest2.actions), 5)
         self.assertEqual(at2.invoke("get", "reader", foo="bar"), 3)
+        self.assertEqual(at2.invoke("get", "reader", foo="bar", raz="woof"), 20)
 
     def test_unknown_authorization(self):
         at2 = ActionableTest2()
