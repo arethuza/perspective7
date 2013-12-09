@@ -22,8 +22,8 @@ class ItemLoader:
 
 def get_class(name):
     parts = name.split('.')
-    module = ".".join(parts[:-1])
-    m = __import__(module)
+    module_name = ".".join(parts[:-1])
+    m = __import__(module_name)
     for comp in parts[1:]:
         m = getattr(m, comp)
     return m

@@ -37,5 +37,9 @@ class ItemLoaderTests(unittest.TestCase):
         self.assertEquals(item.c["raz"], "alpha")
         self.assertFalse(isinstance(item.c, Floop))
 
+    def test_get_classes(self):
+        self.assertIsNotNone(item_loader.get_class("items.item.Item"))
+        self.assertIsNotNone(item_loader.get_class("items.account_item.AccountItem"))
+
 if __name__ == '__main__':
     unittest.main()

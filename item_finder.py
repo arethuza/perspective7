@@ -1,6 +1,10 @@
 import dbgateway
 
-AuthLevels = dict(system=4, admin=3, editor=2, reader=1, none=0)
+AuthLevelNames = ["none", "reader", "editor", "admin", "system"]
+AuthLevels = {}
+for auth_level in range(0, len(AuthLevelNames)):
+    AuthLevels[AuthLevelNames[auth_level]] = auth_level
+
 
 def get_authorization_level(authorization):
     if not authorization in AuthLevels:
@@ -14,6 +18,9 @@ class ItemHandle:
         self.item_id = item_id
         self.auth_level = auth_level
         self.user_handle = user_handle
+
+    def get_auth_name(self):
+        return AuthLevelNames[self.auth_level]
 
 
 class ItemFinder:
@@ -65,7 +72,6 @@ class ItemFinder:
                 auth_level = AuthLevels[auth_level_name]
                 break
         return auth_level
-
 
 def authorize_root(user_handle):
     if user_handle and user_handle.path == "/users/system":

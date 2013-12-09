@@ -33,7 +33,7 @@
         "type": "type",
         "data": {
             "title": "Type Type",
-            "item_class": "TypeItem"
+            "item_class": "items.type_item.TypeItem"
         }
     },
     # account type
@@ -42,7 +42,7 @@
         "type": "type",
         "data": {
             "title": "Account Type",
-            "item_class": "AccountItem"
+            "item_class": "items.account_item.AccountItem"
         }
     },
     # folder type
@@ -51,17 +51,16 @@
         "type": "type",
         "data": {
             "title": "Folder Type",
-            "item_class": "FolderItem"
+            "item_class": "items.folder_item.FolderItem"
         }
     },
     # user type
-    # folder type
     {
         "path": "/system/types/user",
         "type": "type",
         "data": {
             "title": "User Type",
-            "item_class": "UserItem"
+            "item_class": "items.user_item.UserItem"
         }
     },
 
