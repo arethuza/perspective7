@@ -4,5 +4,5 @@ from actionable import Actionable, WithActions, Action
 class Item(Actionable):
 
     @Action("get", "reader")
-    def get(self):
+    def get(self, worker):
         pass

@@ -1,5 +1,6 @@
 from item_finder import ItemFinder, ItemHandle
 from item_loader import ItemLoader
+from worker import Worker
 
 class Processor:
 
@@ -13,4 +14,5 @@ class Processor:
         item_handle = self.item_finder.find(item_path, user_handle)
         item = self.item_loader.load(item_handle)
         user_auth_name = user_handle.get_auth_name()
-        item.invoke(verb, user_auth_name, **args)
+        worker = Worker(self, item, user_handle)
+        item.invoke(verb, user_auth_name, [worker], **args)

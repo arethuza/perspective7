@@ -81,12 +81,12 @@ class ActionableTests(unittest.TestCase):
 
     def test_action_subclass(self):
         at2 = ActionableTest2()
-        self.assertEqual(len(ActionableTest2.actions), 6)
+        self.assertEqual(len(ActionableTest2.actions), 7)
         self.assertEqual(at2.invoke("get", "reader"), 0)
 
     def test_action_subclass_args(self):
         at2 = ActionableTest2()
-        self.assertEqual(len(ActionableTest2.actions), 6)
+        self.assertEqual(len(ActionableTest2.actions), 7)
         self.assertEqual(at2.invoke("get", "reader", foo="bar"), 3)
         self.assertEqual(at2.invoke("get", "reader", foo="bar", raz="woof"), 20)
 
