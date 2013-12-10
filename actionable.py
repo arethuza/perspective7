@@ -8,7 +8,7 @@ class NoAuthorizedActionException(Exception):
 
 class Actionable():
 
-    def invoke(self, verb, user_auth_name, **kwargs):
+    def invoke(self, verb, user_auth_name, args=[], **kwargs):
         user_auth_level = get_authorization_level(user_auth_name)
         match_found = False
         for _, _, f, action_verb, action_auth_level, action_args in self.__class__.actions:
@@ -28,7 +28,7 @@ class Actionable():
                             match_found = True
                             break
         if match_found:
-            return f(self, **kwargs)
+            return f(self, *args, **kwargs)
         else:
             raise NoAuthorizedActionException()
 

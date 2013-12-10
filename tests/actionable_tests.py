@@ -33,6 +33,14 @@ class ActionableTest2(ActionableTest):
     def action4(self):
         return 20
 
+    @Action("post", "reader")
+    def action5(self, arg):
+        return 30
+
+    @Action("post", "reader", foo='floop')
+    def action6(self, arg):
+        return 40
+
 
 class ActionableTests(unittest.TestCase):
 
@@ -73,12 +81,12 @@ class ActionableTests(unittest.TestCase):
 
     def test_action_subclass(self):
         at2 = ActionableTest2()
-        self.assertEqual(len(ActionableTest2.actions), 5)
+        self.assertEqual(len(ActionableTest2.actions), 6)
         self.assertEqual(at2.invoke("get", "reader"), 0)
 
     def test_action_subclass_args(self):
         at2 = ActionableTest2()
-        self.assertEqual(len(ActionableTest2.actions), 5)
+        self.assertEqual(len(ActionableTest2.actions), 6)
         self.assertEqual(at2.invoke("get", "reader", foo="bar"), 3)
         self.assertEqual(at2.invoke("get", "reader", foo="bar", raz="woof"), 20)
 
@@ -89,6 +97,14 @@ class ActionableTests(unittest.TestCase):
     def test_unauthorized(self):
         at2 = ActionableTest2()
         self.assertRaises(NoAuthorizedActionException, at2.invoke, "get", "none")
+
+    def test_positional_arg(self):
+        at2 = ActionableTest2()
+        self.assertEqual(at2.invoke("post", "reader", ["foo"]), 30)
+
+    def test_positional_and_kw_arg(self):
+        at2 = ActionableTest2()
+        self.assertEqual(at2.invoke("post", "reader", ["foo"], foo="floop"), 40)
 
 
 if __name__ == '__main__':
