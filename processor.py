@@ -15,4 +15,8 @@ class Processor:
         item = self.item_loader.load(item_handle)
         user_auth_name = user_handle.get_auth_name()
         worker = Worker(self, item, user_handle)
-        item.invoke(verb, user_auth_name, [worker], **args)
+        item.modified = False
+        result = item.invoke(verb, user_auth_name, [worker], **args)
+        if item.modified:
+            pass
+        return result
