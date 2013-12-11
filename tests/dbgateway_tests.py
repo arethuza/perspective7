@@ -35,6 +35,13 @@ class DbGatewayTests(unittest.TestCase):
         self.assertEquals(class_name, "foo")
         self.assertEquals(data, "{}")
 
+    def test_create_item(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        item_id, item_id_path = dbgw.find_id(3, "bar")
+        self.assertTrue(item_id > 1)
+        self.assertEquals(item_id_path, "6.7." + str(item_id))
 
 
 

@@ -27,6 +27,25 @@
 
     # Types ------------------
 
+    # item type
+    {
+        "path": "/system/types/item",
+        "type": "type",
+        "data": {
+            "title": "Item Type",
+            "item_class": "items.item.Item"
+        }
+    },
+
+    # item type template
+    {
+        "path": "/system/types/item/template",
+        "type": "item",
+        "data": {
+            "title": "New Item"
+        }
+    },
+
     # type type
     {
         "path": "/system/types/type",

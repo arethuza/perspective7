@@ -2,6 +2,8 @@ import unittest
 import dbgateway
 import item_finder
 import item_loader
+import init_loader
+import json
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
 dbgw = dbgateway.DbGateway(LOCATOR)
@@ -40,6 +42,25 @@ class ItemLoaderTests(unittest.TestCase):
     def test_get_classes(self):
         self.assertIsNotNone(item_loader.get_class("items.item.Item"))
         self.assertIsNotNone(item_loader.get_class("items.account_item.AccountItem"))
+
+    def test_load_type(self):
+        init_loader.load_init_data("../database/init.json", LOCATOR)
+        loader = item_loader.ItemLoader(LOCATOR)
+        type_item = loader.load_type("item")
+        self.assertEqual("/system/types/item", type_item.handle.path)
+        self.assertIsNotNone(type_item)
+        # Some intermediate ids are cached in loader, so do this twice
+        type_item = loader.load_type("item")
+        self.assertIsNotNone(type_item)
+        self.assertEqual("/system/types/item", type_item.handle.path)
+
+    def test_load_template_json(self):
+        init_loader.load_init_data("../database/init.json", LOCATOR)
+        loader = item_loader.ItemLoader(LOCATOR)
+        data = json.loads(loader.load_template_json("not a type name"))
+        self.assertEqual(data["title"], "New Item")
+        data = json.loads(loader.load_template_json("item"))
+        self.assertEqual(data["title"], "New Item")
 
 if __name__ == '__main__':
     unittest.main()

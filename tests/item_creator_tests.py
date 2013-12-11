@@ -1,5 +1,6 @@
 import unittest
 import dbgateway
+from item_creator import ItemCreator
 
 import init_loader
 from processor import Processor
@@ -7,7 +8,8 @@ from processor import Processor
 LOCATOR = "pq://postgres:password@localhost/perspective"
 dbgw = dbgateway.DbGateway(LOCATOR)
 
-class ProcessorTests(unittest.TestCase):
+class ItemCreatorTests(unittest.TestCase):
+
 
     @classmethod
     def setUpClass(cls):
@@ -19,9 +21,6 @@ class ProcessorTests(unittest.TestCase):
     def tearDownClass(self):
         dbgw.reset()
 
-    def test_load_root_account(self):
-        processor = Processor(LOCATOR)
-        processor.execute("/", "get", "/", {})
 
 if __name__ == '__main__':
     unittest.main()

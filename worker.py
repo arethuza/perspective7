@@ -1,17 +1,22 @@
 class Worker():
 
-    def __init__(self, processor, item, worker_handle):
+    def __init__(self, processor, item, user_handle):
         self.processor = processor
         self.item = item
-        self.worker_handle = worker_handle
+        self.user_handle = user_handle
 
-    def find_or_create(self, name, item_type):
+    def find(self, path):
+        return self.processor.item_finder.find(path, self.user_handle)
+
+    def create(self, name, type_name):
+        type_item = self.processor.item_loader.load_type(type_name)
+        json_data = self.processor.item_loader.load_template_json(type_name)
+        pass
+
+    def find_or_create(self, path, type_name):
         pass
 
     def move(self, path):
-        pass
-
-    def create(self, name, item_type):
         pass
 
     def execute(self, verb, **kwargs):

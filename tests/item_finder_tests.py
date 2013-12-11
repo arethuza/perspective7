@@ -15,7 +15,6 @@ class ItemFinderTestsInitData(unittest.TestCase):
         dbgw.reset()
         init_loader.load_init_data("../database/init.json", LOCATOR)
         init_loader.load_init_data("data/finder_tests.json", LOCATOR)
-        pass
 
     @classmethod
     def tearDownClass(self):
