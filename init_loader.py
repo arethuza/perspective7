@@ -40,9 +40,9 @@ def load_init_data(path, locator):
         type_path = "/system/types/" + item_type
         type_id, _ = find_item_id(dbgw, type_path)
         item_id, _ = find_item_id(dbgw, item_path)
+        # FIXME - calculate type_id_path in general way
         type_id_path = "{0}.{1}".format(type_type_id, type_id)
         dbgw.set_item_type_user(item_id, type_id, type_id_path, system_user_id)
-
 
 def find_item_id(dbgw, path):
     if path == "/":

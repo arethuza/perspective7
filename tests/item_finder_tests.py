@@ -24,8 +24,16 @@ class ItemFinderTestsInitData(unittest.TestCase):
         handle = self.finder.find("/")
         self.assertEquals(handle.path, "/")
         self.assertEquals(handle.item_id, 1)
+        self.assertEquals(handle.id_path, "1")
         self.assertEquals(handle.auth_level, item_finder.AuthLevels["reader"])
         self.assertIsNone(handle.user_handle)
+
+    def test_find_non_absolute_path(self):
+        handle = self.finder.find("does not exist")
+        self.assertIsNone(handle.item_id)
+        self.assertIsNone(handle.id_path)
+        self.assertEquals(handle.auth_level, item_finder.AuthLevels["none"])
+
 
     def test_find_system_user(self):
         system_user_handle = self.finder.find_system_user()
@@ -33,6 +41,12 @@ class ItemFinderTestsInitData(unittest.TestCase):
         self.assertTrue(system_user_handle.item_id > 1)
         self.assertEquals(system_user_handle.auth_level, item_finder.AuthLevels["reader"])
         self.assertIsNone(system_user_handle.user_handle)
+        root_handle = self.finder.find("/")
+        users_handle = self.finder.find("/users")
+        self.assertEqual(system_user_handle.id_path,
+                         str(root_handle.item_id) + "." +
+                         str(users_handle.item_id) + "." +
+                         str(system_user_handle.item_id))
 
     def test_system_user_auth(self):
         system_user_handle = self.finder.find_system_user()

@@ -7,6 +7,7 @@ class ItemLoader:
 
     system_folder_id = None
     system_types_folder_id = None
+    item_type_id = None
 
     def __init__(self, locator):
         self.locator = locator
@@ -26,14 +27,24 @@ class ItemLoader:
 
     def load_type(self, type_name):
         dbgw = dbgateway.DbGateway(self.locator)
+        if ItemLoader.item_type_id is None:
+            ItemLoader.item_type_id, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), "item")
         type_id, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), type_name)
         _, json_data = dbgw.load(type_id)
         type_item = TypeItem()
-        type_item.handle = ItemHandle("/system/types/" + type_name, type_id, get_authorization_level("reader"), None)
+        type_item.handle = ItemHandle("/system/types/" + type_name, type_id, None, get_authorization_level("reader"), None)
         item_data = json.loads(json_data)
         for name, value in item_data.items():
             setattr(type_item, name, value)
+        setattr(type_item, "type_path", self.find_type_path(type_item))
         return type_item
+
+    def find_type_path(self, type_item):
+        if hasattr(type_item, "base_type"):
+            base_type = self.load_type(type_item["base_type"])
+            return self.find_type_path(base_type) + "." + str(type_item.handle.item_id)
+        else:
+            return str(ItemLoader.item_type_id)
 
     def load_template_json(self, type_name, template_name="template"):
         dbgw = dbgateway.DbGateway(self.locator)

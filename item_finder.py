@@ -13,9 +13,10 @@ def get_authorization_level(authorization):
 
 class ItemHandle:
 
-    def __init__(self, path, item_id, auth_level, user_handle):
+    def __init__(self, path, item_id, id_path, auth_level, user_handle):
         self.path = path
         self.item_id = item_id
+        self.id_path = id_path
         self.auth_level = auth_level
         self.user_handle = user_handle
 
@@ -33,17 +34,24 @@ class ItemFinder:
         path_parts = path.split("/")[1:]
         current_id = 1
         user_auth_level = authorize_root(user_handle)
+        id_path = str(current_id)
         if path != "/":
-            for part in path_parts:
-                # Find the next child
-                current_id, item_auth = dbgw.find_id(current_id, part, True)
-                if current_id is None:
-                    # Can't find a child item with that name
-                    user_auth_level = AuthLevels["none"]
-                    break
-                if item_auth:
-                    # We have found a child item, and it specifies authorization values
-                    user_auth_level = self.authorize(item_auth, user_handle)
+            if len(path_parts) == 0:
+                current_id = None
+                id_path = None
+                user_auth_level = AuthLevels["none"]
+            else:
+                for part in path_parts:
+                    # Find the next child
+                    current_id, item_auth = dbgw.find_id(current_id, part, True)
+                    if current_id is None:
+                        # Can't find a child item with that name
+                        user_auth_level = AuthLevels["none"]
+                        break
+                    if item_auth:
+                        # We have found a child item, and it specifies authorization values
+                        user_auth_level = self.authorize(item_auth, user_handle)
+                    id_path += "." + str(current_id)
         else:
             current_id = 1
             if user_handle and user_handle.path == "/users/system":
@@ -51,11 +59,10 @@ class ItemFinder:
             else:
                 user_auth_level = AuthLevels["reader"]
         # Always return a new ItemHandle, even if we can't find anything or we have no access
-        return ItemHandle(path, current_id, user_auth_level, user_handle)
+        return ItemHandle(path, current_id, id_path, user_auth_level, user_handle)
 
     def find_system_user(self):
         return self.find("/users/system", None)
-
 
     def authorize(self, item_auth, user_handle):
         if user_handle is None:

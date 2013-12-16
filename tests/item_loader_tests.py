@@ -43,15 +43,17 @@ class ItemLoaderTests(unittest.TestCase):
         self.assertIsNotNone(item_loader.get_class("items.item.Item"))
         self.assertIsNotNone(item_loader.get_class("items.account_item.AccountItem"))
 
-    def test_load_type(self):
+    def test_load_item_type(self):
         init_loader.load_init_data("../database/init.json", LOCATOR)
         loader = item_loader.ItemLoader(LOCATOR)
         type_item = loader.load_type("item")
         self.assertEqual("/system/types/item", type_item.handle.path)
         self.assertIsNotNone(type_item)
+        self.assertEqual(str(type_item.handle.item_id), type_item.type_path)
         # Some intermediate ids are cached in loader, so do this twice
         type_item = loader.load_type("item")
         self.assertIsNotNone(type_item)
+        self.assertEqual(str(type_item.handle.item_id), type_item.type_path)
         self.assertEqual("/system/types/item", type_item.handle.path)
 
     def test_load_template_json(self):

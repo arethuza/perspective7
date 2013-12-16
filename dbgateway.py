@@ -30,7 +30,7 @@ class DbGateway:
                " created_at, created_by, saved_at, saved_by, search_text)"
                "values"
                "( $1, $2, "
-               "  text2ltree(case when $1::int is null then '1' else $3::text || '.' || currval('items_id_seq') end),"
+               "  text2ltree($3::text || '.' || currval('items_id_seq')),"
                "  $4, text2ltree($5), $6, now(), $7, now(), $7, $8)"
                "returning id")
         ps = self.connection.prepare(sql)
