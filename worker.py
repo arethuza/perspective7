@@ -1,4 +1,7 @@
 import posixpath
+from item_loader import ItemHandle, get_authorization_level
+
+AUTH_LEVEL_NONE = get_authorization_level("none")
 
 class Worker():
 
@@ -24,9 +27,13 @@ class Worker():
             return handle
         return self.create(name, type_name)
 
+    def move(self, name):
+        path = posixpath.join(self.current_item.handle.path, name)
+        handle = self.processor.item_finder.find(path, self.user_handle)
+        if handle.auth_level == AUTH_LEVEL_NONE:
+            raise Exception("Can't move to {0}".format(path))
+        self.current_item = self.processor.item_loader.load(handle)
 
-    def move(self, path):
-        pass
 
     def execute(self, verb, **kwargs):
         pass

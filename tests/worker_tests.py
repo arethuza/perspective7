@@ -34,5 +34,14 @@ class WorkerTests(unittest.TestCase):
         self.assertEqual("/floop", handle2.path)
         self.assertTrue(handle1.item_id == handle2.item_id)
 
+    def test_move(self):
+        processor = Processor(LOCATOR)
+        worker = processor.get_worker("/", "/users/system")
+        worker.move("users")
+        self.assertEqual("/users", worker.current_item.handle.path)
+        worker.move("system")
+        self.assertEqual("/users/system", worker.current_item.handle.path)
+        self.assertRaises(Exception, worker.move, "not there")
+
 if __name__ == '__main__':
     unittest.main()

@@ -23,6 +23,7 @@ class ItemLoader:
         item_data = json.loads(json_data)
         for name, value in item_data.items():
             setattr(new_item, name, value)
+        self.field_names = list(item_data.keys())
         return new_item
 
     def load_type(self, type_name):
