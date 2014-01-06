@@ -9,4 +9,3 @@ class UserItem(Item):
         salt = bcrypt.gensalt(2)
         password_hash = "bcrypt:" + bcrypt.hashpw(password, salt)
         self.set_field("password_hash", password_hash)
-        self.modified = True

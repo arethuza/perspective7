@@ -11,6 +11,8 @@ class Item(Actionable):
         if not name in self.field_names:
             self.field_names.append(name)
         setattr(self, name, value)
+        if not self.modified:
+            self.modified = True
 
     @Action("get", "reader")
     def get(self, worker):

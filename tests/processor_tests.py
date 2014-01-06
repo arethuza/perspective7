@@ -13,7 +13,6 @@ class ProcessorTests(unittest.TestCase):
     def setUpClass(cls):
         dbgw.reset()
         init_loader.load_init_data("../database/init.json", LOCATOR)
-        pass
 
     @classmethod
     def tearDownClass(self):

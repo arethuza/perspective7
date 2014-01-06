@@ -29,11 +29,11 @@ class ItemLoader:
     def load_type(self, type_name):
         dbgw = dbgateway.DbGateway(self.locator)
         if ItemLoader.item_type_id is None:
-            ItemLoader.item_type_id, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), "item")
-        type_id, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), type_name)
+            ItemLoader.item_type_id, _, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), "item")
+        type_id, _, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), type_name)
         _, json_data = dbgw.load(type_id)
         type_item = TypeItem()
-        type_item.handle = ItemHandle("/system/types/" + type_name, type_id, None, get_authorization_level("reader"), None)
+        type_item.handle = ItemHandle("/system/types/" + type_name, type_id, 0, None, get_authorization_level("reader"), None)
         item_data = json.loads(json_data)
         for name, value in item_data.items():
             setattr(type_item, name, value)
@@ -49,13 +49,13 @@ class ItemLoader:
 
     def load_template_json(self, type_name, template_name="template"):
         dbgw = dbgateway.DbGateway(self.locator)
-        type_id, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), type_name)
-        template_id, _ = dbgw.find_id(type_id, template_name)
+        type_id, _, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), type_name)
+        template_id, _, _ = dbgw.find_id(type_id, template_name)
         if template_id is not None:
             return dbgw.load(template_id)[1]
         # Type doesn't have its own template so use the item type template
-        type_id, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), "item")
-        template_id, _ = dbgw.find_id(type_id, template_name)
+        type_id, _, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), "item")
+        template_id, _, _ = dbgw.find_id(type_id, template_name)
         if template_id is not None:
             return dbgw.load(template_id)[1]
         # Oops - no templates available
@@ -64,12 +64,12 @@ class ItemLoader:
 
     def _find_system_types_folder_id(self, dbgw):
         if ItemLoader.system_types_folder_id is None:
-            ItemLoader.system_types_folder_id, _ = dbgw.find_id(self._find_system_folder_id(dbgw), "types")
+            ItemLoader.system_types_folder_id, _, _ = dbgw.find_id(self._find_system_folder_id(dbgw), "types")
         return ItemLoader.system_types_folder_id
 
     def _find_system_folder_id(self, dbgw):
         if ItemLoader.system_folder_id is None:
-            ItemLoader.system_folder_id, _ = dbgw.find_id(1, "system")
+            ItemLoader.system_folder_id, _, _ = dbgw.find_id(1, "system")
         return ItemLoader.system_folder_id
 
 
