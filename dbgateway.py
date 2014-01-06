@@ -44,21 +44,22 @@ class DbGateway:
                "from public.items "
                "where "
                "parent_id = $1 and name = $2")
-        sql = sql.format("id, json_data->'auth'" if select_auth else "id, id_path")
+        sql = sql.format("id, json_data->'auth', version" if select_auth else "id, id_path, version")
         ps = self.connection.prepare(sql)
         rows = ps(parent_id, name)
         if len(rows) == 0:
-            return None, None
+            return None, None, None
         item_id = rows[0][0]
+        version = rows[0][2]
         if not select_auth:
             id_path = rows[0][1]
-            return item_id, id_path
+            return item_id, id_path, version
         else:
             auth_json = rows[0][1]
             if auth_json is None:
-                return item_id, None
+                return item_id, None, version
             else:
-                return item_id, json.loads(auth_json)
+                return item_id, json.loads(auth_json), version
 
     def set_item_type_user(self, item_id, type_id, type_id_path, user_id):
         sql = ("update public.items "
@@ -88,6 +89,9 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id)
 
-    def save(self):
-        pass
-
+    def update_item(self, item_id, json_data, user_id):
+        sql = ("update public.items "
+               "set version=version+1, json_data=$2, saved_at=now(), saved_by=$3  "
+               "where id=$1")
+        ps = self.connection.prepare(sql)
+        ps(item_id, json_data, user_id)

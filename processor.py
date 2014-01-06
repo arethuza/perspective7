@@ -28,5 +28,5 @@ class Processor:
         item.modified = False
         result = item.invoke(verb, user_auth_name, [worker], **args)
         if item.modified:
-            pass
+            self.item_loader.save(item, user_handle)
         return result

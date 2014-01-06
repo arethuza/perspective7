@@ -22,9 +22,10 @@ class DbGatewayTests(unittest.TestCase):
     def test_create_item_initial_and_find_id(self):
         dbgw.create_item_initial(None, "", None, "{ \"raz\": 1 }", "raz")
         dbgw.create_item_initial(1, "foo", "1", "{ \"bar\": 1 }", "foo")
-        item_id, item_id_path = dbgw.find_id(1, "foo")
+        item_id, item_id_path, version = dbgw.find_id(1, "foo")
         self.assertTrue(item_id > 1)
         self.assertEquals(item_id_path, "1.2")
+        self.assertEqual(version, 0)
 
     def test_load(self):
         item_id = dbgw.create_item_initial(None, "test item", None, "{}", "")
@@ -39,15 +40,22 @@ class DbGatewayTests(unittest.TestCase):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
-        item_id, item_id_path = dbgw.find_id(3, "bar")
+        item_id, item_id_path, version = dbgw.find_id(3, "bar")
         self.assertTrue(item_id > 1)
         self.assertEquals(item_id_path, "6.7." + str(item_id))
+        self.assertEqual(version, 0)
 
     def test_save_item_version(self):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
         dbgw.save_item_version(item_id)
+
+    def test_update_item(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        dbgw.update_item(item_id, "{}", user_id)
 
 
 if __name__ == '__main__':
