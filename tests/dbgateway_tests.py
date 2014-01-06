@@ -47,7 +47,7 @@ class DbGatewayTests(unittest.TestCase):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
-        dbgw.save_item_version(item_id, 100, type_id, "{}", user_id)
+        dbgw.save_item_version(item_id)
 
 
 if __name__ == '__main__':

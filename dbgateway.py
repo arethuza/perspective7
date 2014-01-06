@@ -80,13 +80,13 @@ class DbGateway:
         else:
             return rows[0][0], rows[0][1]
 
-    def save_item_version(self, item_id, version, type_id, json_data, user_id):
-        sql = ("insert into public.item_versions"
-               "(item_id, version, type_id, json_data, saved_at, saved_by)"
-               "values"
-               "( $1, $2, $3, $4, now(), $5 )")
+    def save_item_version(self, item_id):
+        sql = ("insert into public.item_versions "
+               "select id, version, type_id, json_data, saved_at, saved_by "
+               "from public.items "
+               "where id=$1")
         ps = self.connection.prepare(sql)
-        ps(item_id, version, type_id, json_data, user_id)
+        ps(item_id)
 
     def save(self):
         pass
