@@ -43,6 +43,11 @@ class DbGatewayTests(unittest.TestCase):
         self.assertTrue(item_id > 1)
         self.assertEquals(item_id_path, "6.7." + str(item_id))
 
+    def test_save_item_version(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        dbgw.save_item_version(item_id, 100, type_id, "{}", user_id)
 
 
 if __name__ == '__main__':

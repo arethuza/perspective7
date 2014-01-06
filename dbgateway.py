@@ -7,6 +7,7 @@ class DbGateway:
         self.connection = postgresql.open(locator)
 
     def reset(self):
+        self.connection.prepare("delete from public.item_versions")()
         self.connection.prepare("delete from public.items")()
         self.connection.prepare("delete from public.item_versions")()
         self.connection.prepare("delete from public.item_binary_data")()
@@ -78,4 +79,15 @@ class DbGateway:
             return None, None
         else:
             return rows[0][0], rows[0][1]
+
+    def save_item_version(self, item_id, version, type_id, json_data, user_id):
+        sql = ("insert into public.item_versions"
+               "(item_id, version, type_id, json_data, saved_at, saved_by)"
+               "values"
+               "( $1, $2, $3, $4, now(), $5 )")
+        ps = self.connection.prepare(sql)
+        ps(item_id, version, type_id, json_data, user_id)
+
+    def save(self):
+        pass
 
