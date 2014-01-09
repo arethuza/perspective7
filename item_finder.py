@@ -2,8 +2,8 @@ import dbgateway
 
 AuthLevelNames = ["none", "reader", "editor", "admin", "system"]
 AuthLevels = {}
-for auth_level in range(0, len(AuthLevelNames)):
-    AuthLevels[AuthLevelNames[auth_level]] = auth_level
+for level in range(0, len(AuthLevelNames)):
+    AuthLevels[AuthLevelNames[level]] = level
 
 
 def get_authorization_level(authorization):
@@ -50,7 +50,10 @@ class ItemFinder:
                         # Can't find a child item with that name
                         user_auth_level = AuthLevels["none"]
                         break
-                    if item_auth:
+                    elif user_handle and current_id == user_handle.item_id:
+                        # users can always edit themselves
+                        user_auth_level = AuthLevels["editor"]
+                    elif item_auth:
                         # We have found a child item, and it specifies authorization values
                         user_auth_level = self.authorize(item_auth, user_handle)
                     id_path += "." + str(current_id)

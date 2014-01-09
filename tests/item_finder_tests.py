@@ -66,6 +66,22 @@ class ItemFinderTestsInitData(unittest.TestCase):
         private_handle = self.finder.find("/paris/private", bob_handle)
         self.assertEquals(private_handle.auth_level, item_finder.AuthLevels["editor"])
 
+    def test_users_edit_selves(self):
+        user_paths = ["/paris/bob", "/milan/alice"]
+        for user_path in user_paths:
+            user_handle = self.finder.find(user_path)
+            handle = self.finder.find(user_path, user_handle)
+            # Users can edit themselves
+            self.assertEqual(handle.auth_level, item_finder.AuthLevels["editor"])
+            for other_user_path in user_paths:
+                if other_user_path == user_path:
+                    continue
+                handle = self.finder.find(other_user_path, user_handle)
+                # But can only read other users
+                self.assertEqual(handle.auth_level, item_finder.AuthLevels["reader"])
+
+
+
     def test_bob_fail_milan_private(self):
         bob_handle = self.finder.find("/paris/bob")
         private_handle = self.finder.find("/milan/private", bob_handle)

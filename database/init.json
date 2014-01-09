@@ -83,6 +83,15 @@
         }
     },
 
+    # user type template
+    {
+        "path": "/system/types/user/template",
+        "type": "user",
+        "data": {
+            "password_hash": ""
+        }
+    },
+
     # Users ------------------
     {
         "path": "/users",

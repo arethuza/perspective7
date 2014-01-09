@@ -23,10 +23,10 @@ class Processor:
             user_handle = self.item_finder.find(user_handle)
         item_handle = self.item_finder.find(item_path, user_handle)
         item = self.item_loader.load(item_handle)
-        user_auth_name = user_handle.get_auth_name()
+        user_auth_name = item_handle.get_auth_name()
         worker = Worker(self, item, user_handle)
         item.modified = False
         result = item.invoke(verb, user_auth_name, [worker], **args)
         if item.modified:
-            self.item_loader.save(item, user_handle)
+            self.item_saver.save(item, user_handle)
         return result

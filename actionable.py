@@ -11,20 +11,23 @@ class Actionable():
     def invoke(self, verb, user_auth_name, args=[], **kwargs):
         user_auth_level = get_authorization_level(user_auth_name)
         match_found = False
-        for _, _, f, action_verb, action_auth_level, action_args in self.__class__.actions:
+        for _, _, f, action_verb, action_auth_level, action_kwargs in self.__class__.actions:
             if action_verb == verb and action_auth_level <= user_auth_level:
-                if len(action_args) == len(kwargs):
-                    if len(action_args) == 0:
+                if len(action_kwargs) == len(kwargs):
+                    if len(action_kwargs) == 0:
                         match_found = True
                         break
                     else:
                         matching_count = 0
-                        for name, value in action_args.items():
-                            if name in kwargs and kwargs[name] == value:
+                        for name, value in action_kwargs.items():
+                            if name in kwargs and value == "":
+                                # Allow any value, pass value in
+                                matching_count += 1
+                            elif name in kwargs and kwargs[name] == value:
                                 # We know the value of parameter 'name', so don't bother passing it into f
                                 del kwargs[name]
                                 matching_count += 1
-                        if matching_count == len(action_args):
+                        if matching_count == len(action_kwargs):
                             match_found = True
                             break
         if match_found:
@@ -38,12 +41,12 @@ class Action:
     def __init__(self, verb, auth_name, **kwargs):
         self.verb = verb
         self.auth_level = get_authorization_level(auth_name)
-        self.args = kwargs
+        self.kwargs = kwargs
     def __call__(self, f):
         def wrapped(*args, **kwargs):
             return f(*args, **kwargs)
         _, line_number = inspect.getsourcelines(f)
-        wrapped.action_spec = [1000000, line_number, wrapped, self.verb, self.auth_level, self.args]
+        wrapped.action_spec = [1000000, line_number, wrapped, self.verb, self.auth_level, self.kwargs]
         return wrapped
 
 def WithActions(cls):

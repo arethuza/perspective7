@@ -1,0 +1,10 @@
+[
+    # /test_user user item
+    {
+        "path": "/test_user",
+        "type": "user",
+        "data": {
+            "password_hash": ""
+        }
+    }
+]

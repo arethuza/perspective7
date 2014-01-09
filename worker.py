@@ -20,7 +20,7 @@ class Worker():
         path = posixpath.join(self.current_item.handle.path, name)
         return self.processor.item_finder.find(path, self.user_handle)
 
-    def find_or_create(self, name, type_name):
+    def find_or_create(self, name, type_name="item"):
         path = posixpath.join(self.current_item.handle.path, name)
         handle = self.processor.item_finder.find(path, self.user_handle)
         if not handle.item_id is None:
@@ -34,6 +34,5 @@ class Worker():
             raise Exception("Can't move to {0}".format(path))
         self.current_item = self.processor.item_loader.load(handle)
 
-
-    def execute(self, verb, **kwargs):
-        pass
+    def execute(self, item_path, verb, **kwargs):
+        self.processor.execute(item_path, verb, self.user_handle, kwargs)

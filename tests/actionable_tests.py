@@ -41,6 +41,10 @@ class ActionableTest2(ActionableTest):
     def action6(self, arg):
         return 40
 
+    @Action("post", "editor", foo='')
+    def action7(self, foo):
+        return foo
+
 
 class ActionableTests(unittest.TestCase):
 
@@ -106,6 +110,9 @@ class ActionableTests(unittest.TestCase):
         at2 = ActionableTest2()
         self.assertEqual(at2.invoke("post", "reader", ["foo"], foo="floop"), 40)
 
+    def test_wildcard_kw_arg(self):
+        at2 = ActionableTest2()
+        self.assertEqual(at2.invoke("post", "editor", [], foo="floop"), "floop")
 
 if __name__ == '__main__':
     unittest.main()
