@@ -101,7 +101,23 @@ class DbGateway:
         sql = ("insert into tokens "
                "(item_id, token_value, created_at, expires_at) "
                "values "
-               "($1, $2, now(), $3::text::timestamp)")
+               "($1, $2::text, now(), $3::text::timestamp)")
         ps = self.connection.prepare(sql)
         ps(item_id, token_value, expires_at)
+
+    def find_token(self, item_id, token_value):
+        sql = ("select count(item_id) from tokens "
+               "where item_id=$1 and token_value=$2 and expires_at > now()")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, token_value)
+        count = rows[0][0]
+        return count > 0
+
+    def delete_token(self, token_value):
+        sql = "delete from tokens where token_value=$1"
+        ps = self.connection.prepare(sql)
+        ps(token_value)
+
+
+
 
