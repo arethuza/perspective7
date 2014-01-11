@@ -36,3 +36,6 @@ class Worker():
 
     def execute(self, item_path, verb, **kwargs):
         self.processor.execute(item_path, verb, self.user_handle, kwargs)
+
+    def create_security_token(self):
+        pass

@@ -54,3 +54,12 @@ $$ language plpgsql;
 create trigger item_index_trigger before insert or update
 on items for each row execute procedure items_index_search_text();
 
+drop table if exists tokens cascade;
+
+create table tokens
+(
+    item_id             int         references items(id),
+    token_value         text        not null,
+    created_at          timestamp   not null,
+    expires_at          timestamp   not null
+);

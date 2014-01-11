@@ -9,3 +9,13 @@ class UserItem(Item):
         salt = bcrypt.gensalt(2)
         password_hash = "bcrypt:" + bcrypt.hashpw(password, salt)
         self.set_field("password_hash", password_hash)
+
+    @Action("name", "none", password="")
+    def get_login(self, worker, password):
+        stored_hash = self.password_hash.split(":")[1]
+        supplied_hash = bcrypt.hashpw(password, stored_hash)
+        if supplied_hash == stored_hash:
+            pass
+        pass
+
+

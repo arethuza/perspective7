@@ -1,5 +1,7 @@
 import unittest
 import dbgateway
+import time
+import datetime
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
 dbgw = dbgateway.DbGateway(LOCATOR)
@@ -56,6 +58,12 @@ class DbGatewayTests(unittest.TestCase):
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
         dbgw.update_item(item_id, "{}", user_id)
+
+    def test_create_token(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        dbgw.create_token(item_id, "fooooo", datetime.datetime.fromtimestamp(int(time.time())).isoformat())
 
 
 if __name__ == '__main__':

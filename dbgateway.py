@@ -7,6 +7,7 @@ class DbGateway:
         self.connection = postgresql.open(locator)
 
     def reset(self):
+        self.connection.prepare("delete from public.tokens")()
         self.connection.prepare("delete from public.item_versions")()
         self.connection.prepare("delete from public.items")()
         self.connection.prepare("delete from public.item_versions")()
@@ -95,3 +96,12 @@ class DbGateway:
                "where id=$1")
         ps = self.connection.prepare(sql)
         ps(item_id, json_data, user_id)
+
+    def create_token(self, item_id, token_value, expires_at):
+        sql = ("insert into tokens "
+               "(item_id, token_value, created_at, expires_at) "
+               "values "
+               "($1, $2, now(), $3::text::timestamp)")
+        ps = self.connection.prepare(sql)
+        ps(item_id, token_value, expires_at)
+
