@@ -24,6 +24,9 @@ class ItemHandle:
     def get_auth_name(self):
         return AuthLevelNames[self.auth_level]
 
+    def can_read(self):
+        return self.auth_level > 0
+
 
 class ItemFinder:
 

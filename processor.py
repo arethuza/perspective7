@@ -2,6 +2,7 @@ from item_finder import ItemFinder, ItemHandle
 from item_loader import ItemLoader
 from item_creator import ItemCreator
 from item_saver import ItemSaver
+from token_manager import TokenManager
 from worker import Worker
 
 class Processor:
@@ -11,6 +12,7 @@ class Processor:
         self.item_loader = ItemLoader(locator)
         self.item_creator = ItemCreator(locator)
         self.item_saver = ItemSaver(locator)
+        self.token_manager = TokenManager(locator)
 
     def get_worker(self, item_path, user_path):
         user_handle = self.item_finder.find(user_path)
@@ -30,3 +32,4 @@ class Processor:
         if item.modified:
             self.item_saver.save(item, user_handle)
         return result
+

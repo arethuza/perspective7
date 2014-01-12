@@ -3,6 +3,7 @@ import dbgateway
 
 import init_loader
 from processor import Processor
+from worker import ServiceException
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
 dbgw = dbgateway.DbGateway(LOCATOR)
@@ -17,15 +18,26 @@ class AccountItemTests(unittest.TestCase):
     def tearDown(self):
         dbgw.reset()
 
-    def test_post_set_password(self):
-        user_handle = processor.item_finder.find("/users/test_user")
-        self.assertEqual(user_handle.get_auth_name(), "none")
+    def test_create_user_and_login(self):
         processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "floop"})
-        user_handle = processor.item_finder.find("/users/test_user")
-        self.assertEqual(user_handle.get_auth_name(), "reader")
-        user_item = processor.item_loader.load(user_handle)
-        self.assertTrue(user_item.password_hash.startswith("bcrypt"))
+        response_code, response = processor.execute("/", "get", "/users/system",
+                                                    {"name": "test_user", "password": "floop"})
+        self.assertEqual(response_code, 200)
+        self.assertEqual(50, len(response["token"]))
+        self.assertTrue(response["expires_at"])
 
+    def test_login_unknown_user(self):
+        with self.assertRaises(ServiceException) as cm:
+            processor.execute("/", "get", "/users/system", {"name": "unknown", "password": "floop"})
+        self.assertEqual(cm.exception.response_code, 404)
+        self.assertEqual(cm.exception.message, "Unknown user:unknown")
+
+    def test_login_incorrect_password(self):
+        processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "floop"})
+        with self.assertRaises(ServiceException) as cm:
+            processor.execute("/", "get", "/users/system", {"name": "test_user", "password": "flop"})
+        self.assertEqual(cm.exception.response_code, 403)
+        self.assertEqual(cm.exception.message, "Invalid password")
 
 if __name__ == '__main__':
     unittest.main()

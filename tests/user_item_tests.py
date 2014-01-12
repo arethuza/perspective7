@@ -19,10 +19,10 @@ class UserItemTests(unittest.TestCase):
         dbgw.reset()
 
     def test_post_set_password(self):
-        user_item_handle = processor.item_finder.find("/test_user")
+        user_item_handle = processor.item_finder.find("/users/test_user")
         user_item = processor.item_loader.load(user_item_handle)
         self.assertFalse(user_item.password_hash)
-        processor.execute("/test_user", "post", "/test_user", {"password": "floop"})
+        processor.execute("/users/test_user", "post", "/users/test_user", {"password": "floop"})
         user_item = processor.item_loader.load(user_item_handle)
         self.assertTrue(user_item.password_hash)
         self.assertTrue(user_item.password_hash.startswith("bcrypt"))

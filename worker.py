@@ -3,6 +3,12 @@ from item_loader import ItemHandle, get_authorization_level
 
 AUTH_LEVEL_NONE = get_authorization_level("none")
 
+
+class ServiceException(Exception):
+        def __init__(self, response_code, message):
+            self.response_code = response_code
+            self.message = message
+
 class Worker():
 
     def __init__(self, processor, item, user_handle):
@@ -10,7 +16,8 @@ class Worker():
         self.current_item = item
         self.user_handle = user_handle
 
-    def find(self, path):
+    def find(self, name):
+        path = posixpath.join(self.current_item.handle.path, name)
         return self.processor.item_finder.find(path, self.user_handle)
 
     def create(self, name, type_name):
@@ -35,7 +42,7 @@ class Worker():
         self.current_item = self.processor.item_loader.load(handle)
 
     def execute(self, item_path, verb, **kwargs):
-        self.processor.execute(item_path, verb, self.user_handle, kwargs)
+        return self.processor.execute(item_path, verb, self.user_handle, kwargs)
 
     def create_security_token(self):
-        pass
+        return self.processor.token_manager.create_token(self.current_item.handle.item_id, 50, days=1)

@@ -1,5 +1,6 @@
 from items.item import Item
 from actionable import WithActions, Action
+from worker import ServiceException
 import bcrypt
 
 @WithActions
@@ -10,12 +11,16 @@ class UserItem(Item):
         password_hash = "bcrypt:" + bcrypt.hashpw(password, salt)
         self.set_field("password_hash", password_hash)
 
-    @Action("name", "none", password="")
+    @Action("get", "system", password="")
     def get_login(self, worker, password):
         stored_hash = self.password_hash.split(":")[1]
         supplied_hash = bcrypt.hashpw(password, stored_hash)
         if supplied_hash == stored_hash:
-            pass
-        pass
+            token, expires_at = worker.create_security_token()
+            return 200, {"token": token, "expires_at": expires_at}
+        else:
+            raise ServiceException(403, "Invalid password")
+
+
 
 
