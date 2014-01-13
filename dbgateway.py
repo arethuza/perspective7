@@ -105,13 +105,15 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id, token_value, expires_at)
 
-    def find_token(self, item_id, token_value):
-        sql = ("select count(item_id) from tokens "
-               "where item_id=$1 and token_value=$2 and expires_at > now()")
+    def find_token(self, token_value):
+        sql = ("select item_id from tokens "
+               "where token_value=$1 and expires_at > now()")
         ps = self.connection.prepare(sql)
-        rows = ps(item_id, token_value)
-        count = rows[0][0]
-        return count > 0
+        rows = ps(token_value)
+        if len(rows) > 0:
+            return rows[0][0]
+        else:
+            return None
 
     def delete_token(self, token_value):
         sql = "delete from tokens where token_value=$1"

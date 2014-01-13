@@ -25,7 +25,7 @@ class TokenManagerTests(unittest.TestCase):
         token_value, expires_at = tm.create_token(handle.item_id, 50, days=10)
         self.assertEquals(len(token_value), 50)
         self.assertTrue(expires_at)
-        self.assertTrue(tm.find_token(handle.item_id, token_value))
+        self.assertTrue(tm.find_token(token_value))
 
     def test_fail_find_expired(self):
         handle = finder.find("/")
@@ -35,7 +35,7 @@ class TokenManagerTests(unittest.TestCase):
         self.assertEquals(len(token_value), 50)
         self.assertTrue(expires_at)
         time.sleep(1)
-        self.assertFalse(tm.find_token(handle.item_id, token_value))
+        self.assertFalse(tm.find_token(token_value))
 
 
 if __name__ == '__main__':

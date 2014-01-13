@@ -65,11 +65,9 @@ class DbGatewayTests(unittest.TestCase):
         item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
         future_date = (datetime.datetime.fromtimestamp(int(time.time())) + datetime.timedelta(days=10)).isoformat()
         dbgw.create_token(item_id, "foo", future_date)
-        self.assertTrue(dbgw.find_token(item_id, "foo"))
+        self.assertEqual(dbgw.find_token("foo"), item_id)
         dbgw.delete_token("foo")
-        self.assertFalse(dbgw.find_token(item_id, "foo"))
-
-
+        self.assertIsNone(dbgw.find_token("foo"))
 
 
 if __name__ == '__main__':

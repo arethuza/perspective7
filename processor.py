@@ -3,7 +3,7 @@ from item_loader import ItemLoader
 from item_creator import ItemCreator
 from item_saver import ItemSaver
 from token_manager import TokenManager
-from worker import Worker
+from worker import Worker, ServiceException
 
 class Processor:
 
@@ -32,4 +32,17 @@ class Processor:
         if item.modified:
             self.item_saver.save(item, user_handle)
         return result
+
+    def check_login(self, item_path, verb, args):
+        if (not verb == "get") or (not "name" in args) or (not "password" in args):
+            return None
+        # We are doing a "get" and supplying a name and password -> we are trying to log in
+        return self.execute(item_path, verb, self.item_finder.find_system_user(), args)
+
+    def get_user_for_token(self, token_value):
+        user_item_id = self.token_manager.find_token(token_value)
+        if user_item_id is None:
+            raise ServiceException(403, "Invalid authentication token")
+        return ItemHandle(item_id=user_item_id)
+
 

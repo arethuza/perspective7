@@ -27,9 +27,9 @@ class TokenManager():
         dbgw.create_token(item_id, token_value, expires_at)
         return token_value, expires_at
 
-    def find_token(self, item_id, token_value):
+    def find_token(self, token_value):
         dbgw = dbgateway.DbGateway(self.locator)
-        return dbgw.find_token(item_id, token_value)
+        return dbgw.find_token(token_value)
 
 
 

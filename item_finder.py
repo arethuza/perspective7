@@ -13,7 +13,7 @@ def get_authorization_level(authorization):
 
 class ItemHandle:
 
-    def __init__(self, path, item_id, version, id_path, auth_level, user_handle):
+    def __init__(self, path=None, item_id=None, version=None, id_path=None, auth_level=None, user_handle=None):
         self.path = path
         self.version = version
         self.item_id = item_id
