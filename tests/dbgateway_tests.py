@@ -69,6 +69,12 @@ class DbGatewayTests(unittest.TestCase):
         dbgw.delete_token("foo")
         self.assertIsNone(dbgw.find_token("foo"))
 
+    def test_count_items(self):
+        self.assertEquals(dbgw.count_items(), 0)
+        dbgw.create_item_initial(None, "foo", "_", "{ \"raz\": 1 }", "raz")
+        self.assertEquals(dbgw.count_items(), 1)
+        dbgw.create_item_initial(None, "bar", "_", "{ \"raz\": 1 }", "raz")
+        self.assertEquals(dbgw.count_items(), 2)
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,18 +1,30 @@
+from logging import Logger
 from item_finder import ItemFinder, ItemHandle
 from item_loader import ItemLoader
 from item_creator import ItemCreator
 from item_saver import ItemSaver
 from token_manager import TokenManager
+from dbgateway import DbGateway
 from worker import Worker, ServiceException
+from init_loader import load_init_data
 
 class Processor:
 
     def __init__(self, locator):
+        self.locator = locator
         self.item_finder = ItemFinder(locator)
         self.item_loader = ItemLoader(locator)
         self.item_creator = ItemCreator(locator)
         self.item_saver = ItemSaver(locator)
         self.token_manager = TokenManager(locator)
+
+    def requires_init_data(self):
+        dbgw = DbGateway(self.locator)
+        return dbgw.count_items() == 0
+
+    def load_init_data(self):
+        init_data_path = "database/init.json"
+        load_init_data(init_data_path, self.locator)
 
     def get_worker(self, item_path, user_path):
         user_handle = self.item_finder.find(user_path)
@@ -44,5 +56,3 @@ class Processor:
         if user_item_id is None:
             raise ServiceException(403, "Invalid authentication token")
         return ItemHandle(item_id=user_item_id)
-
-

@@ -120,6 +120,12 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(token_value)
 
+    def count_items(self):
+        sql = "select count(id) from items"
+        ps = self.connection.prepare(sql)
+        rows = ps()
+        return rows[0][0]
+
 
 
 
