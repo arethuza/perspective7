@@ -19,6 +19,9 @@ class PerspectiveService(object):
             if login_response is not None:
                 # Request was successful attempt to log in
                 return _serve_json(login_response, "")
+            else:
+                user_handle = self._authenticate()
+                pass
         except ServiceException as exception:
             cherrypy.response.status = exception.response_code
             return exception.message
@@ -27,7 +30,14 @@ class PerspectiveService(object):
             return "Unknown error"
 
     def _authenticate(self):
-        pass
+        if "Authorization" not in cherrypy.request.headers:
+            raise ServiceException(403, "Request must contain Authorization header")
+        authorization_header = cherrypy.request.headers["Authorization"]
+        a = authorization_header.split(" ")
+        if len(a) != 2 or a[0] != "token":
+            raise ServiceException(403, "Invalid format for Authorization header")
+        token_value = a[1]
+        return processor.get_user_for_token(token_value)
 
 
 def _serve_json(data, content_type):
