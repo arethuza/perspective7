@@ -21,7 +21,8 @@ class PerspectiveService(object):
                 return _serve_json(login_response, "")
             else:
                 user_handle = self._authenticate()
-                pass
+                response = self.processor.execute(path, verb, user_handle, cherrypy.request.params)
+                return _serve_json(response, "")
         except ServiceException as exception:
             cherrypy.response.status = exception.response_code
             return exception.message
@@ -37,7 +38,10 @@ class PerspectiveService(object):
         if len(a) != 2 or a[0] != "token":
             raise ServiceException(403, "Invalid format for Authorization header")
         token_value = a[1]
-        return processor.get_user_for_token(token_value)
+        user_handle = processor.get_user_for_token(token_value)
+        if user_handle is None:
+            raise ServiceException(403, "Note a valid authentication token")
+        return user_handle
 
 
 def _serve_json(data, content_type):

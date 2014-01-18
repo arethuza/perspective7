@@ -16,4 +16,4 @@ class Item(Actionable):
 
     @Action("get", "reader")
     def get(self, worker):
-        pass
+        return [ "Hello" ]
