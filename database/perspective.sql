@@ -1,12 +1,4 @@
-﻿drop table if exists item_binary_data cascade;
-
-create table item_binary_data
-(
-    id                  serial      primary key not null,
-    data                bytea       not null
-);
-
-drop table if exists items cascade;
+﻿drop table if exists items cascade;
 
 create table items 
 (
@@ -23,9 +15,8 @@ create table items
     saved_at            timestamp   not null,
     saved_by            int         references items(id),
     search_text         text,
-    search_vector       tsvector,
-    binary_data_id      int         references item_binary_data(id)
-); 
+    search_vector       tsvector
+);
 
 alter sequence items_id_seq minvalue 0 start 0;
 
@@ -63,3 +54,15 @@ create table tokens
     created_at          timestamp   not null,
     expires_at          timestamp   not null
 );
+
+drop table if exists item_binary_data cascade;
+
+create table item_binary_data
+(
+    item_id             int         references items(id),
+    item_version        int         not null,
+    block_number        int         not null,
+    hash                text        not null,
+    data                bytea       not null
+);
+
