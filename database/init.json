@@ -73,6 +73,7 @@
             "item_class": "items.folder_item.FolderItem"
         }
     },
+
     # user type
     {
         "path": "/system/types/user",
@@ -89,6 +90,24 @@
         "type": "user",
         "data": {
             "password_hash": ""
+        }
+    },
+
+    # file type
+    {
+        "path": "/system/types/file",
+        "type": "type",
+        "data": {
+            "title": "File Type",
+            "item_class": "items.file_item.FileItem"
+        }
+    },
+
+    # file type template
+    {
+        "path": "/system/types/file/template",
+        "type": "user",
+        "data": {
         }
     },
 
