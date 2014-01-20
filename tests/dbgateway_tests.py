@@ -34,8 +34,9 @@ class DbGatewayTests(unittest.TestCase):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         dbgw.set_item_type_user(item_id, type_id, "1", user_id)
-        class_name, data = dbgw.load(item_id)
+        class_name, name, data, created_at, saved_at = dbgw.load(item_id)
         self.assertEquals(class_name, "foo")
+        self.assertEquals(name, "test item")
         self.assertEquals(data, "{}")
 
     def test_create_item(self):

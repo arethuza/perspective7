@@ -71,16 +71,21 @@ class DbGateway:
         ps(type_id, type_id_path, user_id, item_id)
 
     def load(self, item_id):
-        sql = ("select type_item.json_data->>'item_class',item_instance.json_data "
+        sql = ("select "
+               "   type_item.json_data->>'item_class', "
+               "   item_instance.name, "
+               "   item_instance.json_data, "
+               "   item_instance.created_at, "
+               "   item_instance.saved_at "
                "from items item_instance inner join items type_item "
                "on item_instance.type_id = type_item.id "
                "and item_instance.id = $1")
         ps = self.connection.prepare(sql)
         rows=ps(item_id)
         if len(rows) == 0:
-            return None, None
+            return None, None, None, None, None
         else:
-            return rows[0][0], rows[0][1]
+            return rows[0][0], rows[0][1], rows[0][2], rows[0][3], rows[0][4]
 
     def save_item_version(self, item_id):
         sql = ("insert into public.item_versions "

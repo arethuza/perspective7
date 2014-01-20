@@ -20,9 +20,8 @@ class AccountItemTests(unittest.TestCase):
 
     def test_create_user_and_login(self):
         processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "floop"})
-        response_code, response = processor.execute("/", "get", "/users/system",
+        response = processor.execute("/", "get", "/users/system",
                                                     {"name": "test_user", "password": "floop"})
-        self.assertEqual(response_code, 200)
         self.assertEqual(50, len(response["token"]))
         self.assertTrue(response["expires_at"])
 

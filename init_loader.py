@@ -32,6 +32,8 @@ def load_init_data(path, locator):
         search_text = item_name
         if "title" in item_data:
             search_text += " " + item_data["title"]
+        item_data["created_by"] = item_data["saved_by"] = "/users/system"
+
         dbgw.create_item_initial(parent_id, item_name, parent_id_path, json.dumps(item_data), search_text)
         types_to_resolve.append((item_path, item_type))
     type_type_id, _ = find_item_id(dbgw, "/system/types/type")

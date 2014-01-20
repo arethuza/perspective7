@@ -28,7 +28,7 @@ class ProcessorTests(unittest.TestCase):
         # Create a user
         processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "floop"})
         # Login as user
-        response_code, response = processor.check_login("/", "get", {"name": "test_user", "password": "floop"})
+        response = processor.check_login("/", "get", {"name": "test_user", "password": "floop"})
         # Authenticate using token
         user_handle = processor.get_user_for_token(response["token"])
         # Get the user handle directly
