@@ -7,11 +7,12 @@ class DbGateway:
         self.connection = postgresql.open(locator)
 
     def reset(self):
+        self.connection.prepare("delete from public.file_blocks")()
+        self.connection.prepare("delete from public.file_versions")()
         self.connection.prepare("delete from public.tokens")()
         self.connection.prepare("delete from public.item_versions")()
         self.connection.prepare("delete from public.items")()
         self.connection.prepare("delete from public.item_versions")()
-        self.connection.prepare("delete from public.item_binary_data")()
         self.connection.prepare("select setval('items_id_seq', 0)")()
 
     def create_item_initial(self, parent_id, name, id_path, json_data, search_text):
@@ -130,6 +131,34 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         rows = ps()
         return rows[0][0]
+
+    def create_file_version(self, item_id, file_version, file_length, file_hash, user_id):
+        sql = ("insert into file_versions "
+               "(item_id, file_version, length, hash, created_at, created_by) "
+               "values "
+               "($1, $2, $3, $4, now(), $5) "
+               "returning id")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, file_version, file_length, file_hash, user_id)
+        return rows[0][0]
+
+    def create_file_block(self, file_version_id, block_number, block_hash, block_data):
+        sql = ("insert into file_blocks "
+               "(file_version_id, block_number, hash, created_at, data) "
+               "values "
+               "($1, $2, $3, now(), $4)")
+        ps = self.connection.prepare(sql)
+        ps(file_version_id, block_number, block_hash, block_data)
+
+    def set_item_file_version(self, item_id, item_version_id):
+        sql = "update items set file_version_id=$2 where id=$1"
+        ps = self.connection.prepare(sql)
+        ps(item_id, item_version_id)
+
+
+
+
+
 
 
 

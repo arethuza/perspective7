@@ -15,7 +15,8 @@ create table items
     saved_at            timestamp   not null,
     saved_by            int         references items(id),
     search_text         text,
-    search_vector       tsvector
+    search_vector       tsvector,
+    file_version_id	int 	    references file_versions(id)
 );
 
 alter sequence items_id_seq minvalue 0 start 0;
@@ -55,14 +56,33 @@ create table tokens
     expires_at          timestamp   not null
 );
 
-drop table if exists item_binary_data cascade;
+drop table if exists file_versions cascade;
 
-create table item_binary_data
+create table file_versions
 (
+    id                  serial      primary key not null,
     item_id             int         references items(id),
-    item_version        int         not null,
+    file_version        int         not null,
+    length              int         not null,
+    hash                text        not null,
+    created_at          timestamp   not null,
+    created_by          int         references items(id),
+    
+    constraint no_duplicate_file_version unique (item_id, file_version)
+);
+
+alter sequence file_versions_id_seq minvalue 0 start 0;
+
+drop table if exists file_blocks cascade;
+
+create table file_blocks 
+(
+    file_version_id     int         references file_versions(id),
     block_number        int         not null,
     hash                text        not null,
-    data                bytea       not null
+    created_at          timestamp   not null,
+    data                bytea       not null,
+    
+    constraint no_duplicate_file_block unique (file_version_id, block_number)
 );
 
