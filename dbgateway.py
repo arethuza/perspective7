@@ -132,21 +132,21 @@ class DbGateway:
         rows = ps()
         return rows[0][0]
 
-    def create_file_version(self, item_id, file_version, file_length, file_hash, user_id):
+    def create_file_version(self, item_id, user_id):
         sql = ("insert into file_versions "
-               "(item_id, file_version, length, hash, created_at, created_by) "
-               "values "
-               "($1, $2, $3, $4, now(), $5) "
-               "returning id")
+               "(item_id, file_version, created_at, created_by) "
+               "select $1, coalesce(max(file_version) + 1, 0), now(), $2 from file_versions "
+               "returning file_versions.id, file_versions.file_version")
         ps = self.connection.prepare(sql)
-        rows = ps(item_id, file_version, file_length, file_hash, user_id)
-        return rows[0][0]
+        rows = ps(item_id, user_id)
+        return rows[0][0], rows[0][1]
+
+#               "select cast($1::text as integer), coalesce(max(file_version),0), now(), $2 from file_versions "
 
     def create_file_block(self, file_version_id, block_number, block_hash, block_data):
         sql = ("insert into file_blocks "
                "(file_version_id, block_number, hash, created_at, data) "
-               "values "
-               "($1, $2, $3, now(), $4)")
+               "values ($1, $2, $3, now(), $4)")
         ps = self.connection.prepare(sql)
         ps(file_version_id, block_number, block_hash, block_data)
 

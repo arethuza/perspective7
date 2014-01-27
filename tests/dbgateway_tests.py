@@ -81,7 +81,8 @@ class DbGatewayTests(unittest.TestCase):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
-        file_version_id = dbgw.create_file_version(item_id, 0, 40, "abc", user_id)
+        file_version_id, file_version = dbgw.create_file_version(item_id, user_id)
+        self.assertEquals(file_version, 0)
         dbgw.create_file_block(file_version_id, 0, "0123", b'\xff\xf8\x00\x00\x00\x00\x00\x00')
         dbgw.create_file_block(file_version_id, 1, "0124", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00')
         dbgw.create_file_block(file_version_id, 2, "0125", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
@@ -100,6 +101,8 @@ class DbGatewayTests(unittest.TestCase):
         self.assertEquals(blocks_list[0][1], "0123")
         self.assertEquals(blocks_list[1][1], "0124")
         self.assertEquals(blocks_list[2][1], "0125")
+        file_version_id, file_version = dbgw.create_file_version(item_id, user_id)
+        self.assertEquals(file_version, 1)
 
 if __name__ == '__main__':
     unittest.main()
