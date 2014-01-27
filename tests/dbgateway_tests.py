@@ -86,9 +86,20 @@ class DbGatewayTests(unittest.TestCase):
         dbgw.create_file_block(file_version_id, 1, "0124", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00')
         dbgw.create_file_block(file_version_id, 2, "0125", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
         dbgw.set_item_file_version(item_id, file_version_id)
-        pass
-
-
+        data = dbgw.get_file_block_data(item_id, file_version_id, 0)
+        self.assertEquals(len(data), 8)
+        data = dbgw.get_file_block_data(item_id, file_version_id, 1)
+        self.assertEquals(len(data), 10)
+        data = dbgw.get_file_block_data(item_id, file_version_id, 2)
+        self.assertEquals(len(data), 13)
+        blocks_list = dbgw.list_file_blocks(item_id, file_version_id)
+        self.assertEquals(len(blocks_list), 3)
+        self.assertEquals(blocks_list[0][0], 0)
+        self.assertEquals(blocks_list[1][0], 1)
+        self.assertEquals(blocks_list[2][0], 2)
+        self.assertEquals(blocks_list[0][1], "0123")
+        self.assertEquals(blocks_list[1][1], "0124")
+        self.assertEquals(blocks_list[2][1], "0125")
 
 if __name__ == '__main__':
     unittest.main()
