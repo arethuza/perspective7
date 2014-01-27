@@ -183,7 +183,7 @@ class DbGateway:
                "   file_version, previous_version, length, hash, created_at, created_by "
                "from file_versions "
                "where item_id=$1 "
-               "order by file_version")
+               "order by file_version asc")
         ps = self.connection.prepare(sql)
         rows = ps(item_id)
         return rows
