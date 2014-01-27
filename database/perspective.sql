@@ -63,6 +63,7 @@ create table file_versions
     id                  serial      primary key not null,
     item_id             int         references items(id),
     file_version        int         not null default 0,
+    previous_version	int,
     length              int         not null default 0,
     hash                text,
     created_at          timestamp   not null,

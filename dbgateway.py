@@ -132,16 +132,14 @@ class DbGateway:
         rows = ps()
         return rows[0][0]
 
-    def create_file_version(self, item_id, user_id):
+    def create_file_version(self, item_id, previous_version, user_id):
         sql = ("insert into file_versions "
-               "(item_id, file_version, created_at, created_by) "
-               "select $1, coalesce(max(file_version) + 1, 0), now(), $2 from file_versions "
+               "(item_id, file_version, previous_version, created_at, created_by) "
+               "select $1, coalesce(max(file_version) + 1, 0), $2, now(), $3 from file_versions "
                "returning file_versions.id, file_versions.file_version")
         ps = self.connection.prepare(sql)
-        rows = ps(item_id, user_id)
+        rows = ps(item_id, previous_version, user_id)
         return rows[0][0], rows[0][1]
-
-#               "select cast($1::text as integer), coalesce(max(file_version),0), now(), $2 from file_versions "
 
     def create_file_block(self, file_version_id, block_number, block_hash, block_data):
         sql = ("insert into file_blocks "
@@ -178,6 +176,16 @@ class DbGateway:
                "order by block_number asc")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, item_version_id)
+        return rows
+
+    def list_file_versions(self, item_id):
+        sql = ("select "
+               "   file_version, previous_version, length, hash, created_at, created_by "
+               "from file_versions "
+               "where item_id=$1 "
+               "order by file_version")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id)
         return rows
 
 
