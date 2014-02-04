@@ -31,3 +31,9 @@ class Item(Actionable):
     def create_item(self, worker, name, type):
         new_item_handle = worker.create(name, type)
         return worker.execute(new_item_handle.path, "get")
+
+    @Action("put", "editor", name="", _file_data="")
+    def put_file(self, worker, name, _file_data):
+        self.create_item(worker, name, "file")
+        # Create a new version (0) for the file
+        # For each block of file data create a block

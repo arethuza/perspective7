@@ -44,5 +44,8 @@ class ItemTests(unittest.TestCase):
         self.assertEqual(cm.exception.response_code, 403)
         self.assertEqual(cm.exception.message, "Unknown item type:floop")
 
+    def test_put_file(self):
+        processor.execute("/floop", "put", "/users/system", {"_file_data": b'00000'})
+
 if __name__ == '__main__':
     unittest.main()

@@ -21,6 +21,10 @@ class PerspectiveService(object):
                 return _serve_json(login_response, "")
             else:
                 user_handle = self._authenticate()
+                file_data = None
+                if "wsgi.input" in cherrypy.request.wsgi_environ:
+                    file_data = cherrypy.request.wsgi_environ['wsgi.input'].read()
+                    cherrypy.request.params["_file_data"] = file_data
                 response = self.processor.execute(path, verb, user_handle, cherrypy.request.params)
                 return _serve_json(response, "")
         except ServiceException as exception:
@@ -35,7 +39,7 @@ class PerspectiveService(object):
             raise ServiceException(403, "Request must contain Authorization header")
         authorization_header = cherrypy.request.headers["Authorization"]
         a = authorization_header.split(" ")
-        if len(a) != 2 or a[0] != "token":
+        if len(a) != 2 or a[0] != "bearer":
             raise ServiceException(403, "Invalid format for Authorization header")
         token_value = a[1]
         user_handle = processor.get_user_for_token(token_value)

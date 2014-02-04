@@ -27,6 +27,9 @@ class ItemHandle:
     def can_read(self):
         return self.auth_level > 0
 
+    def exists(self):
+        return self.item_id is not None
+
 
 class ItemFinder:
 
