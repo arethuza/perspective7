@@ -34,6 +34,13 @@ class Item(Actionable):
 
     @Action("put", "editor", name="", _file_data="")
     def put_file(self, worker, name, _file_data):
-        self.create_item(worker, name, "file")
-        # Create a new version (0) for the file
-        # For each block of file data create a block
+        return self.put_file_previous(worker, name, None, _file_data)
+
+    @Action("put", "editor", name="", previous="", _file_data="")
+    def put_file_previous(self, worker, name, previous, _file_data):
+        worker.find_or_create(name, "file")
+        worker.move(name)
+        file_version = worker.write_file_data(previous, _file_data)
+        return {
+            "version": file_version
+        }

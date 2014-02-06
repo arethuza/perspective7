@@ -48,3 +48,10 @@ class Worker():
 
     def create_security_token(self):
         return self.processor.token_manager.create_token(self.current_item.handle.item_id, 50, days=1)
+
+    def write_file_data(self, previous_version, file_data):
+        return self.processor.file_manager.write_file_data(self.current_item.handle.item_id, previous_version,
+                                                           file_data, self.user_handle)
+    def create_file_version(self, previous_version):
+        return self.processor.file_manager.create_file_version(self.current_item.handle.item_id, previous_version,
+                                                               self.user_handle)

@@ -7,7 +7,9 @@ from token_manager import TokenManager
 from dbgateway import DbGateway
 from worker import Worker, ServiceException
 from init_loader import load_init_data
+from file_manager import FileManager
 import posixpath
+
 
 class Processor:
 
@@ -18,6 +20,7 @@ class Processor:
         self.item_creator = ItemCreator(locator)
         self.item_saver = ItemSaver(locator)
         self.token_manager = TokenManager(locator)
+        self.file_manager = FileManager(locator)
 
     def requires_init_data(self):
         dbgw = DbGateway(self.locator)

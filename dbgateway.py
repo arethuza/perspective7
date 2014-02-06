@@ -188,6 +188,16 @@ class DbGateway:
         rows = ps(item_id)
         return rows
 
+    def get_file_version(self, item_id, file_version):
+        sql = ("select id from file_versions "
+               "where item_id=$1 and file_version=$2")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, file_version)
+        if len(rows) > 0:
+            return rows[0][0]
+        else:
+            return None
+
 
 
 
