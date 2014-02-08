@@ -103,23 +103,23 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id, json_data, user_id)
 
-    def create_token(self, item_id, token_value, expires_at):
+    def create_token(self, item_id, token_value, json_data, expires_at):
         sql = ("insert into tokens "
-               "(item_id, token_value, created_at, expires_at) "
+               "(item_id, token_value, json_data, created_at, expires_at) "
                "values "
-               "($1, $2::text, now(), $3::text::timestamp)")
+               "($1, $2::text, $3, now(), $4::text::timestamp)")
         ps = self.connection.prepare(sql)
-        ps(item_id, token_value, expires_at)
+        ps(item_id, token_value, json_data, expires_at)
 
     def find_token(self, token_value):
-        sql = ("select item_id from tokens "
+        sql = ("select item_id, json_data from tokens "
                "where token_value=$1 and expires_at > now()")
         ps = self.connection.prepare(sql)
         rows = ps(token_value)
         if len(rows) > 0:
-            return rows[0][0]
+            return rows[0][0], rows[0][1]
         else:
-            return None
+            return None, None
 
     def delete_token(self, token_value):
         sql = "delete from tokens where token_value=$1"

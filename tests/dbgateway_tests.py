@@ -65,10 +65,14 @@ class DbGatewayTests(unittest.TestCase):
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
         future_date = (datetime.datetime.fromtimestamp(int(time.time())) + datetime.timedelta(days=10)).isoformat()
-        dbgw.create_token(item_id, "foo", future_date)
-        self.assertEqual(dbgw.find_token("foo"), item_id)
+        dbgw.create_token(item_id, "foo", "{}", future_date)
+        token_item_id, token_json_data = dbgw.find_token("foo")
+        self.assertEqual(item_id, token_item_id)
+        self.assertEqual(token_json_data, "{}")
         dbgw.delete_token("foo")
-        self.assertIsNone(dbgw.find_token("foo"))
+        token_item_id, token_json_data = dbgw.find_token("foo")
+        self.assertIsNone(token_item_id)
+        self.assertIsNone(token_json_data)
 
     def test_count_items(self):
         self.assertEquals(dbgw.count_items(), 0)

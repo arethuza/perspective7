@@ -40,7 +40,4 @@ class Item(Actionable):
     def put_file_previous(self, worker, name, previous, _file_data):
         worker.find_or_create(name, "file")
         worker.move(name)
-        file_version = worker.write_file_data(previous, _file_data)
-        return {
-            "version": file_version
-        }
+        return worker.write_file_data(previous, _file_data)

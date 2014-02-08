@@ -52,6 +52,7 @@ create table tokens
 (
     item_id             int         references items(id),
     token_value         text        not null,
+    json_data           json        not null,
     created_at          timestamp   not null,
     expires_at          timestamp   not null
 );

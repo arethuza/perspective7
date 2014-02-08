@@ -46,8 +46,10 @@ class ItemTests(unittest.TestCase):
 
     def test_put_file(self):
         response = processor.execute("/floop", "put", "/users/system", {"_file_data": b'00000'})
-        self.assertEquals(1, len(response))
+        self.assertEquals(3, len(response))
         self.assertEquals(0, response["version"])
+        self.assertEquals(5, response["length"])
+        self.assertEquals("a5d50ea407a6c70cb8a4079415d01df8d67bfb2a", response["hash"])
 
 if __name__ == '__main__':
     unittest.main()

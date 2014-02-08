@@ -64,7 +64,7 @@ class Processor:
         return self.execute(item_path, verb, self.item_finder.find_system_user(), args)
 
     def get_user_for_token(self, token_value):
-        user_item_id = self.token_manager.find_token(token_value)
+        user_item_id, context = self.token_manager.find_token(token_value)
         if user_item_id is None:
             raise ServiceException(403, "Invalid authentication token")
-        return ItemHandle(item_id=user_item_id)
+        return ItemHandle(item_id=user_item_id, path=context["path"])

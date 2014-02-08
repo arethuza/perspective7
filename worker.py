@@ -47,7 +47,10 @@ class Worker():
         return self.processor.execute(item_path, verb, self.user_handle, kwargs)
 
     def create_security_token(self):
-        return self.processor.token_manager.create_token(self.current_item.handle.item_id, 50, days=1)
+        token_context = {
+            "path": self.user_handle.path
+        }
+        return self.processor.token_manager.create_token(self.current_item.handle.item_id, 50, token_context, days=1)
 
     def write_file_data(self, previous_version, file_data):
         return self.processor.file_manager.write_file_data(self.current_item.handle.item_id, previous_version,
