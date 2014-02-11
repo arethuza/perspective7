@@ -43,5 +43,16 @@ class FileManagerTests(unittest.TestCase):
         self.assertEquals(10, response["length"])
         self.assertEquals("ef49b18cac3f4b7dc5346763309f6ac6e763c575", response["hash"])
 
+    def test_write_file_data_large(self):
+        file_manager = FileManager(LOCATOR)
+        finder = ItemFinder(LOCATOR)
+        handle = finder.find("/")
+        user_handle = finder.find("/users/system")
+        data = b'0' * 13000000
+        response = file_manager.write_file_data(handle.item_id, None, data, user_handle)
+        self.assertEquals(0, response["version"])
+        self.assertEquals(13000000, response["length"])
+        self.assertEquals("a1029092a56b3a7336e3c3f025dbac2bf8dff624", response["hash"])
+
 if __name__ == '__main__':
     unittest.main()

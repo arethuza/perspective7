@@ -1,9 +1,10 @@
 import dbgateway
 import hashlib
 from worker import ServiceException
+import math
 
 
-BLOCK_LENGTH=4000000
+BLOCK_LENGTH=int(math.pow(2, 22))
 
 class FileManager():
 
@@ -33,6 +34,13 @@ class FileManager():
             "version": file_version
         }
 
+    def list_blocks(self, item_id, file_version):
+        dbgw = dbgateway.DbGateway(self.locator)
+        return dbgw.list_file_blocks(item_id, file_version)
+
+    def get_block_data(self, item_id, file_version, block_number):
+        dbgw = dbgateway.DbGateway(self.locator)
+        return dbgw.get_file_block_data(item_id, file_version, block_number)
 
 def _get_hash(data):
     if type(data) is list:

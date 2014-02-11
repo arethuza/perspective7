@@ -3,6 +3,7 @@ import cherrypy
 import json
 from worker import ServiceException
 from processor import Processor
+import inspect
 
 class PerspectiveService(object):
 
@@ -22,26 +23,38 @@ class PerspectiveService(object):
             else:
                 user_handle = self._authenticate()
                 file_data = None
-                if "wsgi.input" in cherrypy.request.wsgi_environ:
+                if verb == "put" and "wsgi.input" in cherrypy.request.wsgi_environ:
                     file_data = cherrypy.request.wsgi_environ['wsgi.input'].read()
                     cherrypy.request.params["_file_data"] = file_data
                 response = self.processor.execute(path, verb, user_handle, cherrypy.request.params)
+                if isinstance(response, tuple):
+                    file_name, file_length, block_yielder = response
+                    cherrypy.response.stream = True
+                    cherrypy.response.headers["Content-Type"] = "application/octet-stream"
+                    cherrypy.response.headers["Content-Disposition"] = 'attachment; filename="{0}"'.format(file_name)
+                    cherrypy.response.headers["Content-Length"] = str(file_length)
+                    return block_yielder()
                 return _serve_json(response, "")
         except ServiceException as exception:
             cherrypy.response.status = exception.response_code
             return exception.message
         except Exception as exception:
+            # TODO make this a bit more sensible
             cherrypy.response.status = 500
             return "Unknown error"
 
     def _authenticate(self):
-        if "Authorization" not in cherrypy.request.headers:
-            raise ServiceException(403, "Request must contain Authorization header")
-        authorization_header = cherrypy.request.headers["Authorization"]
-        a = authorization_header.split(" ")
-        if len(a) != 2 or a[0] != "bearer":
-            raise ServiceException(403, "Invalid format for Authorization header")
-        token_value = a[1]
+        if "Authorization" not in cherrypy.request.headers and "token" not in cherrypy.request.params:
+            raise ServiceException(403, "Request must contain Authorization header or as parameter")
+        if "Authorization" in cherrypy.request.headers:
+            authorization_header = cherrypy.request.headers["Authorization"]
+            a = authorization_header.split(" ")
+            if len(a) != 2 or a[0] != "bearer":
+                raise ServiceException(403, "Invalid format for Authorization header")
+            token_value = a[1]
+        else:
+            token_value = cherrypy.request.params["token"]
+            del cherrypy.request.params["token"]
         user_handle = processor.get_user_for_token(token_value)
         if user_handle is None:
             raise ServiceException(403, "Note a valid authentication token")

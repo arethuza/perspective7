@@ -153,29 +153,29 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id, item_version_id)
 
-    def get_file_block_data(self, item_id, item_version_id, block_number):
+    def get_file_block_data(self, item_id, file_version, block_number):
         sql = ("select data "
                "from file_blocks "
                "inner join file_versions "
                "   on file_blocks.file_version_id = file_versions.id "
                "inner join items "
                "   on file_versions.item_id = items.id "
-               "where items.id=$1 and file_versions.id=$2 and file_blocks.block_number=$3")
+               "where items.id=$1 and file_versions.file_version=$2 and file_blocks.block_number=$3")
         ps = self.connection.prepare(sql)
-        rows = ps(item_id, item_version_id, block_number)
+        rows = ps(item_id, file_version, block_number)
         return rows[0][0]
 
-    def list_file_blocks(self, item_id, item_version_id):
+    def list_file_blocks(self, item_id, file_version):
         sql = ("select block_number, file_blocks.hash, file_blocks.created_at "
                "from file_blocks "
                "inner join file_versions "
                "   on file_blocks.file_version_id = file_versions.id "
                "inner join items "
                "   on file_versions.item_id = items.id "
-               "where items.id=$1 and file_versions.id=$2 "
+               "where items.id=$1 and file_versions.file_version=$2 "
                "order by block_number asc")
         ps = self.connection.prepare(sql)
-        rows = ps(item_id, item_version_id)
+        rows = ps(item_id, file_version)
         return rows
 
     def list_file_versions(self, item_id):

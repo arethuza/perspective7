@@ -58,3 +58,9 @@ class Worker():
     def create_file_version(self, previous_version):
         return self.processor.file_manager.create_file_version(self.current_item.handle.item_id, previous_version,
                                                                self.user_handle)
+
+    def list_file_blocks(self, file_version):
+        return self.processor.file_manager.list_blocks(self.current_item.handle.item_id, file_version)
+
+    def get_block_data(self, file_version, block_number):
+        return self.processor.file_manager.get_block_data(self.current_item.handle.item_id, file_version, block_number)

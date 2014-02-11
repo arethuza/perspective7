@@ -5,12 +5,12 @@ class Item(Actionable):
 
     def __init__(self):
         self.modified = False
-        self.field_names = []
+        self.modified_field_names = []
         self.item_data = None
 
     def set_field(self, name, value):
-        if not name in self.field_names:
-            self.field_names.append(name)
+        if not name in self.modified_field_names:
+            self.modified_field_names.append(name)
         setattr(self, name, value)
         if not self.modified:
             self.modified = True
@@ -29,8 +29,8 @@ class Item(Actionable):
 
     @Action("post", "editor", name="", type="")
     def create_item(self, worker, name, type):
-        new_item_handle = worker.create(name, type)
-        return worker.execute(new_item_handle.path, "get")
+        item_handle = worker.create(name, type)
+        return worker.execute(item_handle.path, "get")
 
     @Action("put", "editor", name="", _file_data="")
     def put_file(self, worker, name, _file_data):
@@ -38,6 +38,5 @@ class Item(Actionable):
 
     @Action("put", "editor", name="", previous="", _file_data="")
     def put_file_previous(self, worker, name, previous, _file_data):
-        worker.find_or_create(name, "file")
-        worker.move(name)
-        return worker.write_file_data(previous, _file_data)
+        item_handle = worker.find_or_create(name, "file")
+        return worker.execute(item_handle.path, "put", previous=previous, _file_data=_file_data)

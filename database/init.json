@@ -108,6 +108,8 @@
         "path": "/system/types/file/template",
         "type": "user",
         "data": {
+            "file_version": 0,
+            "length": 0
         }
     },
 
@@ -124,7 +126,8 @@
         "path": "/users/system",
         "type": "user",
         "data": {
-            "title": "System User"
+            "title": "System User",
+            "password_hash": ""
         }
     }
 ]
