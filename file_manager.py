@@ -8,13 +8,12 @@ BLOCK_LENGTH=int(math.pow(2, 22))
 
 class FileManager():
 
-
     def __init__(self, locator):
         self.locator = locator
 
     def create_file_version(self, item_id, previous_version, user_handle):
         dbgw = dbgateway.DbGateway(self.locator)
-        if previous_version and dbgw.get_file_version(item_id, previous_version) is None:
+        if previous_version and dbgw.get_file_version(item_id, previous_version)[0] is None:
             raise ServiceException(409, "Unknown previous version: {0}".format(previous_version))
         return dbgw.create_file_version(item_id, previous_version, user_handle.item_id)
 
@@ -28,9 +27,11 @@ class FileManager():
             block_hashes.append(block_hash)
             dbgw.create_file_block(file_version_id, block_number, block_hash, block_data)
         file_hash = _get_hash(block_hashes)
+        file_length = len(file_data)
+        dbgw.set_file_version_length_hash(item_id, file_version, file_length, file_hash)
         return {
             "hash": file_hash,
-            "length": len(file_data),
+            "length": file_length,
             "version": file_version
         }
 
@@ -41,6 +42,33 @@ class FileManager():
     def get_block_data(self, item_id, file_version, block_number):
         dbgw = dbgateway.DbGateway(self.locator)
         return dbgw.get_file_block_data(item_id, file_version, block_number)
+
+    def finalize_version(self, item_id, file_version):
+        file_length = 0
+        blocks = self.list_blocks(item_id, file_version)
+        block_hashes = []
+        for _, block_length, block_hash, _ in blocks:
+            file_length += block_length
+            block_hashes.append(block_hash)
+        file_hash = _get_hash(block_hashes)
+
+    def get_version_length(self, item_id, file_version):
+        dbgw = dbgateway.DbGateway(self.locator)
+        return dbgw.get_file_version(item_id, file_version)[1]
+
+    def list_versions(self, item_id):
+        dbgw = dbgateway.DbGateway(self.locator)
+        result = []
+        for file_version, previous_version, length, hash, created_at, created_by in dbgw.list_file_versions(item_id):
+            result.append({
+                "version": file_version,
+                "previous": previous_version,
+                "length": length,
+                "hash": hash,
+                "created_at": created_at.isoformat(),
+                "created_by": created_by
+            })
+        return result
 
 def _get_hash(data):
     if type(data) is list:

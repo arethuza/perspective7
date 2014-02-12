@@ -103,6 +103,24 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id, json_data, user_id)
 
+    def get_item_id_path(self, item_id):
+        sql = "select id_path from items where id=$1"
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id)
+        if len(rows) > 0:
+            return rows[0][0]
+        else:
+            return None
+
+    def get_item_name(self, item_id):
+        sql = "select name from items where id=$1"
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id)
+        if len(rows) > 0:
+            return rows[0][0]
+        else:
+            return None
+
     def create_token(self, item_id, token_value, json_data, expires_at):
         sql = ("insert into tokens "
                "(item_id, token_value, json_data, created_at, expires_at) "
@@ -166,7 +184,7 @@ class DbGateway:
         return rows[0][0]
 
     def list_file_blocks(self, item_id, file_version):
-        sql = ("select block_number, file_blocks.hash, file_blocks.created_at "
+        sql = ("select block_number, length(file_blocks.data), file_blocks.hash, file_blocks.created_at "
                "from file_blocks "
                "inner join file_versions "
                "   on file_blocks.file_version_id = file_versions.id "
@@ -189,14 +207,24 @@ class DbGateway:
         return rows
 
     def get_file_version(self, item_id, file_version):
-        sql = ("select id from file_versions "
+        sql = ("select id, length from file_versions "
                "where item_id=$1 and file_version=$2")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version)
         if len(rows) > 0:
-            return rows[0][0]
+            return rows[0][0], rows[0][1]
         else:
-            return None
+            return None, None
+
+    def set_file_version_length_hash(self, item_id, file_version, file_length, file_hash):
+        sql = ("update file_versions "
+               "set length=$3, hash=$4 "
+               "where item_id=$1 and file_version=$2")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, file_version, file_length, file_hash)
+
+
+
 
 
 

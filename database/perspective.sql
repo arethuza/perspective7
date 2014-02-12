@@ -81,6 +81,7 @@ create table file_blocks
 (
     file_version_id     int         references file_versions(id),
     block_number        int         not null,
+    length		int	    not null,
     hash                text        not null,
     created_at          timestamp   not null,
     data                bytea       not null,

@@ -108,8 +108,7 @@
         "path": "/system/types/file/template",
         "type": "user",
         "data": {
-            "file_version": 0,
-            "length": 0
+            "file_version": 0
         }
     },
 

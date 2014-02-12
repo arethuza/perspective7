@@ -105,5 +105,10 @@ class ItemFinderTestsInitData(unittest.TestCase):
         self.assertEquals(no_item_handle.user_handle.path, "/milan/alice")
         self.assertEquals(no_item_handle.auth_level, item_finder.AuthLevels["none"])
 
+    def test_get_path(self):
+        alice_handle = self.finder.find("/milan/alice")
+        path = self.finder.get_path(alice_handle.item_id)
+        self.assertEquals("/milan/alice", path)
+
 if __name__ == '__main__':
     unittest.main()

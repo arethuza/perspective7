@@ -91,6 +91,11 @@ class ItemFinder:
                 break
         return auth_level
 
+    def get_path(self, item_id):
+        dbgw = dbgateway.DbGateway(self.locator)
+        id_path = dbgw.get_item_id_path(item_id)
+        return "/".join([dbgw.get_item_name(int(id)) for id in id_path.split(".")])
+
 def authorize_root(user_handle):
     if user_handle and user_handle.path == "/users/system":
         return AuthLevels["system"]

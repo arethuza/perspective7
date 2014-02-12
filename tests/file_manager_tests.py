@@ -52,7 +52,7 @@ class FileManagerTests(unittest.TestCase):
         response = file_manager.write_file_data(handle.item_id, None, data, user_handle)
         self.assertEquals(0, response["version"])
         self.assertEquals(13000000, response["length"])
-        self.assertEquals("a1029092a56b3a7336e3c3f025dbac2bf8dff624", response["hash"])
+        self.assertEquals("621acfe4950f45e38ebfefaef03b1b0d69a854de", response["hash"])
 
 if __name__ == '__main__':
     unittest.main()

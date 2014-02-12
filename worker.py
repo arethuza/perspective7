@@ -64,3 +64,20 @@ class Worker():
 
     def get_block_data(self, file_version, block_number):
         return self.processor.file_manager.get_block_data(self.current_item.handle.item_id, file_version, block_number)
+
+    def finalize_file_version(self, file_version):
+        return self.processor.file_manager.finalize_version(self.current_item.handle.item_id, file_version)
+
+    def list_file_versions(self):
+        result = self.processor.file_manager.list_versions(self.current_item.handle.item_id)
+        self._map_item_ids_to_paths(result, ["created_by"])
+        return result
+
+    def get_file_length(self, file_version):
+        return self.processor.file_manager.get_version_length(self.current_item.handle.item_id, file_version)
+
+    def _map_item_ids_to_paths(self, lst, fields):
+        for entry in lst:
+            for field in fields:
+                entry[field] = self.processor.item_finder.get_path(entry[field])
+
