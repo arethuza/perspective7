@@ -23,10 +23,28 @@ class Actionable():
                             if name in kwargs and value == "":
                                 # Allow any value, pass value in
                                 matching_count += 1
-                            elif name in kwargs and kwargs[name] == value:
-                                # We know the value of parameter 'name', so don't bother passing it into f
-                                del kwargs[name]
-                                matching_count += 1
+                            elif name in kwargs:
+                                if kwargs[name] == value:
+                                    # We know the value of parameter 'name', so don't bother passing it into f
+                                    del kwargs[name]
+                                    matching_count += 1
+                                elif ":" in value:
+                                    # We have a type and possibly value specified
+                                    type_value = value.split(":")
+                                    if len(type_value) != 2:
+                                        raise Exception("Invalid action argument spec: " + value)
+                                    argument_type, expected_value = type_value
+                                    if argument_type == "int":
+                                        try:
+                                            kwargs[name] = int(kwargs[name])
+                                        except:
+                                            raise Exception("Bad int value: {0}={1}".format(name, kwargs[name]))
+                                        if expected_value:
+                                            value = int(expected_value)
+                                            if kwargs[name] == value:
+                                                matching_count += 1
+                                        else:
+                                            matching_count += 1
                         if matching_count == len(action_kwargs):
                             match_found = True
                             break
