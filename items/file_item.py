@@ -1,5 +1,8 @@
 from items.item import Item
 from actionable import WithActions, Action
+import collections
+
+FileResponse=collections.namedtuple("FileResponse", ["name", "length", "block_yielder"])
 
 @WithActions
 class FileItem(Item):
@@ -22,10 +25,10 @@ class FileItem(Item):
     def get_file_version(self, worker, version):
         version = int(version)
         file_length = worker.get_file_length(version)
-        def write():
+        def get_blocks():
             for block_number, _, _, _ in worker.list_file_blocks(version):
                 yield worker.get_block_data(version, block_number)
-        return self.name, file_length, write
+        return FileResponse(self.name, file_length, get_blocks)
 
     @Action("get", "reader", versions="true")
     def list_versions(self, worker):

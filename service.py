@@ -3,6 +3,7 @@ import cherrypy
 import json
 from worker import ServiceException
 from processor import Processor
+from items.file_item import FileResponse
 import inspect
 
 class PerspectiveService(object):
@@ -27,13 +28,12 @@ class PerspectiveService(object):
                     file_data = cherrypy.request.wsgi_environ['wsgi.input'].read()
                     cherrypy.request.params["_file_data"] = file_data
                 response = self.processor.execute(path, verb, user_handle, cherrypy.request.params)
-                if isinstance(response, tuple):
-                    file_name, file_length, block_yielder = response
+                if isinstance(response, FileResponse):
                     cherrypy.response.stream = True
                     cherrypy.response.headers["Content-Type"] = "application/octet-stream"
-                    cherrypy.response.headers["Content-Disposition"] = 'attachment; filename="{0}"'.format(file_name)
-                    cherrypy.response.headers["Content-Length"] = str(file_length)
-                    return block_yielder()
+                    cherrypy.response.headers["Content-Disposition"] = 'attachment; filename="{0}"'.format(response.name)
+                    cherrypy.response.headers["Content-Length"] = str(response.length)
+                    return response.block_yielder()
                 return _serve_json(response, "")
         except ServiceException as exception:
             cherrypy.response.status = exception.response_code
