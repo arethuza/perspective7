@@ -46,8 +46,8 @@ class ActionableTest2(ActionableTest):
         return foo
 
     @Action("delete", "editor", foo='int:3')
-    def action8(self, foo):
-        return foo
+    def action8(self):
+        return 3
 
     @Action("options", "editor", foo='int:')
     def action9(self, foo):

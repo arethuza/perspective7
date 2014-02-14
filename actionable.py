@@ -42,6 +42,7 @@ class Actionable():
                                         if expected_value:
                                             value = int(expected_value)
                                             if kwargs[name] == value:
+                                                del kwargs[name]
                                                 matching_count += 1
                                         else:
                                             matching_count += 1
