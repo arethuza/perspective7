@@ -27,6 +27,7 @@ class Worker():
         json_data = self.processor.item_loader.load_template_json(type_name)
         self.processor.item_creator.create(self.current_item, name, type_item, json_data, self.user_handle)
         path = posixpath.join(self.current_item.handle.path, name)
+        self.execute(path, "init")
         return self.processor.item_finder.find(path, self.user_handle)
 
     def find_or_create(self, name, type_name="item"):
@@ -64,6 +65,12 @@ class Worker():
 
     def get_block_data(self, file_version, block_number):
         return self.processor.file_manager.get_block_data(self.current_item.handle.item_id, file_version, block_number)
+
+    def create_initial_file_version(self):
+        return self.processor.file_manager.create_initial_file_version(self.current_item.handle.item_id, self.user_handle)
+
+    def write_block_data(self, file_version, block_number, block_data):
+        self.processor.file_manager.write_file_block(self.current_item.handle.item_id, file_version, block_number, block_data)
 
     def finalize_file_version(self, file_version):
         return self.processor.file_manager.finalize_version(self.current_item.handle.item_id, file_version)

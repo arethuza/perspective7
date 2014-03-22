@@ -6,6 +6,7 @@ from item_finder import get_authorization_level
 class NoAuthorizedActionException(Exception):
     pass
 
+
 class Actionable():
 
     def invoke(self, verb, user_auth_name, args=[], **kwargs):
@@ -55,7 +56,6 @@ class Actionable():
             raise NoAuthorizedActionException()
 
 
-
 class Action:
     def __init__(self, verb, auth_name, **kwargs):
         self.verb = verb
@@ -79,6 +79,7 @@ def WithActions(cls):
     cls.actions.sort(key=itemgetter(0, 1), reverse=True)
     return cls
 
+
 def get_distance_from_actionable(cls):
     result = 0
     for c in inspect.getmro(cls):
@@ -88,6 +89,7 @@ def get_distance_from_actionable(cls):
             return result
         else:
             result += 1
+
 
 def get_class_that_defined_method(cls, name):
     for c in reversed(inspect.getmro(cls)):

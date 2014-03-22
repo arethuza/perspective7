@@ -8,12 +8,17 @@ class Item(Actionable):
         self.modified_field_names = []
         self.item_data = None
 
+
     def set_field(self, name, value):
         if not name in self.modified_field_names:
             self.modified_field_names.append(name)
         setattr(self, name, value)
         if not self.modified:
             self.modified = True
+
+    @Action("init", "system")
+    def init(self, worker):
+        pass
 
     @Action("get", "reader")
     def get(self, worker):
@@ -23,6 +28,10 @@ class Item(Actionable):
         result["saved_at"] = self.saved_at.isoformat()
         return result
 
+    @Action("get", "reader", view="meta")
+    def get_meta(self, worker):
+        return self.get(worker)
+
     @Action("post", "editor", name="")
     def create_item_default_type(self, worker, name):
         return self.create_item(worker, name, "item")
@@ -30,7 +39,8 @@ class Item(Actionable):
     @Action("post", "editor", name="", type="")
     def create_item(self, worker, name, type):
         item_handle = worker.create(name, type)
-        return worker.execute(item_handle.path, "get")
+        result = {}
+        return worker.execute(item_handle.path, "get", view="meta")
 
     @Action("put", "editor", name="", _file_data="")
     def put_file(self, worker, name, _file_data):
