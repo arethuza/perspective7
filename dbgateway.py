@@ -206,15 +206,15 @@ class DbGateway:
         rows = ps(item_id)
         return rows
 
-    def get_file_version(self, item_id, file_version):
-        sql = ("select id, length from file_versions "
+    def get_file_version_length_hash(self, item_id, file_version):
+        sql = ("select id, length, hash from file_versions "
                "where item_id=$1 and file_version=$2")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version)
         if len(rows) > 0:
-            return rows[0][0], rows[0][1]
+            return rows[0][0], rows[0][1], rows[0][2]
         else:
-            return None, None
+            return None, None, None
 
     def set_file_version_length_hash(self, item_id, file_version, file_length, file_hash):
         sql = ("update file_versions "

@@ -17,7 +17,7 @@ class FileManager():
 
     def create_file_version(self, item_id, previous_version, user_handle):
         dbgw = dbgateway.DbGateway(self.locator)
-        if previous_version and dbgw.get_file_version(item_id, previous_version)[0] is None:
+        if previous_version and dbgw.get_file_version_length_hash(item_id, previous_version)[0] is None:
             raise ServiceException(409, "Unknown previous version: {0}".format(previous_version))
         return dbgw.create_file_version(item_id, previous_version, user_handle.item_id)
 
@@ -36,7 +36,7 @@ class FileManager():
         return {
             "hash": file_hash,
             "length": file_length,
-            "version": file_version
+            "file_version": file_version
         }
 
     def list_blocks(self, item_id, file_version):
@@ -50,7 +50,7 @@ class FileManager():
     def write_file_block(self, item_id, file_version, block_number, block_data):
         dbgw = dbgateway.DbGateway(self.locator)
         block_hash = _get_hash(block_data)
-        file_version_id, _ = dbgw.get_file_version(item_id, file_version)
+        file_version_id, _, _ = dbgw.get_file_version_length_hash(item_id, file_version)
         dbgw.create_file_block(file_version_id, block_number, block_hash, block_data)
 
     def finalize_version(self, item_id, file_version):
@@ -61,17 +61,20 @@ class FileManager():
             file_length += block_length
             block_hashes.append(block_hash)
         file_hash = _get_hash(block_hashes)
+        dbgw = dbgateway.DbGateway(self.locator)
+        dbgw.set_file_version_length_hash(item_id, file_version, file_length, file_hash)
 
     def get_version_length(self, item_id, file_version):
         dbgw = dbgateway.DbGateway(self.locator)
-        return dbgw.get_file_version(item_id, file_version)[1]
+        _, length, hash = dbgw.get_file_version_length_hash(item_id, file_version)
+        return length if hash else None
 
     def list_versions(self, item_id):
         dbgw = dbgateway.DbGateway(self.locator)
         result = []
         for file_version, previous_version, length, hash, created_at, created_by in dbgw.list_file_versions(item_id):
             result.append({
-                "version": file_version,
+                "file_version": file_version,
                 "previous": previous_version,
                 "length": length,
                 "hash": hash,

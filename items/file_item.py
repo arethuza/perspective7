@@ -1,5 +1,6 @@
 from items.item import Item
 from actionable import WithActions, Action
+from worker import ServiceException
 import collections
 
 FileResponse=collections.namedtuple("FileResponse", ["name", "length", "block_yielder"])
@@ -22,12 +23,18 @@ class FileItem(Item):
     @Action("put", "editor", previous="", _file_data="")
     def put_file_previous(self, worker, previous, _file_data):
         result = worker.write_file_data(previous, _file_data)
-        self.set_field("file_version", result["version"])
+        self.set_field("file_version", result["file_version"])
         return result
 
-    @Action("put", "editor", version="", block_number="", _file_data="")
-    def put_file_block(self, worker, version, block_number, _file_data):
-        worker.write_block_data(version, block_number, _file_data)
+    @Action("put", "editor", file_version="", block_number="", _file_data="")
+    def put_file_block(self, worker, file_version, block_number, _file_data):
+        worker.write_block_data(file_version, block_number, _file_data)
+
+    @Action("put", "editor", file_version="", block_number="", last_block="", _file_data="")
+    def put_file_block_completed(self, worker, file_version, block_number, last_block, _file_data):
+        worker.write_block_data(file_version, block_number, _file_data)
+        if last_block:
+            worker.finalize_file_version(file_version)
 
     @Action("get", "reader")
     def get_file(self, worker):
@@ -39,13 +46,15 @@ class FileItem(Item):
         result["file_version"] = self.file_version
         return result
 
-    @Action("get", "reader", version="")
-    def get_file_version(self, worker, version):
-        version = int(version)
-        file_length = worker.get_file_length(version)
+    @Action("get", "reader", file_version="")
+    def get_file_version(self, worker, file_version):
+        file_version = int(file_version)
+        file_length = worker.get_file_length(file_version)
+        if file_length is None:
+            raise ServiceException(404, "Bad file_version: {}".format(file_version))
         def get_blocks():
-            for block_number, _, _, _ in worker.list_file_blocks(version):
-                yield worker.get_block_data(version, block_number)
+            for block_number, _, _, _ in worker.list_file_blocks(file_version):
+                yield worker.get_block_data(file_version, block_number)
         return FileResponse(self.name, file_length, get_blocks)
 
     @Action("get", "reader", versions="true")
