@@ -61,7 +61,7 @@ class FileItemTests(unittest.TestCase):
         self.assertEquals(5, len(response))
 
     def test_put_file_and_get(self):
-        # Create version 1
+        # Create file_version 0
         processor.execute("/floop", "put", "/users/system", {"_file_data": b'01234'})
         file_name, file_length, block_yielder = processor.execute("/floop", "get", "/users/system", {})
         self.assertEquals("floop", file_name)
@@ -72,7 +72,7 @@ class FileItemTests(unittest.TestCase):
             self.assertEquals(block_data, b'01234')
             block_count += 1
         self.assertEquals(block_count, 1)
-        # Create version 2
+        # Create file_version 1
         processor.execute("/floop", "put", "/users/system", {"_file_data": b'0123456789'})
         file_name, file_length, block_yielder = processor.execute("/floop", "get", "/users/system", {})
         self.assertEquals("floop", file_name)
@@ -83,7 +83,7 @@ class FileItemTests(unittest.TestCase):
             self.assertEquals(block_data, b'0123456789')
             block_count += 1
         self.assertEquals(block_count, 1)
-        # Get version 1
+        # Get file_version 1
         file_name, file_length, block_yielder = processor.execute("/floop", "get", "/users/system", {"file_version": "1"})
         self.assertEquals("floop", file_name)
         self.assertEquals(5, file_length)
@@ -116,6 +116,14 @@ class FileItemTests(unittest.TestCase):
         # How many versions?
         response = processor.execute("/floop", "get", "/users/system", {"versions": "true"})
         self.assertEquals(1, len(response))
+        # Check the block data
+        generator = block_yielder()
+        block0 = next(generator)
+        block1 = next(generator)
+        block2 = next(generator)
+        self.assertEquals(block0,  b'0000000000000000000000')
+        self.assertEquals(block1,  b'11111111111111111111111111111')
+        self.assertEquals(block2,  b'222222222222')
 
 
 if __name__ == '__main__':
