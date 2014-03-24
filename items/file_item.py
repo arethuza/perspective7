@@ -24,6 +24,7 @@ class FileItem(Item):
     def put_file_previous(self, worker, previous, _file_data):
         result = worker.write_file_data(previous, _file_data)
         self.set_field("file_version", result["file_version"])
+        result["version"] = self
         return result
 
     @Action("put", "editor", file_version="", block_number="", _file_data="")

@@ -15,7 +15,7 @@ class ItemSaver():
         json_data = json.dumps(item_data)
         dbgw = dbgateway.DbGateway(self.locator)
         dbgw.save_item_version(item.handle.item_id)
-        dbgw.update_item(item.handle.item_id, json_data, user_handle.item_id)
+        return dbgw.update_item(item.handle.item_id, json_data, user_handle.item_id)
 
 
 

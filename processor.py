@@ -8,6 +8,7 @@ from dbgateway import DbGateway
 from worker import Worker, ServiceException
 from init_loader import load_init_data
 from file_manager import FileManager
+from items.file_item import FileResponse
 import posixpath
 
 
@@ -54,7 +55,8 @@ class Processor:
         item.modified = False
         result = item.invoke(verb, user_auth_name, [worker], **args)
         if item.modified:
-            self.item_saver.save(item, user_handle)
+            version = self.item_saver.save(item, user_handle)
+            result["version"] = version
         return result
 
     def check_login(self, item_path, verb, args):

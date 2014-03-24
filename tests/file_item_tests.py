@@ -32,7 +32,8 @@ class FileItemTests(unittest.TestCase):
     def test_put_file_multiple_versions(self):
         # Put data to create a file - creates a new FileItem at /floop
         response = processor.execute("/floop", "put", "/users/system", {"_file_data": b'00000'})
-        self.assertEquals(3, len(response))
+        self.assertEquals(4, len(response))
+        self.assertEquals(1, response["version"])
         self.assertEquals(1, response["file_version"])
         self.assertEquals(5, response["length"])
         self.assertEquals("a5d50ea407a6c70cb8a4079415d01df8d67bfb2a", response["hash"])
@@ -43,7 +44,8 @@ class FileItemTests(unittest.TestCase):
         file_data = processor.execute("/floop", "get", "/users/system", {})
         # Put data again to the same path, creating another version of the same file
         response = processor.execute("/floop", "put", "/users/system", {"_file_data": b'11111111111'})
-        self.assertEquals(3, len(response))
+        self.assertEquals(4, len(response))
+        self.assertEquals(2, response["version"])
         self.assertEquals(2, response["file_version"])
         self.assertEquals(11, response["length"])
         self.assertEquals("512504e13c3bb863c846ee0606037db973c27c1d", response["hash"])

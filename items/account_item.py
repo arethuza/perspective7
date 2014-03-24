@@ -9,7 +9,7 @@ class AccountItem(Item):
         users_folder_handle = worker.find_or_create("users", type_name="folder")
         worker.move("users")
         new_user_handle = worker.create(name, "user")
-        worker.execute(new_user_handle.path, "post", password=password)
+        return worker.execute(new_user_handle.path, "post", password=password)
 
     @Action("get", "editor", name="", password="")
     def get_login_user(self, worker, name, password):

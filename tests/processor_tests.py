@@ -46,7 +46,7 @@ class ProcessorTests(unittest.TestCase):
         self.assertEqual(cm.exception.response_code, 403)
         self.assertEqual(cm.exception.message, "Invalid authentication token")
         # Check we can do something with the user handle we just retrieved - change the user's password
-        self.assertIsNone(processor.execute("/users/test_user", "post", user_handle, {"password": "raz"}))
+        processor.execute("/users/test_user", "post", user_handle, {"password": "raz"})
 
 if __name__ == '__main__':
     unittest.main()

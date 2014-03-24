@@ -99,9 +99,11 @@ class DbGateway:
     def update_item(self, item_id, json_data, user_id):
         sql = ("update public.items "
                "set version=version+1, json_data=$2, saved_at=now(), saved_by=$3  "
-               "where id=$1")
+               "where id=$1 "
+               "returning version")
         ps = self.connection.prepare(sql)
-        ps(item_id, json_data, user_id)
+        rows = ps(item_id, json_data, user_id)
+        return rows[0][0]
 
     def get_item_id_path(self, item_id):
         sql = "select id_path from items where id=$1"

@@ -39,7 +39,7 @@ class FileManagerTests(unittest.TestCase):
         handle = finder.find("/")
         user_handle = finder.find("/users/system")
         response = file_manager.write_file_data(handle.item_id, None, b'0000000000', user_handle)
-        self.assertEquals(0, response["version"])
+        self.assertEquals(0, response["file_version"])
         self.assertEquals(10, response["length"])
         self.assertEquals("ef49b18cac3f4b7dc5346763309f6ac6e763c575", response["hash"])
 
@@ -50,7 +50,7 @@ class FileManagerTests(unittest.TestCase):
         user_handle = finder.find("/users/system")
         data = b'0' * 13000000
         response = file_manager.write_file_data(handle.item_id, None, data, user_handle)
-        self.assertEquals(0, response["version"])
+        self.assertEquals(0, response["file_version"])
         self.assertEquals(13000000, response["length"])
         self.assertEquals("621acfe4950f45e38ebfefaef03b1b0d69a854de", response["hash"])
 

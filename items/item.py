@@ -8,7 +8,6 @@ class Item(Actionable):
         self.modified_field_names = []
         self.item_data = None
 
-
     def set_field(self, name, value):
         if not name in self.modified_field_names:
             self.modified_field_names.append(name)
