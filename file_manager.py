@@ -51,14 +51,21 @@ class FileManager():
         if not last_block and len(block_data) < BLOCK_LENGTH:
             raise ServiceException(403, "Block length less than {}".format(BLOCK_LENGTH))
         dbgw = dbgateway.DbGateway(self.locator)
+        if self._is_file_version_completed(dbgw, item_id, file_version):
+            raise ServiceException(403, "File version is complete")
         block_hash = _get_hash(block_data)
+        if dbgw.get_file_block_hash(item_id, file_version, block_number):
+            dbgw.delete_file_block(item_id, file_version, block_number)
         dbgw.create_file_block(item_id, file_version, block_number, block_hash, block_data)
+
+    def _is_file_version_completed(self, dbgw, item_id, file_version):
+        _, hash, _ = dbgw.get_file_version(item_id, file_version)
+        return not hash is None
 
     def link_previous_blocks(self, item_id, file_version):
         dbgw = dbgateway.DbGateway(self.locator)
         file_version_id, _, _, previous_version = dbgw.get_file_version(item_id, file_version)
         previous_version_id, _, _, _ = dbgw.get_file_version(item_id, previous_version)
-
 
     def finalize_version(self, item_id, file_version):
         file_length = 0

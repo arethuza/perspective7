@@ -95,6 +95,8 @@ class DbGatewayTests(unittest.TestCase):
         dbgw.create_file_block(item_id, file_version, 1, "0124", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00')
         dbgw.create_file_block(item_id, file_version, 2, "0125", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
         data = dbgw.get_file_block_data(item_id, file_version, 0)
+        self.assertIsNotNone(dbgw.get_file_block_hash(item_id, file_version, 0))
+        self.assertIsNone(dbgw.get_file_block_hash(item_id, file_version, 3))
         self.assertEquals(len(data), 8)
         data = dbgw.get_file_block_data(item_id, file_version, 1)
         self.assertEquals(len(data), 10)

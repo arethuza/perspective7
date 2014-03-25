@@ -176,6 +176,17 @@ class DbGateway:
         rows = ps(item_id, file_version, block_number)
         return rows[0][0]
 
+    def get_file_block_hash(self, item_id, file_version, block_number):
+        sql = ("select hash "
+               "from file_blocks "
+               "where item_id=$1 and file_version=$2 and block_number=$3")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, file_version, block_number)
+        if len(rows) > 0:
+            return rows[0][0]
+        else:
+            return None
+
     def list_file_blocks(self, item_id, file_version):
         sql = ("select block_number, length(file_blocks.data), file_blocks.hash, file_blocks.created_at "
                "from file_blocks "
@@ -184,6 +195,13 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version)
         return rows
+
+    def delete_file_block(self, item_id, file_version, block_number):
+        sql = ("delete "
+               "from file_blocks "
+               "where item_id=$1 and file_version=$2 and block_number=$3")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, file_version, block_number)
 
     def list_file_versions(self, item_id):
         sql = ("select "
