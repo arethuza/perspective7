@@ -29,11 +29,11 @@ class FileItem(Item):
 
     @Action("put", "editor", file_version="", block_number="", _file_data="")
     def put_file_block(self, worker, file_version, block_number, _file_data):
-        worker.write_block_data(file_version, block_number, _file_data)
+        worker.write_block_data(file_version, block_number, _file_data, False)
 
     @Action("put", "editor", file_version="", block_number="", last_block="", _file_data="")
     def put_file_block_completed(self, worker, file_version, block_number, last_block, _file_data):
-        worker.write_block_data(file_version, block_number, _file_data)
+        worker.write_block_data(file_version, block_number, _file_data, last_block)
         if last_block:
             worker.finalize_file_version(file_version)
 

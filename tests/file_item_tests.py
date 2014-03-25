@@ -4,6 +4,7 @@ import dbgateway
 import init_loader
 from processor import Processor
 from items.file_item import FileItem
+from file_manager import BLOCK_LENGTH
 
 from worker import ServiceException
 
@@ -102,18 +103,27 @@ class FileItemTests(unittest.TestCase):
         self.assertEquals(result["file_version"], 0)
         # Write blocks of data
         processor.execute("/floop", "put", "/users/system",
-                          {"file_version": 0, "block_number": 0, "_file_data": b'0000000000000000000000'})
+                          {"file_version": 0,
+                           "block_number": 0,
+                           "_file_data": b'0'*BLOCK_LENGTH})
         processor.execute("/floop", "put", "/users/system",
-                          {"file_version": 0, "block_number": 1, "_file_data": b'11111111111111111111111111111'})
+                          {"file_version": 0,
+                           "block_number": 1,
+                           "last_block": False,
+                           "_file_data": b'1'*BLOCK_LENGTH})
         with self.assertRaises(Exception) as cm:
             _, _, _ = processor.execute("/floop", "get", "/users/system", {"file_version": "0"})
         self.assertEquals("Bad file_version: 0", cm.exception.message)
+        last_block_data = b'222222222222'
         processor.execute("/floop", "put", "/users/system",
-                          {"file_version": 0, "block_number": 2, "_file_data": b'222222222222', "last_block": "true"})
+                          {"file_version": 0,
+                           "block_number": 2,
+                           "last_block": "true",
+                           "_file_data": last_block_data})
         # Get the entire file contents
         file_name, file_length, block_yielder = processor.execute("/floop", "get", "/users/system", {"file_version": "0"})
         self.assertEquals("floop", file_name)
-        self.assertEquals(63, file_length)
+        self.assertEquals((2 * BLOCK_LENGTH) + len(last_block_data), file_length)
         self.assertTrue(callable(block_yielder))
         # How many versions?
         response = processor.execute("/floop", "get", "/users/system", {"versions": "true"})
@@ -123,8 +133,8 @@ class FileItemTests(unittest.TestCase):
         block0 = next(generator)
         block1 = next(generator)
         block2 = next(generator)
-        self.assertEquals(block0,  b'0000000000000000000000')
-        self.assertEquals(block1,  b'11111111111111111111111111111')
+        self.assertEquals(block0,  b'0'*BLOCK_LENGTH)
+        self.assertEquals(block1,  b'1'*BLOCK_LENGTH)
         self.assertEquals(block2,  b'222222222222')
 
 

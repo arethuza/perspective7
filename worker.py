@@ -67,10 +67,12 @@ class Worker():
         return self.processor.file_manager.get_block_data(self.current_item.handle.item_id, file_version, block_number)
 
     def create_initial_file_version(self):
-        return self.processor.file_manager.create_initial_file_version(self.current_item.handle.item_id, self.user_handle)
+        return self.processor.file_manager.create_initial_file_version(self.current_item.handle.item_id,
+                                                                       self.user_handle)
 
-    def write_block_data(self, file_version, block_number, block_data):
-        self.processor.file_manager.write_file_block(self.current_item.handle.item_id, file_version, block_number, block_data)
+    def write_block_data(self, file_version, block_number, block_data, last_block):
+        self.processor.file_manager.write_file_block(self.current_item.handle.item_id, file_version, block_number,
+                                                     block_data, last_block)
 
     def finalize_file_version(self, file_version):
         return self.processor.file_manager.finalize_version(self.current_item.handle.item_id, file_version)

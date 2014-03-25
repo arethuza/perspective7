@@ -47,7 +47,9 @@ class FileManager():
         dbgw = dbgateway.DbGateway(self.locator)
         return dbgw.get_file_block_data(item_id, file_version, block_number)
 
-    def write_file_block(self, item_id, file_version, block_number, block_data):
+    def write_file_block(self, item_id, file_version, block_number, block_data, last_block):
+        if not last_block and len(block_data) < BLOCK_LENGTH:
+            raise ServiceException(403, "Block length less than {}".format(BLOCK_LENGTH))
         dbgw = dbgateway.DbGateway(self.locator)
         block_hash = _get_hash(block_data)
         dbgw.create_file_block(item_id, file_version, block_number, block_hash, block_data)
