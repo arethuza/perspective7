@@ -156,31 +156,22 @@ class DbGateway:
         sql = ("insert into file_versions "
                "(item_id, file_version, previous_version, created_at, created_by) "
                "select $1, coalesce(max(file_version) + 1, 0), $2, now(), $3 from file_versions "
-               "returning file_versions.id, file_versions.file_version")
+               "returning file_versions.file_version")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, previous_version, user_id)
-        return rows[0][0], rows[0][1]
+        return rows[0][0]
 
-    def create_file_block(self, file_version_id, block_number, block_hash, block_data):
+    def create_file_block(self, item_id, file_version, block_number, block_hash, block_data):
         sql = ("insert into file_blocks "
-               "(file_version_id, block_number, hash, created_at, data) "
-               "values ($1, $2, $3, now(), $4)")
+               "(item_id, file_version, block_number, hash, created_at, data) "
+               "values ($1, $2, $3, $4, now(), $5)")
         ps = self.connection.prepare(sql)
-        ps(file_version_id, block_number, block_hash, block_data)
-
-    def set_item_file_version(self, item_id, item_version_id):
-        sql = "update items set file_version_id=$2 where id=$1"
-        ps = self.connection.prepare(sql)
-        ps(item_id, item_version_id)
+        ps(item_id, file_version, block_number, block_hash, block_data)
 
     def get_file_block_data(self, item_id, file_version, block_number):
         sql = ("select data "
                "from file_blocks "
-               "inner join file_versions "
-               "   on file_blocks.file_version_id = file_versions.id "
-               "inner join items "
-               "   on file_versions.item_id = items.id "
-               "where items.id=$1 and file_versions.file_version=$2 and file_blocks.block_number=$3")
+               "where item_id=$1 and file_version=$2 and block_number=$3")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version, block_number)
         return rows[0][0]
@@ -188,11 +179,7 @@ class DbGateway:
     def list_file_blocks(self, item_id, file_version):
         sql = ("select block_number, length(file_blocks.data), file_blocks.hash, file_blocks.created_at "
                "from file_blocks "
-               "inner join file_versions "
-               "   on file_blocks.file_version_id = file_versions.id "
-               "inner join items "
-               "   on file_versions.item_id = items.id "
-               "where items.id=$1 and file_versions.file_version=$2 "
+               "where item_id=$1 and file_version=$2 "
                "order by block_number asc")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version)
@@ -208,15 +195,15 @@ class DbGateway:
         rows = ps(item_id)
         return rows
 
-    def get_file_version_length_hash(self, item_id, file_version):
-        sql = ("select id, length, hash from file_versions "
+    def get_file_version(self, item_id, file_version):
+        sql = ("select length, hash, previous_version from file_versions "
                "where item_id=$1 and file_version=$2")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version)
         if len(rows) > 0:
             return rows[0][0], rows[0][1], rows[0][2]
         else:
-            return None, None, None
+            return None, None, None, None
 
     def set_file_version_length_hash(self, item_id, file_version, file_length, file_hash):
         sql = ("update file_versions "

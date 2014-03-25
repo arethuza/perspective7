@@ -15,8 +15,7 @@ create table items
     saved_at            timestamp   not null,
     saved_by            int         references items(id),
     search_text         text,
-    search_vector       tsvector,
-    file_version_id	int 	    references file_versions(id)
+    search_vector       tsvector
 );
 
 alter sequence items_id_seq minvalue 0 start 0;
@@ -61,7 +60,6 @@ drop table if exists file_versions cascade;
 
 create table file_versions
 (
-    id                  serial      primary key not null,
     item_id             int         references items(id),
     file_version        int         not null default 0,
     previous_version	int,
@@ -73,18 +71,18 @@ create table file_versions
     constraint no_duplicate_file_version unique (item_id, file_version)
 );
 
-alter sequence file_versions_id_seq minvalue 0 start 0;
-
 drop table if exists file_blocks cascade;
 
 create table file_blocks 
 (
-    file_version_id     int         references file_versions(id),
-    block_number        int         not null,
-    hash                text        not null,
-    created_at          timestamp   not null,
-    data                bytea       not null,
+    item_id                 int         references items(id),
+    file_version            int         not null,
+    block_number            int         not null,
+    base_file_version_id    int         null,
+    hash                    text        not null,
+    created_at              timestamp   not null,
+    data                    bytea       null,
     
-    constraint no_duplicate_file_block unique (file_version_id, block_number)
+    constraint no_duplicate_file_block unique (item_id, file_version, block_number)
 );
 

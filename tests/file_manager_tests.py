@@ -22,14 +22,14 @@ class FileManagerTests(unittest.TestCase):
         finder = ItemFinder(LOCATOR)
         handle = finder.find("/")
         user_handle = finder.find("/users/system")
-        _, file_version = file_manager.create_file_version(handle.item_id, None, user_handle)
+        file_version = file_manager.create_file_version(handle.item_id, None, user_handle)
         self.assertEquals(file_version, 0)
-        _, file_version = file_manager.create_file_version(handle.item_id, None, user_handle)
+        file_version = file_manager.create_file_version(handle.item_id, None, user_handle)
         self.assertEquals(file_version, 1)
-        _, file_version = file_manager.create_file_version(handle.item_id, 0, user_handle)
+        file_version = file_manager.create_file_version(handle.item_id, 0, user_handle)
         self.assertEquals(file_version, 2)
         with self.assertRaises(ServiceException) as cm:
-            _, file_version = file_manager.create_file_version(handle.item_id, 4, user_handle)
+            file_version = file_manager.create_file_version(handle.item_id, 4, user_handle)
         self.assertEqual(cm.exception.response_code, 409)
         self.assertEqual("Unknown previous version: 4", cm.exception.message)
 
