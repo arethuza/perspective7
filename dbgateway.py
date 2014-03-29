@@ -168,7 +168,7 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id, file_version, block_number, block_hash, block_data)
 
-    def get_file_block_data(self, item_id, file_version, block_number):
+    def get_file_version_block_data(self, item_id, file_version, block_number):
         sql = ("select data "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")
@@ -176,7 +176,17 @@ class DbGateway:
         rows = ps(item_id, file_version, block_number)
         return rows[0][0]
 
-    def get_file_block_hash(self, item_id, file_version, block_number):
+    def get_file_block_data(self, item_id, block_number):
+        sql = ("select data "
+               "from file_blocks "
+               "where item_id=$1 and block_number=$2 "
+               "order by file_version desc "
+               "limit 1")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, block_number)
+        return rows[0][0]
+
+    def get_file_version_block_hash(self, item_id, file_version, block_number):
         sql = ("select hash "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")

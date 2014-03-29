@@ -93,7 +93,7 @@ class FileItemTests(unittest.TestCase):
         self.assertTrue(callable(block_yielder))
         block_count = 0
         for block_data in block_yielder():
-            self.assertEquals(block_data, b'01234')
+            self.assertEquals(block_data, b'0123456789')
             block_count += 1
         self.assertEquals(block_count, 1)
 
@@ -187,6 +187,60 @@ class FileItemTests(unittest.TestCase):
         block1 = next(generator)
         self.assertEquals(block0,  b'1'*BLOCK_LENGTH)
         self.assertEquals(block1,  b'33333333333333333333')
+
+    def test_post_put_versions_single_block_update(self):
+        # Create a file item by a POST
+        result = processor.execute("/", "post", "/users/system", {"name": "floop", "type": "file"})
+        self.assertEquals(result["file_version"], 0)
+        # Create file_version 0
+        # Write blocks of data to version 0
+        processor.execute("/floop", "put", "/users/system",
+                          {"file_version": 0,
+                           "block_number": 0,
+                           "last_block": False,
+                           "_file_data": b'0' * BLOCK_LENGTH})
+        processor.execute("/floop", "put", "/users/system",
+                          {"file_version": 0,
+                           "block_number": 1,
+                           "last_block": False,
+                           "_file_data": b'1' * BLOCK_LENGTH})
+        processor.execute("/floop", "put", "/users/system",
+                          {"file_version": 0,
+                           "block_number": 2,
+                           "last_block": True,
+                           "_file_data": b'2222222222222222222'})
+        # Check the file
+        file_name, file_length, block_yielder = processor.execute("/floop", "get", "/users/system", {})
+        generator = block_yielder()
+        block0 = next(generator)
+        block1 = next(generator)
+        block2 = next(generator)
+        self.assertEquals(block0,  b'0'*BLOCK_LENGTH)
+        self.assertEquals(block1,  b'1'*BLOCK_LENGTH)
+        self.assertEquals(block2,  b'2222222222222222222')
+        # post to create a new version of the file item
+        response = processor.execute("/floop", "post", "/users/system", {"previous": 0})
+        self.assertEquals(1, response["file_version"])
+        # Write a single block of data to version 1
+        processor.execute("/floop", "put", "/users/system",
+                          {"file_version": 1,
+                           "block_number": 0,
+                           "last_block": False,
+                           "_file_data": b'3' * BLOCK_LENGTH})
+        processor.execute("/floop", "put", "/users/system",
+                          {"file_version": 1,
+                           "block_number": 2,
+                           "last_block": True,
+                           "_file_data": b''})
+        # Check the file - that we have replaced block 0 with [3] * BLOCK_LENGTH
+        file_name, file_length, block_yielder = processor.execute("/floop", "get", "/users/system", {})
+        generator = block_yielder()
+        block0 = next(generator)
+        block1 = next(generator)
+        block2 = next(generator)
+        self.assertEquals(block0,  b'3'*BLOCK_LENGTH)
+        self.assertEquals(block1,  b'1'*BLOCK_LENGTH)
+        self.assertEquals(block2,  b'2222222222222222222')
 
 if __name__ == '__main__':
     unittest.main()

@@ -45,7 +45,10 @@ class FileManager():
 
     def get_block_data(self, item_id, file_version, block_number):
         dbgw = dbgateway.DbGateway(self.locator)
-        return dbgw.get_file_block_data(item_id, file_version, block_number)
+        if file_version is None:
+            return dbgw.get_file_version_block_data(item_id, file_version, block_number)
+        else:
+            return dbgw.get_file_block_data(item_id, block_number)
 
     def write_file_block(self, item_id, file_version, block_number, block_data, last_block):
         if not last_block and len(block_data) < BLOCK_LENGTH:
@@ -54,7 +57,7 @@ class FileManager():
         if self._is_file_version_completed(dbgw, item_id, file_version):
             raise ServiceException(403, "File version is complete")
         block_hash = _get_hash(block_data)
-        if dbgw.get_file_block_hash(item_id, file_version, block_number):
+        if dbgw.get_file_version_block_hash(item_id, file_version, block_number):
             dbgw.delete_file_block(item_id, file_version, block_number)
         dbgw.create_file_block(item_id, file_version, block_number, block_hash, block_data)
 
@@ -76,12 +79,13 @@ class FileManager():
             block_hashes.append(block_hash)
         file_hash = _get_hash(block_hashes)
         dbgw = dbgateway.DbGateway(self.locator)
+
         dbgw.set_file_version_length_hash(item_id, file_version, file_length, file_hash)
 
     def get_version_length(self, item_id, file_version):
         dbgw = dbgateway.DbGateway(self.locator)
-        length, hash, _ = dbgw.get_file_version(item_id, file_version)
-        return length if hash else None
+        length, file_hash, _ = dbgw.get_file_version(item_id, file_version)
+        return length if file_hash else None
 
     def list_versions(self, item_id):
         dbgw = dbgateway.DbGateway(self.locator)

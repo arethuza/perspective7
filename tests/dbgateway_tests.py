@@ -94,13 +94,13 @@ class DbGatewayTests(unittest.TestCase):
         dbgw.create_file_block(item_id, file_version, 0, "0123", b'\xff\xf8\x00\x00\x00\x00\x00\x00')
         dbgw.create_file_block(item_id, file_version, 1, "0124", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00')
         dbgw.create_file_block(item_id, file_version, 2, "0125", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-        data = dbgw.get_file_block_data(item_id, file_version, 0)
-        self.assertIsNotNone(dbgw.get_file_block_hash(item_id, file_version, 0))
-        self.assertIsNone(dbgw.get_file_block_hash(item_id, file_version, 3))
+        data = dbgw.get_file_version_block_data(item_id, file_version, 0)
+        self.assertIsNotNone(dbgw.get_file_version_block_hash(item_id, file_version, 0))
+        self.assertIsNone(dbgw.get_file_version_block_hash(item_id, file_version, 3))
         self.assertEquals(len(data), 8)
-        data = dbgw.get_file_block_data(item_id, file_version, 1)
+        data = dbgw.get_file_version_block_data(item_id, file_version, 1)
         self.assertEquals(len(data), 10)
-        data = dbgw.get_file_block_data(item_id, file_version, 2)
+        data = dbgw.get_file_version_block_data(item_id, file_version, 2)
         self.assertEquals(len(data), 13)
         blocks_list = dbgw.list_file_blocks(item_id, file_version)
         self.assertEquals(len(blocks_list), 3)
@@ -129,6 +129,11 @@ class DbGatewayTests(unittest.TestCase):
         self.assertEquals(file_versions[1][3], None)
         self.assertIsNotNone(file_versions[1][4])
         self.assertEquals(file_versions[1][5], user_id2)
+        # get most recent data
+        dbgw.get_file_block_data(item_id, 0)
+        dbgw.get_file_block_data(item_id, 1)
+        dbgw.get_file_block_data(item_id, 2)
+
 
     def test_get_item_id_path(self):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
