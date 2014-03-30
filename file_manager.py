@@ -65,11 +65,6 @@ class FileManager():
         _, hash, _ = dbgw.get_file_version(item_id, file_version)
         return not hash is None
 
-    def link_previous_blocks(self, item_id, file_version):
-        dbgw = dbgateway.DbGateway(self.locator)
-        file_version_id, _, _, previous_version = dbgw.get_file_version(item_id, file_version)
-        previous_version_id, _, _, _ = dbgw.get_file_version(item_id, previous_version)
-
     def finalize_version(self, item_id, file_version):
         file_length = 0
         blocks = self.list_blocks(item_id, file_version)
@@ -79,7 +74,6 @@ class FileManager():
             block_hashes.append(block_hash)
         file_hash = _get_hash(block_hashes)
         dbgw = dbgateway.DbGateway(self.locator)
-
         dbgw.set_file_version_length_hash(item_id, file_version, file_length, file_hash)
 
     def get_version_length(self, item_id, file_version):

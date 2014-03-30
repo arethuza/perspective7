@@ -78,8 +78,9 @@ create table file_blocks
     item_id                 int         references items(id),
     file_version            int         not null,
     block_number            int         not null,
-    base_file_version_id    int         null,
-    hash                    text        not null,
+    data_file_version       int         null,
+    length	            int         not null,
+    hash                    text        null,
     created_at              timestamp   not null,
     data                    bytea       null,
     

@@ -89,9 +89,9 @@ class DbGateway:
             return rows[0][0], rows[0][1], rows[0][2], rows[0][3], rows[0][4]
 
     def save_item_version(self, item_id):
-        sql = ("insert into public.item_versions "
+        sql = ("insert into item_versions "
                "select id, version, type_id, json_data, saved_at, saved_by "
-               "from public.items "
+               "from items "
                "where id=$1")
         ps = self.connection.prepare(sql)
         ps(item_id)
@@ -161,12 +161,21 @@ class DbGateway:
         rows = ps(item_id, previous_version, user_id)
         return rows[0][0]
 
+    def copy_file_blocks(self, item_id, previous_version, file_version):
+        sql = ("insert into file_blocks"
+               "(item_id, file_version, block_number, length, hash, created_at) "
+               "select item_id, $3, block_number, length, hash, now()"
+               "from file_blocks "
+               "where item_id = $1 and file_version = $2")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, previous_version, file_version)
+
     def create_file_block(self, item_id, file_version, block_number, block_hash, block_data):
         sql = ("insert into file_blocks "
-               "(item_id, file_version, block_number, hash, created_at, data) "
-               "values ($1, $2, $3, $4, now(), $5)")
+               "(item_id, file_version, block_number, length, hash, created_at, data) "
+               "values ($1, $2, $3, $4, $5, now(), $6)")
         ps = self.connection.prepare(sql)
-        ps(item_id, file_version, block_number, block_hash, block_data)
+        ps(item_id, file_version, block_number, len(block_data), block_hash, block_data)
 
     def get_file_version_block_data(self, item_id, file_version, block_number):
         sql = ("select data "
@@ -198,7 +207,7 @@ class DbGateway:
             return None
 
     def list_file_blocks(self, item_id, file_version):
-        sql = ("select block_number, length(file_blocks.data), file_blocks.hash, file_blocks.created_at "
+        sql = ("select block_number, data_file_version, length, file_blocks.hash, file_blocks.created_at "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 "
                "order by block_number asc")
