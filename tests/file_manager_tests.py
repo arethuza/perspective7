@@ -38,10 +38,10 @@ class FileManagerTests(unittest.TestCase):
         finder = ItemFinder(LOCATOR)
         handle = finder.find("/")
         user_handle = finder.find("/users/system")
-        response = file_manager.write_file_data(handle.item_id, None, b'0000000000', user_handle)
-        self.assertEquals(0, response["file_version"])
-        self.assertEquals(10, response["length"])
-        self.assertEquals("ef49b18cac3f4b7dc5346763309f6ac6e763c575", response["hash"])
+        file_version, file_length, file_hash = file_manager.write_file_data(handle.item_id, None, b'0000000000', user_handle)
+        self.assertEquals(0, file_version)
+        self.assertEquals(10, file_length)
+        self.assertEquals("ef49b18cac3f4b7dc5346763309f6ac6e763c575", file_hash)
 
     def test_write_file_data_large(self):
         file_manager = FileManager(LOCATOR)
@@ -49,10 +49,10 @@ class FileManagerTests(unittest.TestCase):
         handle = finder.find("/")
         user_handle = finder.find("/users/system")
         data = b'0' * 13000000
-        response = file_manager.write_file_data(handle.item_id, None, data, user_handle)
-        self.assertEquals(0, response["file_version"])
-        self.assertEquals(13000000, response["length"])
-        self.assertEquals("621acfe4950f45e38ebfefaef03b1b0d69a854de", response["hash"])
+        file_version, file_length, file_hash = file_manager.write_file_data(handle.item_id, None, data, user_handle)
+        self.assertEquals(0, file_version)
+        self.assertEquals(13000000, file_length)
+        self.assertEquals("621acfe4950f45e38ebfefaef03b1b0d69a854de", file_hash)
 
 if __name__ == '__main__':
     unittest.main()

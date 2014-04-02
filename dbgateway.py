@@ -161,10 +161,10 @@ class DbGateway:
         rows = ps(item_id, previous_version, user_id)
         return rows[0][0]
 
-    def copy_file_blocks(self, item_id, previous_version, file_version):
+    def copy_file_blocks(self, item_id, file_version, previous_version):
         sql = ("insert into file_blocks"
-               "(item_id, file_version, block_number, length, hash, created_at) "
-               "select item_id, $3, block_number, length, hash, now()"
+               "(item_id, file_version, block_number, data_file_version, length, hash, created_at) "
+               "select item_id, $3, block_number, $2, length, hash, now()"
                "from file_blocks "
                "where item_id = $1 and file_version = $2")
         ps = self.connection.prepare(sql)
@@ -177,7 +177,14 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id, file_version, block_number, len(block_data), block_hash, block_data)
 
-    def get_file_version_block_data(self, item_id, file_version, block_number):
+    def update_file_block(self, item_id, file_version, block_number, block_hash, block_data):
+        sql = ("update file_blocks "
+               "set length=$4, hash=$5, created_at=now(), data=$6 "
+               "where item_id=$1 and file_version=$2 and block_number=$3")
+        ps = self.connection.prepare(sql)
+        ps(item_id, file_version, block_number, len(block_data), block_hash, block_data)
+
+    def get_file_block_data(self, item_id, file_version, block_number):
         sql = ("select data "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")
@@ -185,17 +192,7 @@ class DbGateway:
         rows = ps(item_id, file_version, block_number)
         return rows[0][0]
 
-    def get_file_block_data(self, item_id, block_number):
-        sql = ("select data "
-               "from file_blocks "
-               "where item_id=$1 and block_number=$2 "
-               "order by file_version desc "
-               "limit 1")
-        ps = self.connection.prepare(sql)
-        rows = ps(item_id, block_number)
-        return rows[0][0]
-
-    def get_file_version_block_hash(self, item_id, file_version, block_number):
+    def get_file_block_hash(self, item_id, file_version, block_number):
         sql = ("select hash "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")
@@ -205,6 +202,14 @@ class DbGateway:
             return rows[0][0]
         else:
             return None
+
+    def get_file_block_data_file_version(self, item_id, file_version, block_number):
+        sql = ("select data_file_version "
+               "from file_blocks "
+               "where item_id=$1 and file_version=$2 and block_number=$3")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, file_version, block_number)
+        return rows[0][0]
 
     def list_file_blocks(self, item_id, file_version):
         sql = ("select block_number, data_file_version, length, file_blocks.hash, file_blocks.created_at "

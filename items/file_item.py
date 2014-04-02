@@ -22,9 +22,12 @@ class FileItem(Item):
 
     @Action("put", "editor", previous="", _file_data="")
     def put_file_previous(self, worker, previous, _file_data):
-        result = worker.write_file_data(previous, _file_data)
-        self.set_field("file_version", result["file_version"])
-        result["version"] = self
+        file_version, file_length, file_hash = worker.write_file_data(previous, _file_data)
+        self.set_field("file_version", file_version)
+        result = dict()
+        result["file_version"] = file_version
+        result["file_length"] = file_length
+        result["file_hash"] = file_hash
         return result
 
     @Action("put", "editor", file_version="", block_number="", _file_data="")
@@ -55,7 +58,7 @@ class FileItem(Item):
         if file_length is None:
             raise ServiceException(404, "Bad file_version: {}".format(file_version))
         def get_blocks():
-            for block_number, _, _, _ in worker.list_file_blocks(file_version):
+            for block_number in [a[0] for a in worker.list_file_blocks(file_version)]:
                 yield worker.get_block_data(file_version, block_number)
         return FileResponse(self.name, file_length, get_blocks)
 
