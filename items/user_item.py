@@ -12,15 +12,15 @@ class UserItem(Item):
         self.set_field("password_hash", password_hash)
         return {}
 
-    @Action("get", "reader", password="")
-    def get_login(self, worker, password):
+    @Action("put", "reader", password="")
+    def put_login(self, worker, password):
         stored_hash = self.password_hash.split(":")[1]
         supplied_hash = bcrypt.hashpw(password, stored_hash)
         if supplied_hash == stored_hash:
             token, expires_at = worker.create_security_token()
             return {"user_path": self.handle.path, "token": token, "expires_at": expires_at}
         else:
-            raise ServiceException(403, "Invalid password")
+            raise ServiceException(403, "Bad password")
 
 
 

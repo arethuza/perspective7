@@ -19,24 +19,24 @@ class AccountItemTests(unittest.TestCase):
         dbgw.reset()
 
     def test_create_user_and_login(self):
-        processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "floop"})
-        response = processor.execute("/", "get", "/users/system",
+        processor.execute("/", "post", "/users/system", {"new_name": "test_user", "new_password": "floop"})
+        response = processor.execute("/", "post", "/users/system",
                                                     {"name": "test_user", "password": "floop"})
         self.assertEqual(50, len(response["token"]))
         self.assertTrue(response["expires_at"])
 
     def test_login_unknown_user(self):
         with self.assertRaises(ServiceException) as cm:
-            processor.execute("/", "get", "/users/system", {"name": "unknown", "password": "floop"})
+            processor.execute("/", "post", "/users/system", {"name": "unknown", "password": "floop"})
         self.assertEqual(cm.exception.response_code, 404)
         self.assertEqual(cm.exception.message, "Unknown user:unknown")
 
     def test_login_incorrect_password(self):
-        processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "floop"})
+        processor.execute("/", "post", "/users/system", {"new_name": "test_user", "new_password": "floop"})
         with self.assertRaises(ServiceException) as cm:
-            processor.execute("/", "get", "/users/system", {"name": "test_user", "password": "flop"})
+            processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "flop"})
         self.assertEqual(cm.exception.response_code, 403)
-        self.assertEqual(cm.exception.message, "Invalid password")
+        self.assertEqual(cm.exception.message, "Bad password")
 
 if __name__ == '__main__':
     unittest.main()

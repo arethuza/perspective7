@@ -1,5 +1,4 @@
 import requests
-import json
 import datetime
 import dateutil.parser
 
@@ -8,10 +7,15 @@ SYSTEM_USER = "system"
 SYSTEM_PASSWORD = "password"
 
 
-def log_in(test, path, user=SYSTEM_USER, password=SYSTEM_PASSWORD):
+def log_in(test, path, user=SYSTEM_USER, password=SYSTEM_PASSWORD, failure_status=None, failure_message=None):
     url = SERVICE_URL + path
-    r = requests.get(url, params={"name": user, "password": password}, verify=False)
-    response = json.loads(r.content.decode("utf-8"))
+    r = requests.post(url, data={"name": user, "password": password}, verify=False)
+    if failure_status:
+        test.assertEquals(r.status_code, failure_status)
+        test.assertEquals(r.text, failure_message)
+        return
+    response = r.json
+    test.assertEquals(200, r.status_code)
     # Check response is the expected structure
     test.assertEquals(len(response), 4)
     test.assertTrue("user_path" in response)
