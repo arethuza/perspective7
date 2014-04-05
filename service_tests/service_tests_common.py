@@ -7,9 +7,14 @@ SYSTEM_USER = "system"
 SYSTEM_PASSWORD = "password"
 
 
-def log_in(test, path, user=SYSTEM_USER, password=SYSTEM_PASSWORD, failure_status=None, failure_message=None):
+def log_in(test, path, name=SYSTEM_USER, password=SYSTEM_PASSWORD, failure_status=None, failure_message=None):
     url = SERVICE_URL + path
-    r = requests.post(url, data={"name": user, "password": password}, verify=False)
+    data = {}
+    if name is not None:
+        data["name"] = name
+    if password is not None:
+        data["password"] = password
+    r = requests.post(url, data=data, verify=False)
     if failure_status:
         test.assertEquals(r.status_code, failure_status)
         test.assertEquals(r.text, failure_message)
