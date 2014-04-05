@@ -45,7 +45,7 @@ class PerspectiveService(object):
 
     def _authenticate(self):
         if "Authorization" not in cherrypy.request.headers and "token" not in cherrypy.request.params:
-            raise ServiceException(403, "Request must contain Authorization header or as parameter")
+            raise ServiceException(403, "Request must contain Authorization header or parameter")
         if "Authorization" in cherrypy.request.headers:
             authorization_header = cherrypy.request.headers["Authorization"]
             a = authorization_header.split(" ")
@@ -57,7 +57,7 @@ class PerspectiveService(object):
             del cherrypy.request.params["token"]
         user_handle = processor.get_user_for_token(token_value)
         if user_handle is None:
-            raise ServiceException(403, "Note a valid authentication token")
+            raise ServiceException(403, "Not a valid authentication token")
         return user_handle
 
 

@@ -6,6 +6,7 @@ SERVICE_URL = "http://localhost:8080"
 SYSTEM_USER = "system"
 SYSTEM_PASSWORD = "password"
 
+auth_token = None
 
 def log_in(test, path, name=SYSTEM_USER, password=SYSTEM_PASSWORD, failure_status=None, failure_message=None):
     url = SERVICE_URL + path
@@ -31,10 +32,9 @@ def log_in(test, path, name=SYSTEM_USER, password=SYSTEM_PASSWORD, failure_statu
     check_path(test, response["user_path"])
     check_path(test, response["account_path"])
     check_in_future(test, response["expires_at"])
-    token = response["token"]
-    check_token(test, token)
-    return token
-
+    global auth_token
+    auth_token = response["token"]
+    check_token(test, auth_token)
 
 def check_path(test, path):
     test.assertIsNotNone(path)
@@ -52,3 +52,17 @@ def check_in_future(test, time_string):
     t = dateutil.parser.parse(time_string)
     limit = datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
     test.assertTrue(t > limit)
+
+
+def get_json(test, path, failure_status=None, failure_message=None, send_auth_header=True):
+    url = SERVICE_URL + path
+    r = requests.get(url, headers={"Authorization": _get_auth_header()} if send_auth_header else {})
+    if failure_status:
+        test.assertEquals(r.status_code, failure_status)
+        test.assertEquals(r.text, failure_message)
+        return
+    test.assertEquals(r.status_code, 200)
+    return r.json
+
+def _get_auth_header():
+        return "bearer " + auth_token
