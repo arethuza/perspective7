@@ -60,7 +60,7 @@ class Processor:
         return result
 
     def check_login(self, item_path, verb, args):
-        if (not verb == "get") or (not "name" in args) or (not "password" in args):
+        if (not verb == "post") or (not "name" in args) or (not "password" in args):
             return None
         # We are doing a "get" and supplying a name and password -> we are trying to log in
         return self.execute(item_path, verb, self.item_finder.find_system_user(), args)
