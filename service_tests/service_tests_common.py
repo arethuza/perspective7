@@ -1,8 +1,7 @@
-import unittest
 import requests
 import json
 import datetime
-import dateutil
+import dateutil.parser
 
 SERVICE_URL = "http://localhost:8080"
 SYSTEM_USER = "system"
@@ -14,12 +13,14 @@ def log_in(test, path, user=SYSTEM_USER, password=SYSTEM_PASSWORD):
     r = requests.get(url, params={"name": user, "password": password}, verify=False)
     response = json.loads(r.content.decode("utf-8"))
     # Check response is the expected structure
-    test.assertEquals(len(response), 3)
-    test.isTrue("user_path" in response)
-    test.isTrue("token" in response)
-    test.isTrue("expires_at" in response)
+    test.assertEquals(len(response), 4)
+    test.assertTrue("user_path" in response)
+    test.assertTrue("account_path" in response)
+    test.assertTrue("token" in response)
+    test.assertTrue("expires_at" in response)
     # Check that fields look OK
     check_path(test, response["user_path"])
+    check_path(test, response["account_path"])
     check_in_future(test, response["expires_at"])
     token = response["token"]
     check_token(test, token)
