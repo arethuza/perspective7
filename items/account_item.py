@@ -1,6 +1,7 @@
 from items.item import Item
 from actionable import WithActions, Action
 from worker import ServiceException
+import performance as perf
 
 @WithActions
 class AccountItem(Item):
@@ -20,5 +21,10 @@ class AccountItem(Item):
         response = worker.execute(user_handle.path, "put", password=password)
         response["account_path"] = self.handle.path
         return response
+
+    @Action("get", "system", performance="true")
+    def get_performance(self, worker):
+        return perf.get_report()
+
 
 

@@ -1,10 +1,9 @@
-import logging
 import cherrypy
 import json
 from worker import ServiceException
 from processor import Processor
 from items.file_item import FileResponse
-import inspect
+import performance as perf
 
 class PerspectiveService(object):
 
@@ -15,12 +14,13 @@ class PerspectiveService(object):
     def default(self, *dummy, **dummy2):
         """Handle all requests for all paths"""
         try:
+            start = perf.start()
             path = cherrypy.request.path_info
             verb = cherrypy.request.method.lower()
             login_response = self.processor.check_login(path, verb, cherrypy.request.params)
             if login_response is not None:
                 # Request was successful attempt to log in
-                return _serve_json(login_response, "")
+                response = _serve_json(login_response, "")
             else:
                 user_handle = self._authenticate()
                 file_data = None
@@ -33,8 +33,11 @@ class PerspectiveService(object):
                     cherrypy.response.headers["Content-Type"] = "application/octet-stream"
                     cherrypy.response.headers["Content-Disposition"] = 'attachment; filename="{0}"'.format(response.name)
                     cherrypy.response.headers["Content-Length"] = str(response.length)
-                    return response.block_yielder()
-                return _serve_json(response, "")
+                    response = response.block_yielder()
+                else:
+                    response = _serve_json(response, "")
+            perf.end2("service", "default", start)
+            return response
         except ServiceException as exception:
             cherrypy.response.status = exception.response_code
             return exception.message
@@ -44,6 +47,7 @@ class PerspectiveService(object):
             return "Unknown error"
 
     def _authenticate(self):
+        start = perf.start()
         if "Authorization" not in cherrypy.request.headers and "token" not in cherrypy.request.params:
             raise ServiceException(403, "Request must contain Authorization header or parameter")
         if "Authorization" in cherrypy.request.headers:
@@ -58,6 +62,7 @@ class PerspectiveService(object):
         user_handle = processor.get_user_for_token(token_value)
         if user_handle is None:
             raise ServiceException(403, "Not a valid authentication token")
+        perf.end(__name__, start)
         return user_handle
 
 

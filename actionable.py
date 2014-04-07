@@ -1,7 +1,7 @@
 import inspect
 from operator import itemgetter
 from item_finder import get_authorization_level
-
+import performance as perf
 
 class NoAuthorizedActionException(Exception):
     pass
@@ -10,12 +10,15 @@ class NoAuthorizedActionException(Exception):
 class Actionable():
 
     def invoke(self, verb, user_auth_name, args=[], **kwargs):
+        start = perf.start()
         user_auth_level = get_authorization_level(user_auth_name)
         match_found = False
-        for _, _, f, action_verb, action_auth_level, action_kwargs in self.__class__.actions:
+        function_name = None
+        for _, name, _, f, action_verb, action_auth_level, action_kwargs in self.__class__.actions:
             if action_verb == verb and action_auth_level <= user_auth_level:
                 if len(action_kwargs) == len(kwargs):
                     if len(action_kwargs) == 0:
+                        function_name = name
                         match_found = True
                         break
                     else:
@@ -48,10 +51,15 @@ class Actionable():
                                         else:
                                             matching_count += 1
                         if matching_count == len(action_kwargs):
+                            function_name = name
                             match_found = True
                             break
+        perf.end(__name__, start)
         if match_found:
-            return f(self, *args, **kwargs)
+            call_start = perf.start()
+            result = f(self, *args, **kwargs)
+            perf.end2(self.__class__.__name__, function_name, call_start)
+            return result
         else:
             raise NoAuthorizedActionException()
 
@@ -65,7 +73,7 @@ class Action:
         def wrapped(*args, **kwargs):
             return f(*args, **kwargs)
         _, line_number = inspect.getsourcelines(f)
-        wrapped.action_spec = [1000000, line_number, wrapped, self.verb, self.auth_level, self.kwargs]
+        wrapped.action_spec = [1000000, f.__name__, line_number, wrapped, self.verb, self.auth_level, self.kwargs]
         return wrapped
 
 def WithActions(cls):

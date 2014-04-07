@@ -46,5 +46,11 @@ class AuthenticationTests(unittest.TestCase):
         common.get_json(self, "/", send_auth_header=False, failure_status=403,
                         failure_message="Request must contain Authorization header or parameter")
 
+    def test_get_(self):
+        common.log_in(self, "/")
+        for i in range(1000):
+            common.get_json(self, "/")
+
+
 if __name__ == '__main__':
     unittest.main()

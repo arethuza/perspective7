@@ -1,5 +1,6 @@
 import postgresql
 import json
+import performance as perf
 
 class DbGateway:
 
@@ -16,6 +17,7 @@ class DbGateway:
         self.connection.prepare("select setval('items_id_seq', 0)")()
 
     def create_item_initial(self, parent_id, name, id_path, json_data, search_text):
+        start = perf.start()
         sql = ("insert into public.items"
                "(parent_id, name, id_path, json_data, created_at, saved_at, search_text)"
                "values"
@@ -25,9 +27,11 @@ class DbGateway:
                "returning id")
         ps = self.connection.prepare(sql)
         rows = ps(parent_id, name, id_path, json_data, search_text)
+        perf.end(__name__, start)
         return rows[0][0]
 
     def create_item(self, parent_id, name, id_path, type_id, type_path, json_data, created_by, search_text):
+        start = perf.start()
         sql = ("insert into public.items"
                "(parent_id, name, id_path, type_id, type_path, json_data,"
                " created_at, created_by, saved_at, saved_by, search_text)"
@@ -38,9 +42,11 @@ class DbGateway:
                "returning id")
         ps = self.connection.prepare(sql)
         rows = ps(parent_id, name, id_path, type_id, type_path, json_data, created_by, search_text)
+        perf.end(__name__, start)
         return rows[0][0]
 
     def find_id(self, parent_id, name, select_auth=False):
+        start = perf.start()
         sql = ("select "
                "{0} "
                "from public.items "
@@ -53,6 +59,7 @@ class DbGateway:
             return None, None, None
         item_id = rows[0][0]
         version = rows[0][2]
+        perf.end2(__name__,  "find_id:" + str(select_auth), start)
         if not select_auth:
             id_path = rows[0][1]
             return item_id, id_path, version
@@ -64,14 +71,17 @@ class DbGateway:
                 return item_id, json.loads(auth_json), version
 
     def set_item_type_user(self, item_id, type_id, type_id_path, user_id):
+        start = perf.start()
         sql = ("update public.items "
                "set type_id=$1, type_path=text2ltree($2), created_by=$3, saved_by=$3 "
                "where"
                " id=$4")
         ps = self.connection.prepare(sql)
         ps(type_id, type_id_path, user_id, item_id)
+        perf.end(__name__, start)
 
     def load(self, item_id):
+        start = perf.start()
         sql = ("select "
                "   type_item.json_data->>'item_class', "
                "   item_instance.name, "
@@ -83,151 +93,187 @@ class DbGateway:
                "and item_instance.id = $1")
         ps = self.connection.prepare(sql)
         rows=ps(item_id)
+        perf.end(__name__, start)
         if len(rows) == 0:
             return None, None, None, None, None
         else:
             return rows[0][0], rows[0][1], rows[0][2], rows[0][3], rows[0][4]
 
     def save_item_version(self, item_id):
+        start = perf.start()
         sql = ("insert into item_versions "
                "select id, version, type_id, json_data, saved_at, saved_by "
                "from items "
                "where id=$1")
         ps = self.connection.prepare(sql)
         ps(item_id)
+        perf.end(__name__, start)
 
     def update_item(self, item_id, json_data, user_id):
+        start = perf.start()
         sql = ("update public.items "
                "set version=version+1, json_data=$2, saved_at=now(), saved_by=$3  "
                "where id=$1 "
                "returning version")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, json_data, user_id)
+        perf.end(__name__, start)
         return rows[0][0]
 
     def get_item_id_path(self, item_id):
+        start = perf.start()
         sql = "select id_path from items where id=$1"
         ps = self.connection.prepare(sql)
         rows = ps(item_id)
+        perf.end(__name__, start)
         if len(rows) > 0:
             return rows[0][0]
         else:
             return None
 
     def get_item_name(self, item_id):
+        start = perf.start()
         sql = "select name from items where id=$1"
         ps = self.connection.prepare(sql)
         rows = ps(item_id)
+        perf.end(__name__, start)
         if len(rows) > 0:
             return rows[0][0]
         else:
             return None
 
     def create_token(self, item_id, token_value, json_data, expires_at):
+        start = perf.start()
         sql = ("insert into tokens "
                "(item_id, token_value, json_data, created_at, expires_at) "
                "values "
                "($1, $2::text, $3, now(), $4::text::timestamp)")
         ps = self.connection.prepare(sql)
         ps(item_id, token_value, json_data, expires_at)
+        perf.end(__name__, start)
 
     def find_token(self, token_value):
+        start = perf.start()
         sql = ("select item_id, json_data from tokens "
                "where token_value=$1 and expires_at > now()")
         ps = self.connection.prepare(sql)
         rows = ps(token_value)
+        perf.end(__name__, start)
         if len(rows) > 0:
             return rows[0][0], rows[0][1]
         else:
             return None, None
 
     def delete_token(self, token_value):
+        start = perf.start()
         sql = "delete from tokens where token_value=$1"
         ps = self.connection.prepare(sql)
         ps(token_value)
+        perf.end(__name__, start)
 
     def count_items(self):
+        start = perf.start()
         sql = "select count(id) from items"
         ps = self.connection.prepare(sql)
         rows = ps()
+        perf.end(__name__, start)
         return rows[0][0]
 
     def create_file_version(self, item_id, previous_version, user_id):
+        start = perf.start()
         sql = ("insert into file_versions "
                "(item_id, file_version, previous_version, created_at, created_by) "
                "select $1, coalesce(max(file_version) + 1, 0), $2, now(), $3 from file_versions "
                "returning file_versions.file_version")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, previous_version, user_id)
+        perf.end(__name__, start)
         return rows[0][0]
 
     def copy_file_blocks(self, item_id, file_version, previous_version):
+        start = perf.start()
         sql = ("insert into file_blocks"
                "(item_id, file_version, block_number, data_file_version, length, hash, created_at) "
                "select item_id, $3, block_number, $2, length, hash, now()"
                "from file_blocks "
                "where item_id = $1 and file_version = $2")
         ps = self.connection.prepare(sql)
+        perf.end(__name__, start)
         rows = ps(item_id, previous_version, file_version)
 
     def create_file_block(self, item_id, file_version, block_number, block_hash, block_data):
+        start = perf.start()
         sql = ("insert into file_blocks "
                "(item_id, file_version, block_number, length, hash, created_at, data) "
                "values ($1, $2, $3, $4, $5, now(), $6)")
         ps = self.connection.prepare(sql)
+        perf.end(__name__, start)
         ps(item_id, file_version, block_number, len(block_data), block_hash, block_data)
 
     def update_file_block(self, item_id, file_version, block_number, block_hash, block_data):
+        start = perf.start()
         sql = ("update file_blocks "
                "set length=$4, hash=$5, created_at=now(), data=$6 "
                "where item_id=$1 and file_version=$2 and block_number=$3")
         ps = self.connection.prepare(sql)
+        perf.end(__name__, start)
         ps(item_id, file_version, block_number, len(block_data), block_hash, block_data)
 
     def get_file_block_data(self, item_id, file_version, block_number):
+        start = perf.start()
         sql = ("select data "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version, block_number)
+        perf.end(__name__, start)
         return rows[0][0]
 
     def get_file_block_hash(self, item_id, file_version, block_number):
+        start = perf.start()
         sql = ("select hash "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version, block_number)
+        perf.end(__name__, start)
         if len(rows) > 0:
             return rows[0][0]
         else:
             return None
 
     def get_file_block_data_file_version(self, item_id, file_version, block_number):
+        start = perf.start()
         sql = ("select data_file_version "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version, block_number)
+        perf.end(__name__, start)
         return rows[0][0]
 
     def list_file_blocks(self, item_id, file_version):
+        start = perf.start()
         sql = ("select block_number, data_file_version, length, file_blocks.hash, file_blocks.created_at "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 "
                "order by block_number asc")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version)
+        perf.end(__name__, start)
         return rows
 
     def delete_file_block(self, item_id, file_version, block_number):
+        start = perf.start()
         sql = ("delete "
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")
         ps = self.connection.prepare(sql)
+        perf.end(__name__, start)
         rows = ps(item_id, file_version, block_number)
 
     def list_file_versions(self, item_id):
+        start = perf.start()
         sql = ("select "
                "   file_version, previous_version, length, hash, created_at, created_by "
                "from file_versions "
@@ -235,24 +281,29 @@ class DbGateway:
                "order by file_version asc")
         ps = self.connection.prepare(sql)
         rows = ps(item_id)
+        perf.end(__name__, start)
         return rows
 
     def get_file_version(self, item_id, file_version):
+        start = perf.start()
         sql = ("select length, hash, previous_version from file_versions "
                "where item_id=$1 and file_version=$2")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version)
+        perf.end(__name__, start)
         if len(rows) > 0:
             return rows[0][0], rows[0][1], rows[0][2]
         else:
             return None, None, None, None
 
     def set_file_version_length_hash(self, item_id, file_version, file_length, file_hash):
+        start = perf.start()
         sql = ("update file_versions "
                "set length=$3, hash=$4 "
                "where item_id=$1 and file_version=$2")
         ps = self.connection.prepare(sql)
-        rows = ps(item_id, file_version, file_length, file_hash)
+        ps(item_id, file_version, file_length, file_hash)
+        perf.end(__name__, start)
 
 
 

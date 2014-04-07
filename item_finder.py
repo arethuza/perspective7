@@ -1,4 +1,5 @@
 import dbgateway
+import performance as perf
 
 AuthLevelNames = ["none", "reader", "editor", "admin", "system"]
 AuthLevels = {}
@@ -37,6 +38,7 @@ class ItemFinder:
         self.locator = locator
 
     def find(self, path, user_handle=None):
+        start = perf.start()
         dbgw = dbgateway.DbGateway(self.locator)
         path_parts = path.split("/")[1:]
         current_id = 1
@@ -70,7 +72,9 @@ class ItemFinder:
             else:
                 user_auth_level = AuthLevels["reader"]
         # Always return a new ItemHandle, even if we can't find anything or we have no access
-        return ItemHandle(path, current_id, version, id_path, user_auth_level, user_handle)
+        result = ItemHandle(path, current_id, version, id_path, user_auth_level, user_handle)
+        perf.end(__name__, start)
+        return result
 
     def find_system_user(self):
         return self.find("/users/system", None)
