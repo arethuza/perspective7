@@ -5,7 +5,9 @@ import performance as perf
 class DbGateway:
 
     def __init__(self, locator):
+        start = perf.start()
         self.connection = postgresql.open(locator)
+        perf.end(__name__, start)
 
     def reset(self):
         self.connection.prepare("delete from public.file_blocks")()

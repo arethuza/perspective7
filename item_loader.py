@@ -2,6 +2,7 @@ import json
 import dbgateway
 from items.type_item import TypeItem
 from item_finder import ItemHandle, get_authorization_level
+import performance as perf
 
 class ItemLoader:
 
@@ -13,6 +14,7 @@ class ItemLoader:
         self.locator = locator
 
     def load(self, handle):
+        start = perf.start()
         if not handle.item_id:
             return None
         dbgw = dbgateway.DbGateway(self.locator)
@@ -30,6 +32,7 @@ class ItemLoader:
             setattr(item, name, value)
             field_names.append(name)
         item.field_names = field_names
+        perf.end(__name__, start)
         return item
 
     def load_type(self, type_name):

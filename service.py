@@ -5,6 +5,8 @@ from processor import Processor
 from items.file_item import FileResponse
 import performance as perf
 
+user_cache = {}
+
 class PerspectiveService(object):
 
     def __init__(self, processor):
@@ -59,7 +61,11 @@ class PerspectiveService(object):
         else:
             token_value = cherrypy.request.params["token"]
             del cherrypy.request.params["token"]
-        user_handle = processor.get_user_for_token(token_value)
+        if token_value in user_cache:
+            user_handle = user_cache[token_value]
+        else:
+            user_handle = processor.get_user_for_token(token_value)
+            user_cache[token_value] = user_handle
         if user_handle is None:
             raise ServiceException(403, "Not a valid authentication token")
         perf.end(__name__, start)

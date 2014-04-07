@@ -9,6 +9,7 @@ from worker import Worker, ServiceException
 from init_loader import load_init_data
 from file_manager import FileManager
 from items.file_item import FileResponse
+import performance as perf
 import posixpath
 
 
@@ -38,6 +39,7 @@ class Processor:
         return Worker(self, item, user_handle)
 
     def execute(self, item_path, verb, user_handle, args):
+        start = perf.start()
         if isinstance(user_handle, str):
             user_handle = self.item_finder.find(user_handle)
         item_handle = self.item_finder.find(item_path, user_handle)
@@ -57,13 +59,18 @@ class Processor:
         if item.modified:
             version = self.item_saver.save(item, user_handle)
             result["version"] = version
+        perf.end(__name__, start)
         return result
 
     def check_login(self, item_path, verb, args):
+        start = perf.start()
         if (not verb == "post") or (not "name" in args) or (not "password" in args):
-            return None
-        # We are doing a "get" and supplying a name and password -> we are trying to log in
-        return self.execute(item_path, verb, self.item_finder.find_system_user(), args)
+            result = None
+        else:
+            # We are doing a "get" and supplying a name and password -> we are trying to log in
+            result = self.execute(item_path, verb, self.item_finder.find_system_user(), args)
+        perf.end(__name__, start)
+        return result
 
     def get_user_for_token(self, token_value):
         user_item_id, context = self.token_manager.find_token(token_value)

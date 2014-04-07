@@ -80,6 +80,7 @@ class ItemFinder:
         return self.find("/users/system", None)
 
     def authorize(self, item_auth, user_handle):
+        start = perf.start()
         if user_handle is None:
             return AuthLevels["reader"]
         auth_level = AuthLevels["reader"]
@@ -93,6 +94,7 @@ class ItemFinder:
             if user_handle.item_id == auth_id:
                 auth_level = AuthLevels[auth_level_name]
                 break
+        perf.end(__name__, start)
         return auth_level
 
     def get_path(self, item_id):
