@@ -7,7 +7,8 @@ import datetime
 import time
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgw = dbgateway.DbGateway(LOCATOR)
+dbgateway.set_for_thread(LOCATOR)
+dbgw = dbgateway.get_from_thread()
 finder = item_finder.ItemFinder(LOCATOR)
 
 class TokenManagerTests(unittest.TestCase):

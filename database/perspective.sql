@@ -20,6 +20,8 @@ create table items
 
 alter sequence items_id_seq minvalue 0 start 0;
 
+create unique index parent_id_name_idx on items (parent_id, name);
+
 drop table if exists item_versions cascade;
 
 create table item_versions 

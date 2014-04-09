@@ -5,7 +5,8 @@ import init_loader
 from processor import Processor
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgw = dbgateway.DbGateway(LOCATOR)
+dbgateway.set_for_thread(LOCATOR)
+dbgw = dbgateway.get_from_thread()
 processor = Processor(LOCATOR)
 
 class UserItemTests(unittest.TestCase):

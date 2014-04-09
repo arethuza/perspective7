@@ -49,7 +49,7 @@ class AuthenticationTests(unittest.TestCase):
     def dummy_test_get_(self):
         common.log_in(self, "/")
         for i in range(1000):
-            common.get_json(self, "/")
+            common.get_json(self, "/users/system")
 
 
 if __name__ == '__main__':

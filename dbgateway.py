@@ -1,6 +1,7 @@
 import postgresql
 import json
 import performance as perf
+import threading
 
 class DbGateway:
 
@@ -306,6 +307,19 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id, file_version, file_length, file_hash)
         perf.end(__name__, start)
+
+thread_local = threading.local()
+
+DBGW_KEY="dbgw"
+
+def set_for_thread(locator):
+    dbgw = getattr(thread_local, DBGW_KEY, None)
+    if dbgw is None:
+        dbgw = DbGateway(locator)
+        setattr(thread_local, DBGW_KEY, dbgw)
+
+def get_from_thread():
+    return getattr(thread_local, DBGW_KEY, None)
 
 
 

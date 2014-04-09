@@ -6,7 +6,8 @@ from processor import Processor
 from worker import ServiceException
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgw = dbgateway.DbGateway(LOCATOR)
+dbgateway.set_for_thread(LOCATOR)
+dbgw = dbgateway.get_from_thread()
 processor = Processor(LOCATOR)
 
 class AccountItemTests(unittest.TestCase):

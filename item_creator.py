@@ -7,7 +7,7 @@ class ItemCreator():
         self.locator = locator
 
     def create(self, parent_item, name, type_item, json_data, user_handle):
-        dbgw = dbgateway.DbGateway(self.locator)
+        dbgw = dbgateway.get_from_thread()
         item_id = dbgw.create_item(parent_item.handle.item_id, name, parent_item.handle.id_path,
                                    type_item.handle.item_id, type_item.type_path,
                                    json_data, user_handle.item_id, "")

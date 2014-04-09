@@ -4,7 +4,8 @@ import init_loader
 import item_finder
 
 LOCATOR="pq://postgres:password@localhost/perspective"
-dbgw = dbgateway.DbGateway(LOCATOR)
+dbgateway.set_for_thread(LOCATOR)
+dbgw = dbgateway.get_from_thread()
 
 class ItemFinderTestsInitData(unittest.TestCase):
 

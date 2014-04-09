@@ -39,7 +39,7 @@ class ItemFinder:
 
     def find(self, path, user_handle=None):
         start = perf.start()
-        dbgw = dbgateway.DbGateway(self.locator)
+        dbgw = dbgateway.get_from_thread()
         path_parts = path.split("/")[1:]
         current_id = 1
         user_auth_level = authorize_root(user_handle)
@@ -98,7 +98,7 @@ class ItemFinder:
         return auth_level
 
     def get_path(self, item_id):
-        dbgw = dbgateway.DbGateway(self.locator)
+        dbgw = dbgateway.get_from_thread()
         id_path = dbgw.get_item_id_path(item_id)
         return "/".join([dbgw.get_item_name(int(id)) for id in id_path.split(".")])
 

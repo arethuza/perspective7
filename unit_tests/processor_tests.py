@@ -6,7 +6,8 @@ from processor import Processor
 from worker import ServiceException
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgw = dbgateway.DbGateway(LOCATOR)
+dbgateway.set_for_thread(LOCATOR)
+dbgw = dbgateway.get_from_thread()
 
 class ProcessorTests(unittest.TestCase):
 
@@ -26,9 +27,9 @@ class ProcessorTests(unittest.TestCase):
     def test_create_user_login(self):
         processor = Processor(LOCATOR)
         # Create a user
-        processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "floop"})
+        processor.execute("/", "post", "/users/system", {"new_name": "test_user", "new_password": "floop"})
         # Login as user
-        response = processor.check_login("/", "get", {"name": "test_user", "password": "floop"})
+        response = processor.check_login("/", "post", {"name": "test_user", "password": "floop"})
         # Authenticate using token
         user_handle = processor.get_user_for_token(response["token"])
         # Get the user handle directly

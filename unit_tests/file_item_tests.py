@@ -9,8 +9,9 @@ from file_manager import BLOCK_LENGTH
 from worker import ServiceException
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgw = dbgateway.DbGateway(LOCATOR)
 processor = Processor(LOCATOR)
+dbgateway.set_for_thread(LOCATOR)
+dbgw = dbgateway.get_from_thread()
 
 class FileItemTests(unittest.TestCase):
 
@@ -22,7 +23,6 @@ class FileItemTests(unittest.TestCase):
         dbgw.reset()
 
     def test_create_file(self):
-        processor.execute("/", "post", "/users/system", {"name": "test_user", "password": "floop"})
         response = processor.execute("/", "post", "/users/system", {"name": "new_file", "type": "file"})
         item_handle = processor.item_finder.find("/new_file")
         self.assertTrue(item_handle.can_read())

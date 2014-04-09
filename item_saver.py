@@ -13,7 +13,7 @@ class ItemSaver():
             value = getattr(item, field_name)
             item_data[field_name] = value
         json_data = json.dumps(item_data)
-        dbgw = dbgateway.DbGateway(self.locator)
+        dbgw = dbgateway.get_from_thread()
         dbgw.save_item_version(item.handle.item_id)
         return dbgw.update_item(item.handle.item_id, json_data, user_handle.item_id)
 

@@ -11,6 +11,7 @@ from file_manager import FileManager
 from items.file_item import FileResponse
 import performance as perf
 import posixpath
+import dbgateway
 
 
 class Processor:
@@ -25,7 +26,7 @@ class Processor:
         self.file_manager = FileManager(locator)
 
     def requires_init_data(self):
-        dbgw = DbGateway(self.locator)
+        dbgw = dbgateway.get_from_thread()
         return dbgw.count_items() == 0
 
     def load_init_data(self):

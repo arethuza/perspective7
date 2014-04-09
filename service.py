@@ -4,6 +4,7 @@ from worker import ServiceException
 from processor import Processor
 from items.file_item import FileResponse
 import performance as perf
+import dbgateway
 
 user_cache = {}
 
@@ -16,6 +17,7 @@ class PerspectiveService(object):
     def default(self, *dummy, **dummy2):
         """Handle all requests for all paths"""
         try:
+            dbgateway.set_for_thread(self.processor.locator)
             start = perf.start()
             path = cherrypy.request.path_info
             verb = cherrypy.request.method.lower()
@@ -80,6 +82,7 @@ def _serve_json(data, content_type):
 if __name__ == '__main__':
     LOCATOR = "pq://postgres:password@localhost/perspective"
     processor = Processor(LOCATOR)
+    dbgateway.set_for_thread(LOCATOR)
     if processor.requires_init_data():
         processor.load_init_data()
     processor.execute("/users/system", "post", "/users/system", { "password": "password"})
