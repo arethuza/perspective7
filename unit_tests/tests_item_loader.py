@@ -21,13 +21,13 @@ class ItemLoaderTests(unittest.TestCase):
         self.setUp()
 
     def test_get_class(self):
-        cls = item_loader.get_class("item_loader_tests.Floop")
+        cls = item_loader.get_class("tests_item_loader.Floop")
         instance = cls()
         self.assertIsInstance(instance, Floop)
 
     def test_load_item(self):
         item_id = dbgw.create_item_initial(1, "test item", None, "{\"a\":1, \"b\":[1,2,3], \"c\":{\"raz\":\"alpha\"}}", "")
-        type_id = dbgw.create_item_initial(1, "test type", None, "{ \"item_class\": \"item_loader_tests.Floop\" }", "")
+        type_id = dbgw.create_item_initial(1, "test type", None, "{ \"item_class\": \"tests_item_loader.Floop\" }", "")
         user_id = dbgw.create_item_initial(1, "test user", None, "{}", "")
         dbgw.set_item_type_user(item_id, type_id, "1", user_id)
         finder = item_finder.ItemFinder(LOCATOR)
