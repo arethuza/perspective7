@@ -16,22 +16,21 @@ import dbgateway
 
 class Processor:
 
-    def __init__(self, locator):
-        self.locator = locator
-        self.item_finder = ItemFinder(locator)
-        self.item_loader = ItemLoader(locator)
-        self.item_creator = ItemCreator(locator)
-        self.item_saver = ItemSaver(locator)
-        self.token_manager = TokenManager(locator)
-        self.file_manager = FileManager(locator)
+    def __init__(self):
+        self.item_finder = ItemFinder()
+        self.item_loader = ItemLoader()
+        self.item_creator = ItemCreator()
+        self.item_saver = ItemSaver()
+        self.token_manager = TokenManager()
+        self.file_manager = FileManager()
 
     def requires_init_data(self):
-        dbgw = dbgateway.get_from_thread()
+        dbgw = dbgateway.get()
         return dbgw.count_items() == 0
 
     def load_init_data(self):
         init_data_path = "database/init.json"
-        load_init_data(init_data_path, self.locator)
+        load_init_data(init_data_path)
 
     def get_worker(self, item_path, user_path):
         user_handle = self.item_finder.find(user_path)

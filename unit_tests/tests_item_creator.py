@@ -5,9 +5,9 @@ from item_creator import ItemCreator
 import init_loader
 from processor import Processor
 
-LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgateway.set_for_thread(LOCATOR)
-dbgw = dbgateway.get_from_thread()
+dbgateway.locator = "pq://postgres:password@localhost/perspective"
+dbgw = dbgateway.get()
+processor = Processor()
 
 class ItemCreatorTests(unittest.TestCase):
 
@@ -15,7 +15,7 @@ class ItemCreatorTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         dbgw.reset()
-        init_loader.load_init_data("../database/init.json", LOCATOR)
+        init_loader.load_init_data("../database/init.json")
         pass
 
     @classmethod

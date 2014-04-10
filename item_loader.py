@@ -10,14 +10,11 @@ class ItemLoader:
     system_types_folder_id = None
     item_type_id = None
 
-    def __init__(self, locator):
-        self.locator = locator
-
     def load(self, handle):
         start = perf.start()
         if not handle.item_id:
             return None
-        dbgw = dbgateway.get_from_thread()
+        dbgw = dbgateway.get()
         item_class_name, name, json_data, created_at, saved_at = dbgw.load(handle.item_id)
         cls = get_class(item_class_name)
         item = cls()
@@ -36,7 +33,7 @@ class ItemLoader:
         return item
 
     def load_type(self, type_name):
-        dbgw = dbgateway.get_from_thread()
+        dbgw = dbgateway.get()
         if ItemLoader.item_type_id is None:
             ItemLoader.item_type_id, _, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), "item")
         type_id, _, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), type_name)
@@ -62,7 +59,7 @@ class ItemLoader:
             return str(ItemLoader.item_type_id)
 
     def load_template_json(self, type_name, template_name="template"):
-        dbgw = dbgateway.get_from_thread()
+        dbgw = dbgateway.get()
         type_id, _, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), type_name)
         template_id, _, _ = dbgw.find_id(type_id, template_name)
         if template_id is not None:

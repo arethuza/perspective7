@@ -7,16 +7,15 @@ from items.user_item import UserItem
 
 from worker import ServiceException
 
-LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgateway.set_for_thread(LOCATOR)
-dbgw = dbgateway.get_from_thread()
-processor = Processor(LOCATOR)
+dbgateway.locator = "pq://postgres:password@localhost/perspective"
+dbgw = dbgateway.get()
+processor = Processor()
 
 class ItemTests(unittest.TestCase):
 
     def setUp(cls):
         dbgw.reset()
-        init_loader.load_init_data("../database/init.json", LOCATOR)
+        init_loader.load_init_data("../database/init.json")
 
     def tearDown(self):
         dbgw.reset()

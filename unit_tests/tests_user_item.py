@@ -4,17 +4,16 @@ import dbgateway
 import init_loader
 from processor import Processor
 
-LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgateway.set_for_thread(LOCATOR)
-dbgw = dbgateway.get_from_thread()
-processor = Processor(LOCATOR)
+dbgateway.locator = "pq://postgres:password@localhost/perspective"
+dbgw = dbgateway.get()
+processor = Processor()
 
 class UserItemTests(unittest.TestCase):
 
     def setUp(cls):
         dbgw.reset()
-        init_loader.load_init_data("../database/init.json", LOCATOR)
-        init_loader.load_init_data("data/user_item_tests.json", LOCATOR)
+        init_loader.load_init_data("../database/init.json")
+        init_loader.load_init_data("data/user_item_tests.json")
 
     def tearDown(self):
         dbgw.reset()

@@ -13,9 +13,9 @@ def load_json_with_comments(path):
     return json.loads(json_text)
 
 
-def load_init_data(path, locator):
+def load_init_data(path):
     init_data = load_json_with_comments(path)
-    dbgw = dbgateway.DbGateway(locator)
+    dbgw = dbgateway.get()
     types_to_resolve = []
     for data in init_data:
         item_path = data["path"]

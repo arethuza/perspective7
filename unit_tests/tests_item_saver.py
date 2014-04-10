@@ -6,12 +6,12 @@ import init_loader
 import item_saver
 import json
 
-LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgateway.set_for_thread(LOCATOR)
-dbgw = dbgateway.get_from_thread()
-finder = item_finder.ItemFinder(LOCATOR)
-loader = item_loader.ItemLoader(LOCATOR)
-saver = item_saver.ItemSaver(LOCATOR)
+dbgateway.locator = "pq://postgres:password@localhost/perspective"
+dbgw = dbgateway.get()
+finder = item_finder.ItemFinder()
+finder = item_finder.ItemFinder()
+loader = item_loader.ItemLoader()
+saver = item_saver.ItemSaver()
 
 class Floop:
     pass
@@ -20,8 +20,8 @@ class ItemSaverTests(unittest.TestCase):
 
     def setUp(self):
         dbgw.reset()
-        init_loader.load_init_data("../database/init.json", LOCATOR)
-        init_loader.load_init_data("data/saver_tests.json", LOCATOR)
+        init_loader.load_init_data("../database/init.json")
+        init_loader.load_init_data("data/saver_tests.json")
 
     def tearDown(self):
         dbgw.reset()

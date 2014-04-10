@@ -5,27 +5,26 @@ import init_loader
 from processor import Processor
 from worker import ServiceException
 
-LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgateway.set_for_thread(LOCATOR)
-dbgw = dbgateway.get_from_thread()
+dbgateway.locator = "pq://postgres:password@localhost/perspective"
+dbgw = dbgateway.get()
 
 class ProcessorTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
         dbgw.reset()
-        init_loader.load_init_data("../database/init.json", LOCATOR)
+        init_loader.load_init_data("../database/init.json")
 
     @classmethod
     def tearDownClass(self):
         dbgw.reset()
 
     def test_load_root_account(self):
-        processor = Processor(LOCATOR)
+        processor = Processor()
         processor.execute("/", "get", "/", {})
 
     def test_create_user_login(self):
-        processor = Processor(LOCATOR)
+        processor = Processor()
         # Create a user
         processor.execute("/", "post", "/users/system", {"new_name": "test_user", "new_password": "floop"})
         # Login as user

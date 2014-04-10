@@ -5,22 +5,21 @@ from item_finder import ItemFinder
 import init_loader
 from worker import ServiceException
 
-LOCATOR = "pq://postgres:password@localhost/perspective"
-dbgateway.set_for_thread(LOCATOR)
-dbgw = dbgateway.get_from_thread()
+dbgateway.locator = "pq://postgres:password@localhost/perspective"
+dbgw = dbgateway.get()
 
 class FileManagerTests(unittest.TestCase):
 
     def setUp(self):
         dbgw.reset()
-        init_loader.load_init_data("../database/init.json", LOCATOR)
+        init_loader.load_init_data("../database/init.json")
 
     def tearDown(self):
         dbgw.reset()
 
     def test_create_file_versions(self):
-        file_manager = FileManager(LOCATOR)
-        finder = ItemFinder(LOCATOR)
+        file_manager = FileManager()
+        finder = ItemFinder()
         handle = finder.find("/")
         user_handle = finder.find("/users/system")
         file_version = file_manager.create_file_version(handle.item_id, None, user_handle)
@@ -35,8 +34,8 @@ class FileManagerTests(unittest.TestCase):
         self.assertEqual("Unknown previous version: 4", cm.exception.message)
 
     def test_write_file_data(self):
-        file_manager = FileManager(LOCATOR)
-        finder = ItemFinder(LOCATOR)
+        file_manager = FileManager()
+        finder = ItemFinder()
         handle = finder.find("/")
         user_handle = finder.find("/users/system")
         file_version, file_length, file_hash = file_manager.write_file_data(handle.item_id, None, b'0000000000', user_handle)
@@ -45,8 +44,8 @@ class FileManagerTests(unittest.TestCase):
         self.assertEquals("ef49b18cac3f4b7dc5346763309f6ac6e763c575", file_hash)
 
     def test_write_file_data_large(self):
-        file_manager = FileManager(LOCATOR)
-        finder = ItemFinder(LOCATOR)
+        file_manager = FileManager()
+        finder = ItemFinder()
         handle = finder.find("/")
         user_handle = finder.find("/users/system")
         data = b'0' * 13000000

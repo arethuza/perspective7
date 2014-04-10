@@ -18,19 +18,16 @@ def in_future(days=0, hours=0, minutes=0, seconds=0):
 
 class TokenManager():
 
-    def __init__(self, locator):
-        self.locator = locator
-
     def create_token(self, item_id, length, data, **kwargs):
         token_value = generate_token_value(length)
         expires_at = in_future(**kwargs).isoformat()
-        dbgw = dbgateway.get_from_thread()
+        dbgw = dbgateway.get()
         json_data = json.dumps(data)
         dbgw.create_token(item_id, token_value, json_data, expires_at)
         return token_value, expires_at
 
     def find_token(self, token_value):
-        dbgw = dbgateway.get_from_thread()
+        dbgw = dbgateway.get()
         item_id, json_data = dbgw.find_token(token_value)
         if not item_id is None:
             return item_id, json.loads(json_data)

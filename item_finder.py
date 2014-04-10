@@ -34,12 +34,9 @@ class ItemHandle:
 
 class ItemFinder:
 
-    def __init__(self, locator):
-        self.locator = locator
-
     def find(self, path, user_handle=None):
         start = perf.start()
-        dbgw = dbgateway.get_from_thread()
+        dbgw = dbgateway.get()
         path_parts = path.split("/")[1:]
         current_id = 1
         user_auth_level = authorize_root(user_handle)
@@ -98,7 +95,7 @@ class ItemFinder:
         return auth_level
 
     def get_path(self, item_id):
-        dbgw = dbgateway.get_from_thread()
+        dbgw = dbgateway.get()
         id_path = dbgw.get_item_id_path(item_id)
         return "/".join([dbgw.get_item_name(int(id)) for id in id_path.split(".")])
 

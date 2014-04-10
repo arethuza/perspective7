@@ -312,11 +312,14 @@ thread_local = threading.local()
 
 DBGW_KEY="dbgw"
 
-def set_for_thread(locator):
+locator = None
+
+def get():
     dbgw = getattr(thread_local, DBGW_KEY, None)
     if dbgw is None:
         dbgw = DbGateway(locator)
         setattr(thread_local, DBGW_KEY, dbgw)
+    return dbgw
 
 def get_from_thread():
     return getattr(thread_local, DBGW_KEY, None)

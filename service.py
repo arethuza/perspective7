@@ -17,7 +17,6 @@ class PerspectiveService(object):
     def default(self, *dummy, **dummy2):
         """Handle all requests for all paths"""
         try:
-            dbgateway.set_for_thread(self.processor.locator)
             start = perf.start()
             path = cherrypy.request.path_info
             verb = cherrypy.request.method.lower()
@@ -80,9 +79,8 @@ def _serve_json(data, content_type):
     return json.dumps(data, indent=4, sort_keys=True).encode("utf-8")
 
 if __name__ == '__main__':
-    LOCATOR = "pq://postgres:password@localhost/perspective"
-    processor = Processor(LOCATOR)
-    dbgateway.set_for_thread(LOCATOR)
+    dbgateway.locator = "pq://postgres:password@localhost/perspective"
+    processor = Processor()
     if processor.requires_init_data():
         processor.load_init_data()
     processor.execute("/users/system", "post", "/users/system", { "password": "password"})
