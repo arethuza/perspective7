@@ -40,5 +40,21 @@ class ItemTests(unittest.TestCase):
             processor.execute("/", "post", "/users/system", {"name": "new_item", "type": "floop"})
         self.assertEqual(cm.exception.response_code, 403)
         self.assertEqual(cm.exception.message, "Unknown item type:floop")
+
+    def test_delete_item(self):
+        processor.execute("/", "post", "/users/system", {"name": "foo"})
+        self.assertIsNotNone(processor.execute("/foo", "get", "/users/system", {}))
+        processor.execute("/foo", "post", "/users/system", {"name": "bar"})
+        self.assertIsNotNone(processor.execute("/foo/bar", "get", "/users/system", {}))
+        processor.execute("/foo", "delete", "/users/system", {})
+        self.assertIsNone(processor.execute("/foo", "get", "/users/system", {}))
+        self.assertIsNone(processor.execute("/foo/bar", "get", "/users/system", {}))
+
+    def test_delete_item_not_deletable(self):
+        with self.assertRaises(ServiceException) as cm:
+            processor.execute("/", "delete", "/users/system", {})
+        self.assertEqual(cm.exception.response_code, 403)
+        self.assertEqual(cm.exception.message, "Item cannot be deleted")
+
 if __name__ == '__main__':
     unittest.main()

@@ -41,9 +41,9 @@ class DbGateway:
     def create_item_initial(self, parent_id, name, id_path, json_data, search_text):
         start = perf.start()
         sql = ("insert into public.items"
-               "(parent_id, name, id_path, json_data, created_at, saved_at, search_text)"
+               "(parent_id, name, deletable, id_path, json_data, created_at, saved_at, search_text)"
                "values"
-               "( $1, $2, "
+               "( $1, $2, false, "
                "  text2ltree(case when $1::int is null then '1' else $3::text || '.' || currval('items_id_seq') end),"
                "  $4, now(), now(), $5)"
                "returning id")
@@ -109,7 +109,8 @@ class DbGateway:
                "   item_instance.name, "
                "   item_instance.json_data, "
                "   item_instance.created_at, "
-               "   item_instance.saved_at "
+               "   item_instance.saved_at, "
+               "   item_instance.deletable "
                "from items item_instance inner join items type_item "
                "on item_instance.type_id = type_item.id "
                "and item_instance.id = $1")
@@ -117,9 +118,9 @@ class DbGateway:
         rows=ps(item_id)
         perf.end(__name__, start)
         if len(rows) == 0:
-            return None, None, None, None, None
+            return None, None, None, None, None, None
         else:
-            return rows[0][0], rows[0][1], rows[0][2], rows[0][3], rows[0][4]
+            return rows[0][0], rows[0][1], rows[0][2], rows[0][3], rows[0][4], rows[0][5]
 
     def save_item_version(self, item_id):
         start = perf.start()
@@ -329,16 +330,11 @@ class DbGateway:
 
     def delete_item(self, item_id):
         start = perf.start()
-
-        sql = ("delete from items "
-               "where id_path ~ any "
-               "   (select (ltree2text(id_path)::text || '.*'::text)::lquery "
-               "   from items "
-               "   where id=$1)")
+        sql = "delete from items where id=$1 and deletable=true returning id"
         ps = self.connection.prepare(sql)
-        ps(item_id)
+        rows = ps(item_id)
         perf.end(__name__, start)
-
+        return len(rows) > 0
 
 
 

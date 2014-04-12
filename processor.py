@@ -4,6 +4,7 @@ from item_loader import ItemLoader
 from item_creator import ItemCreator
 from item_saver import ItemSaver
 from token_manager import TokenManager
+from item_deleter import ItemDeleter
 from dbgateway import DbGateway
 from worker import Worker, ServiceException
 from init_loader import load_init_data
@@ -23,6 +24,7 @@ class Processor:
         self.item_saver = ItemSaver()
         self.token_manager = TokenManager()
         self.file_manager = FileManager()
+        self.item_deleter = ItemDeleter()
 
     def requires_init_data(self):
         dbgw = dbgateway.get()
@@ -43,14 +45,17 @@ class Processor:
         if isinstance(user_handle, str):
             user_handle = self.item_finder.find(user_handle)
         item_handle = self.item_finder.find(item_path, user_handle)
-        if not item_handle.exists() and verb == "put":
-            # Supplied path doesn't exist so...
-            # ... take the name from that path that was supplied
-            name = posixpath.basename(item_path)
-            args["name"] = name
-            # ... and try use the parent item path
-            item_path = posixpath.dirname(item_path)
-            item_handle = self.item_finder.find(item_path, user_handle)
+        if not item_handle.exists():
+            if verb == "put":
+                # Supplied path doesn't exist so...
+                # ... take the name from that path that was supplied
+                name = posixpath.basename(item_path)
+                args["name"] = name
+                # ... and try use the parent item path
+                item_path = posixpath.dirname(item_path)
+                item_handle = self.item_finder.find(item_path, user_handle)
+            else:
+                return None
         item = self.item_loader.load(item_handle)
         user_auth_name = item_handle.get_auth_name()
         worker = Worker(self, item, user_handle)

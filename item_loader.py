@@ -15,13 +15,14 @@ class ItemLoader:
         if not handle.item_id:
             return None
         dbgw = dbgateway.get()
-        item_class_name, name, json_data, created_at, saved_at = dbgw.load(handle.item_id)
+        item_class_name, name, json_data, created_at, saved_at, deletable = dbgw.load(handle.item_id)
         cls = get_class(item_class_name)
         item = cls()
         item.handle = handle
         item.name = name
         item.created_at = created_at
         item.saved_at = saved_at
+        item.deletable = deletable
         item_data = json.loads(json_data)
         item.item_data = item_data
         field_names = []
@@ -39,7 +40,7 @@ class ItemLoader:
         type_id, _, _ = dbgw.find_id(self._find_system_types_folder_id(dbgw), type_name)
         if type_id is None:
             return None
-        _, _, json_data, _, _ = dbgw.load(type_id)
+        _, _, json_data, _, _, _ = dbgw.load(type_id)
         type_item = TypeItem()
         type_item.handle = ItemHandle("/system/types/" + type_name,
                                       type_id, 0, None, get_authorization_level("reader"), None)
@@ -71,7 +72,6 @@ class ItemLoader:
             return dbgw.load(template_id)[2]
         # Oops - no templates available
         return "{}"
-
 
     def _find_system_types_folder_id(self, dbgw):
         if ItemLoader.system_types_folder_id is None:

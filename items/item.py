@@ -1,4 +1,5 @@
 from actionable import Actionable, WithActions, Action
+from worker import ServiceException
 
 @WithActions
 class Item(Actionable):
@@ -7,6 +8,7 @@ class Item(Actionable):
         self.modified = False
         self.modified_field_names = []
         self.item_data = None
+        self.deletable = False
 
     def set_field(self, name, value):
         if not name in self.modified_field_names:
@@ -49,3 +51,11 @@ class Item(Actionable):
     def put_file_previous(self, worker, name, previous, _file_data):
         item_handle = worker.find_or_create(name, "file")
         return worker.execute(item_handle.path, "put", previous=previous, _file_data=_file_data)
+
+    @Action("delete", "editor")
+    def delete(self, worker):
+        if self.deletable:
+            worker.delete_item()
+            return {}
+        else:
+            raise ServiceException(403, "Item cannot be deleted")

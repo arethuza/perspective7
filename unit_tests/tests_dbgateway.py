@@ -34,10 +34,11 @@ class DbGatewayTests(unittest.TestCase):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         dbgw.set_item_type_user(item_id, type_id, "1", user_id)
-        class_name, name, data, created_at, saved_at = dbgw.load(item_id)
+        class_name, name, data, created_at, saved_at, deletable = dbgw.load(item_id)
         self.assertEquals(class_name, "foo")
         self.assertEquals(name, "test item")
         self.assertEquals(data, "{}")
+        self.assertFalse(deletable)
 
     def test_create_item(self):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
@@ -207,7 +208,8 @@ class DbGatewayTests(unittest.TestCase):
         item_id_raz = dbgw.create_item(item_id_bar, "raz", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
         self.assertEquals(item_id_bar, dbgw.find_id(item_id_foo, "bar")[0])
         self.assertEquals(item_id_raz, dbgw.find_id(item_id_bar, "raz")[0])
-        dbgw.delete_item(item_id_bar)
+        did_delete = dbgw.delete_item(item_id_bar)
+        self.assertTrue(did_delete)
         self.assertIsNone(dbgw.find_id(item_id_foo, "bar")[0])
         self.assertIsNone(dbgw.find_id(item_id_bar, "raz")[0])
 

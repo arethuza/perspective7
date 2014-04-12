@@ -90,3 +90,6 @@ class Worker():
             for field in fields:
                 entry[field] = self.processor.item_finder.get_path(entry[field])
 
+    def delete_item(self):
+        self.processor.item_deleter.delete_item(self.current_item.handle.item_id)
+
