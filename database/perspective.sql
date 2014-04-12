@@ -3,7 +3,7 @@
 create table items 
 (
     id                  serial      primary key not null,
-    parent_id           int         references items(id),
+    parent_id           int         references items(id) on delete cascade,
     name                text        not null,
     version             int         not null default 0,
     id_path             ltree,
@@ -26,7 +26,7 @@ drop table if exists item_versions cascade;
 
 create table item_versions 
 (
-    item_id             int         references items(id),
+    item_id             int         references items(id) on delete cascade,
     version             int         not null,
     type_id             int         references items(id),
     json_data           json        not null,
@@ -51,7 +51,7 @@ drop table if exists tokens cascade;
 
 create table tokens
 (
-    item_id             int         references items(id),
+    item_id             int         references items(id) on delete cascade,
     token_value         text        not null,
     json_data           json        not null,
     created_at          timestamp   not null,
@@ -62,7 +62,7 @@ drop table if exists file_versions cascade;
 
 create table file_versions
 (
-    item_id             int         references items(id),
+    item_id             int         references items(id) on delete cascade,
     file_version        int         not null default 0,
     previous_version	int,
     length              int         not null default 0,
@@ -77,11 +77,11 @@ drop table if exists file_blocks cascade;
 
 create table file_blocks 
 (
-    item_id                 int         references items(id),
+    item_id                 int         references items(id) on delete cascade,
     file_version            int         not null,
     block_number            int         not null,
     data_file_version       int         null,
-    length	            int         not null,
+    length	                int         not null,
     hash                    text        null,
     created_at              timestamp   not null,
     data                    bytea       null,

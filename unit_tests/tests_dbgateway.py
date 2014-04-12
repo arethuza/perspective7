@@ -199,5 +199,17 @@ class DbGatewayTests(unittest.TestCase):
         name = dbgw.get_item_name(item_id)
         self.assertEquals("bar", name)
 
+    def test_delete_item(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id_foo = dbgw.create_item(None, "foo", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        item_id_bar = dbgw.create_item(item_id_foo, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        item_id_raz = dbgw.create_item(item_id_bar, "raz", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        self.assertEquals(item_id_bar, dbgw.find_id(item_id_foo, "bar")[0])
+        self.assertEquals(item_id_raz, dbgw.find_id(item_id_bar, "raz")[0])
+        dbgw.delete_item(item_id_bar)
+        self.assertIsNone(dbgw.find_id(item_id_foo, "bar")[0])
+        self.assertIsNone(dbgw.find_id(item_id_bar, "raz")[0])
+
 if __name__ == '__main__':
     unittest.main()

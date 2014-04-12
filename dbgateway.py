@@ -3,6 +3,25 @@ import json
 import performance as perf
 import threading
 
+thread_local = threading.local()
+
+DBGW_KEY="dbgw"
+
+locator = None
+
+
+def get():
+    dbgw = getattr(thread_local, DBGW_KEY, None)
+    if dbgw is None:
+        dbgw = DbGateway(locator)
+        setattr(thread_local, DBGW_KEY, dbgw)
+    return dbgw
+
+
+def get_from_thread():
+    return getattr(thread_local, DBGW_KEY, None)
+
+
 class DbGateway:
 
     def __init__(self, locator):
@@ -308,24 +327,17 @@ class DbGateway:
         ps(item_id, file_version, file_length, file_hash)
         perf.end(__name__, start)
 
-thread_local = threading.local()
+    def delete_item(self, item_id):
+        start = perf.start()
 
-DBGW_KEY="dbgw"
-
-locator = None
-
-def get():
-    dbgw = getattr(thread_local, DBGW_KEY, None)
-    if dbgw is None:
-        dbgw = DbGateway(locator)
-        setattr(thread_local, DBGW_KEY, dbgw)
-    return dbgw
-
-def get_from_thread():
-    return getattr(thread_local, DBGW_KEY, None)
-
-
-
+        sql = ("delete from items "
+               "where id_path ~ any "
+               "   (select (ltree2text(id_path)::text || '.*'::text)::lquery "
+               "   from items "
+               "   where id=$1)")
+        ps = self.connection.prepare(sql)
+        ps(item_id)
+        perf.end(__name__, start)
 
 
 
