@@ -5,6 +5,7 @@ create table items
     id                  serial      primary key not null,
     parent_id           int         references items(id) on delete cascade,
     name                text        not null,
+    deletable		boolean	    not null default true,
     version             int         not null default 0,
     id_path             ltree,
     type_id             int         references items(id),

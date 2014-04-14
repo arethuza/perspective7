@@ -38,24 +38,24 @@ class DbGateway:
         self.connection.prepare("delete from public.item_versions")()
         self.connection.prepare("select setval('items_id_seq', 0)")()
 
-    def create_item_initial(self, parent_id, name, id_path, json_data, search_text):
+    def create_item_initial(self, parent_id, name, id_path, public_data, search_text):
         start = perf.start()
         sql = ("insert into public.items"
-               "(parent_id, name, deletable, id_path, json_data, created_at, saved_at, search_text)"
+               "(parent_id, name, deletable, id_path, public_data, created_at, saved_at, search_text)"
                "values"
                "( $1, $2, false, "
                "  text2ltree(case when $1::int is null then '1' else $3::text || '.' || currval('items_id_seq') end),"
                "  $4, now(), now(), $5)"
                "returning id")
         ps = self.connection.prepare(sql)
-        rows = ps(parent_id, name, id_path, json_data, search_text)
+        rows = ps(parent_id, name, id_path, public_data, search_text)
         perf.end(__name__, start)
         return rows[0][0]
 
-    def create_item(self, parent_id, name, id_path, type_id, type_path, json_data, created_by, search_text):
+    def create_item(self, parent_id, name, id_path, type_id, type_path, public_data, created_by, search_text):
         start = perf.start()
         sql = ("insert into public.items"
-               "(parent_id, name, id_path, type_id, type_path, json_data,"
+               "(parent_id, name, id_path, type_id, type_path, public_data,"
                " created_at, created_by, saved_at, saved_by, search_text)"
                "values"
                "( $1, $2, "
@@ -63,7 +63,7 @@ class DbGateway:
                "  $4, text2ltree($5), $6, now(), $7, now(), $7, $8)"
                "returning id")
         ps = self.connection.prepare(sql)
-        rows = ps(parent_id, name, id_path, type_id, type_path, json_data, created_by, search_text)
+        rows = ps(parent_id, name, id_path, type_id, type_path, public_data, created_by, search_text)
         perf.end(__name__, start)
         return rows[0][0]
 
@@ -74,7 +74,7 @@ class DbGateway:
                "from public.items "
                "where "
                "parent_id = $1 and name = $2")
-        sql = sql.format("id, json_data->'auth', version" if select_auth else "id, id_path, version")
+        sql = sql.format("id, public_data->'auth', version" if select_auth else "id, id_path, version")
         ps = self.connection.prepare(sql)
         rows = ps(parent_id, name)
         if len(rows) == 0:
@@ -105,9 +105,9 @@ class DbGateway:
     def load(self, item_id):
         start = perf.start()
         sql = ("select "
-               "   type_item.json_data->>'item_class', "
+               "   type_item.public_data->>'item_class', "
                "   item_instance.name, "
-               "   item_instance.json_data, "
+               "   item_instance.public_data, "
                "   item_instance.created_at, "
                "   item_instance.saved_at, "
                "   item_instance.deletable "
@@ -125,21 +125,21 @@ class DbGateway:
     def save_item_version(self, item_id):
         start = perf.start()
         sql = ("insert into item_versions "
-               "select id, version, type_id, json_data, saved_at, saved_by "
+               "select id, version, type_id, public_data, saved_at, saved_by "
                "from items "
                "where id=$1")
         ps = self.connection.prepare(sql)
         ps(item_id)
         perf.end(__name__, start)
 
-    def update_item(self, item_id, json_data, user_id):
+    def update_item(self, item_id, public_data, user_id):
         start = perf.start()
         sql = ("update public.items "
-               "set version=version+1, json_data=$2, saved_at=now(), saved_by=$3  "
+               "set version=version+1, public_data=$2, saved_at=now(), saved_by=$3  "
                "where id=$1 "
                "returning version")
         ps = self.connection.prepare(sql)
-        rows = ps(item_id, json_data, user_id)
+        rows = ps(item_id, public_data, user_id)
         perf.end(__name__, start)
         return rows[0][0]
 
