@@ -93,3 +93,9 @@ class Worker():
     def delete_item(self):
         self.processor.item_deleter.delete_item(self.current_item.handle.item_id)
 
+    def get_private(self):
+        return self.processor.item_loader.get_private(self.current_item.handle.item_id)
+
+    def set_private(self, data):
+        self.processor.item_saver.set_private(self.current_item.handle, data, self.user_handle)
+

@@ -83,7 +83,10 @@ class ItemLoader:
             ItemLoader.system_folder_id, _, _ = dbgw.find_id(1, "system")
         return ItemLoader.system_folder_id
 
-
+    def get_private(self, item_id):
+        dbgw = dbgateway.get()
+        private_data = dbgw.get_private(item_id)
+        return json.loads(private_data) if private_data is not None else {}
 
 def get_class(name):
     parts = name.split('.')

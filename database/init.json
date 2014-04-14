@@ -125,8 +125,7 @@
         "path": "/users/system",
         "type": "user",
         "data": {
-            "title": "System User",
-            "password_hash": ""
+            "title": "System User"
         }
     }
 ]

@@ -165,6 +165,24 @@ class DbGateway:
         else:
             return None
 
+    def update_private(self, item_id, private_data, user_id):
+        start = perf.start()
+        sql = ("update items "
+               "set private_data=$2, saved_at=now(), saved_by=$3  "
+               "where id=$1 ")
+        ps = self.connection.prepare(sql)
+        ps(item_id, private_data, user_id)
+        perf.end(__name__, start)
+
+    def get_private(self, item_id):
+        start = perf.start()
+        sql = ("select private_data from items "
+               "where id=$1 ")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id)
+        perf.end(__name__, start)
+        return rows[0][0]
+
     def create_token(self, item_id, token_value, json_data, expires_at):
         start = perf.start()
         sql = ("insert into tokens "

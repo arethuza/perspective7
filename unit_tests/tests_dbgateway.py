@@ -2,6 +2,7 @@ import unittest
 import dbgateway
 import time
 import datetime
+import json
 
 LOCATOR = "pq://postgres:password@localhost/perspective"
 dbgw = dbgateway.DbGateway(LOCATOR)
@@ -63,6 +64,17 @@ class DbGatewayTests(unittest.TestCase):
         self.assertEquals(version, 1)
         version = dbgw.update_item(item_id, "{ \"foo\":3 }", user_id)
         self.assertEquals(version, 2)
+
+    def test_update_get_private_data(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        dbgw.update_private(item_id, "{\"secret\": \"boo\"}", user_id)
+        private_data = json.loads(dbgw.get_private(item_id))
+        self.assertEquals(1, len(private_data))
+        self.assertEquals("boo", private_data["secret"])
+        dbgw.update_private(item_id, None, user_id)
+        self.assertIsNone(dbgw.get_private(item_id))
 
     def test_create_find_token(self):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
