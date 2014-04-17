@@ -55,7 +55,7 @@ class Processor:
                 item_path = posixpath.dirname(item_path)
                 item_handle = self.item_finder.find(item_path, user_handle)
             else:
-                return None
+                raise ServiceException(404, "bad path:" + item_path)
         item = self.item_loader.load(item_handle)
         user_auth_name = item_handle.get_auth_name()
         worker = Worker(self, item, user_handle)
