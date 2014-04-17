@@ -47,8 +47,14 @@ class ItemTests(unittest.TestCase):
         processor.execute("/foo", "post", "/users/system", {"name": "bar"})
         self.assertIsNotNone(processor.execute("/foo/bar", "get", "/users/system", {}))
         processor.execute("/foo", "delete", "/users/system", {})
-        self.assertIsNone(processor.execute("/foo", "get", "/users/system", {}))
-        self.assertIsNone(processor.execute("/foo/bar", "get", "/users/system", {}))
+        with self.assertRaises(ServiceException) as cm:
+            processor.execute("/foo", "get", "/users/system", {})
+        self.assertEqual(cm.exception.response_code, 404)
+        self.assertEqual(cm.exception.message, "bad path:/foo")
+        with self.assertRaises(ServiceException) as cm:
+            processor.execute("/foo/bar", "get", "/users/system", {})
+        self.assertEqual(cm.exception.response_code, 404)
+        self.assertEqual(cm.exception.message, "bad path:/foo/bar")
 
     def test_delete_item_not_deletable(self):
         with self.assertRaises(ServiceException) as cm:

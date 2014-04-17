@@ -46,6 +46,10 @@ class AuthenticationTests(unittest.TestCase):
         common.get_json(self, "/", send_auth_header=False, failure_status=403,
                         failure_message="Request must contain Authorization header or parameter")
 
+    def test_bad_path(self):
+        common.log_in(self, "/")
+        response = common.get_json(self, "/not_there", failure_status=404, failure_message="bad path:/not_there")
+
     def dummy_test_get_(self):
         common.log_in(self, "/")
         for i in range(1000):
