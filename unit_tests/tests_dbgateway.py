@@ -216,14 +216,26 @@ class DbGatewayTests(unittest.TestCase):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
         user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
         item_id_foo = dbgw.create_item(None, "foo", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
-        item_id_bar = dbgw.create_item(item_id_foo, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
-        item_id_raz = dbgw.create_item(item_id_bar, "raz", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        item_id_bar = dbgw.create_item(item_id_foo, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one ban")
+        item_id_raz = dbgw.create_item(item_id_bar, "raz", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one ban")
         self.assertEquals(item_id_bar, dbgw.find_id(item_id_foo, "bar")[0])
         self.assertEquals(item_id_raz, dbgw.find_id(item_id_bar, "raz")[0])
         did_delete = dbgw.delete_item(item_id_bar)
         self.assertTrue(did_delete)
         self.assertIsNone(dbgw.find_id(item_id_foo, "bar")[0])
         self.assertIsNone(dbgw.find_id(item_id_bar, "raz")[0])
+
+    def test_list_child_items(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id_foo = dbgw.create_item(None, "foo", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        item_id_bar = dbgw.create_item(item_id_foo, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one ban")
+        item_id_raz = dbgw.create_item(item_id_foo, "raz", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one ban")
+        list = dbgw.list_child_items(item_id_foo)
+        self.assertEquals(2, len(list))
+        self.assertEquals("bar", list[0][0])
+        self.assertEquals("raz", list[1][0])
+
 
 if __name__ == '__main__':
     unittest.main()

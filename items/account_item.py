@@ -1,10 +1,11 @@
-from items.item import Item
+from items.folder_item import FolderItem
 from actionable import WithActions, Action
 from worker import ServiceException
 import performance as perf
 
 @WithActions
-class AccountItem(Item):
+class AccountItem(FolderItem):
+
     @Action("post", "editor", new_name="", new_password="")
     def post_create_user(self, worker, new_name, new_password):
         users_folder_handle = worker.find_or_create("users", type_name="folder")

@@ -1,5 +1,6 @@
 import dbgateway
 import performance as perf
+import json
 
 AuthLevelNames = ["none", "reader", "editor", "admin", "system"]
 AuthLevels = {}
@@ -98,6 +99,21 @@ class ItemFinder:
         dbgw = dbgateway.get()
         id_path = dbgw.get_item_id_path(item_id)
         return "/".join([dbgw.get_item_name(int(id)) for id in id_path.split(".")])
+
+    def list_children(self, item_id):
+        dbgw = dbgateway.get()
+        list = dbgw.list_child_items(item_id)
+        result = []
+        for name, type_id, public_data in list:
+            result.append({ "name": name, "type": self.get_type_name(type_id), "data": json.loads(public_data)})
+        return result
+
+    def get_type_name(self, type_id):
+        dbgw = dbgateway.get()
+        return dbgw.get_item_name(type_id)
+
+
+
 
 def authorize_root(user_handle):
     if user_handle and user_handle.path == "/users/system":
