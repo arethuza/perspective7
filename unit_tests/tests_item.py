@@ -62,5 +62,15 @@ class ItemTests(unittest.TestCase):
         self.assertEqual(cm.exception.response_code, 403)
         self.assertEqual(cm.exception.message, "Item cannot be deleted")
 
+    def test_set_item_name(self):
+        processor.execute("/", "post", "/users/system", {"name": "new_item", "type": "item"})
+        item_handle = processor.item_finder.find("/new_item")
+        self.assertTrue(item_handle.can_read())
+        processor.execute("/new_item", "put", "/users/system", {"name": "new_name"})
+        item_handle = processor.item_finder.find("/new_item")
+        self.assertFalse(item_handle.can_read())
+        item_handle = processor.item_finder.find("/new_name")
+        self.assertTrue(item_handle.can_read())
+
 if __name__ == '__main__':
     unittest.main()

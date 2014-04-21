@@ -362,6 +362,14 @@ class DbGateway:
         perf.end(__name__, start)
         return rows
 
+    def set_item_name(self, item_id, name):
+        start = perf.start()
+        sql = "update items set name=$2 where id=$1"
+        ps = self.connection.prepare(sql)
+        ps(item_id, name)
+        perf.end(__name__, start)
+
+
 
 
 

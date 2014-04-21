@@ -52,6 +52,10 @@ class Item(Actionable):
         item_handle = worker.find_or_create(name, "file")
         return worker.execute(item_handle.path, "put", previous=previous, _file_data=_file_data)
 
+    @Action("put", "editor", name="")
+    def rename(self, worker, name):
+        worker.set_name(name)
+
     @Action("delete", "editor")
     def delete(self, worker):
         if self.deletable:

@@ -236,6 +236,14 @@ class DbGatewayTests(unittest.TestCase):
         self.assertEquals("bar", list[0][0])
         self.assertEquals("raz", list[1][0])
 
+    def test_set_item_name(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id_foo = dbgw.create_item(None, "foo", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        dbgw.set_item_name(item_id_foo, "bar")
+        self.assertEquals("bar", dbgw.get_item_name(item_id_foo))
+
+
 
 if __name__ == '__main__':
     unittest.main()

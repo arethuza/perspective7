@@ -18,6 +18,10 @@ class ItemSaver():
         dbgw = dbgateway.get()
         return dbgw.update_private(item_handle.item_id, json.dumps(data), user_handle.item_id)
 
+    def set_item_name(self, item_handle, name):
+        dbgw = dbgateway.get()
+        dbgw.set_item_name(item_handle.item_id, name)
+
 
 
 
