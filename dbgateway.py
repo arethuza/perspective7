@@ -310,8 +310,8 @@ class DbGateway:
                "from file_blocks "
                "where item_id=$1 and file_version=$2 and block_number=$3")
         ps = self.connection.prepare(sql)
+        ps(item_id, file_version, block_number)
         perf.end(__name__, start)
-        rows = ps(item_id, file_version, block_number)
 
     def list_file_versions(self, item_id):
         start = perf.start()
@@ -368,6 +368,23 @@ class DbGateway:
         ps = self.connection.prepare(sql)
         ps(item_id, name)
         perf.end(__name__, start)
+
+    def get_first_parent_of_type(self, item_id, type_id):
+        start = perf.start()
+        sql = ("with recursive search_parents(id, type_id, parent_id, height) as ( "
+               "       select id, type_id, parent_id, 1 from items where id=$1 "
+               "   union "
+               "       select it.id, it.type_id, it.parent_id, height + 1 "
+               "       from items it "
+               "       join search_parents parents on parents.parent_id = it.id) "
+               "select id from search_parents where type_id=$2 and id != $1 order by height asc limit 1")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, type_id)
+        perf.end(__name__, start)
+        if len(rows) > 0:
+            return rows[0][0]
+        else:
+            return None
 
 
 

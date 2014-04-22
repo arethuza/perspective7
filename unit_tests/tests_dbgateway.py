@@ -243,7 +243,16 @@ class DbGatewayTests(unittest.TestCase):
         dbgw.set_item_name(item_id_foo, "bar")
         self.assertEquals("bar", dbgw.get_item_name(item_id_foo))
 
-
+    def test_get_first_parent_of_type(self):
+        type_id1 = dbgw.create_item_initial(None, "test type 1", None, "{ \"item_class\": \"foo\" }", "")
+        type_id2 = dbgw.create_item_initial(None, "test type 2", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id_foo = dbgw.create_item(None, "foo", "6.7", type_id1, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        item_id_bar = dbgw.create_item(item_id_foo, "bar", "6.7", type_id2, "3.4", "{ \"raz\": 1 }", user_id, "one ban")
+        item_id_raz = dbgw.create_item(item_id_bar, "raz", "6.7", type_id2, "3.4", "{ \"raz\": 1 }", user_id, "one ban")
+        item_id_bob = dbgw.create_item(item_id_raz, "bob", "6.7", type_id2, "3.4", "{ \"raz\": 1 }", user_id, "one ban")
+        self.assertEquals(item_id_foo, dbgw.get_first_parent_of_type(item_id_raz, type_id1))
+        self.assertEquals(item_id_raz, dbgw.get_first_parent_of_type(item_id_bob, type_id2))
 
 if __name__ == '__main__':
     unittest.main()
