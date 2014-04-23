@@ -14,7 +14,7 @@ class AccountItem(FolderItem):
         return worker.execute(new_user_handle.path, "post", password=new_password)
 
     @Action("post", "editor", name="", password="")
-    def put_login_user(self, worker, name, password):
+    def post_login_user(self, worker, name, password):
         worker.move("users")
         user_handle = worker.find(name)
         if not user_handle.can_read():

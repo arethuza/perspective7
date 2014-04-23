@@ -11,6 +11,9 @@ class AuthenticationTests(unittest.TestCase):
         common.log_in(self, "/", password="", failure_status=403, failure_message="Bad password")
         common.log_in(self, "/", name="bar", failure_status=404, failure_message="Unknown user:bar")
         common.log_in(self, "/", name="bar", password="floop", failure_status=404, failure_message="Unknown user:bar")
+        # Check we can log in to other places that just an account
+        common.log_in(self, "/system/types")
+        common.log_in(self, "/system/type", failure_status=404, failure_message="bad path:/system/type")
         # Missing password or name
         common.log_in(self, "/", name=None, failure_status=403,
                       failure_message="Request must contain Authorization header or parameter")

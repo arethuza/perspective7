@@ -7,6 +7,7 @@ AuthLevels = {}
 for level in range(0, len(AuthLevelNames)):
     AuthLevels[AuthLevelNames[level]] = level
 
+account_item_handle = None
 
 def get_authorization_level(authorization):
     if not authorization in AuthLevels:
@@ -98,7 +99,8 @@ class ItemFinder:
     def get_path(self, item_id):
         dbgw = dbgateway.get()
         id_path = dbgw.get_item_id_path(item_id)
-        return "/".join([dbgw.get_item_name(int(id)) for id in id_path.split(".")])
+        path = "/".join([dbgw.get_item_name(int(id)) for id in id_path.split(".")])
+        return path if len(path) > 0 else "/"
 
     def list_children(self, item_id):
         dbgw = dbgateway.get()
@@ -112,8 +114,14 @@ class ItemFinder:
         dbgw = dbgateway.get()
         return dbgw.get_item_name(type_id)
 
-
-
+    def get_account(self, item_id):
+        global account_item_handle
+        if account_item_handle is None:
+            account_item_handle = self.find("/system/types/account")
+        dbgw = dbgateway.get()
+        account_id = dbgw.get_first_parent_of_type(item_id, account_item_handle.item_id)
+        account_path = self.get_path(account_id)
+        return ItemHandle(path=account_path, item_id=account_id)
 
 def authorize_root(user_handle):
     if user_handle and user_handle.path == "/users/system":

@@ -105,3 +105,6 @@ class Worker():
     def set_name(self, name):
         return self.processor.item_saver.set_item_name(self.current_item.handle, name)
 
+    def get_account(self):
+        return self.processor.item_finder.get_account(self.current_item.handle.item_id)
+

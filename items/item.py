@@ -63,3 +63,8 @@ class Item(Actionable):
             return {}
         else:
             raise ServiceException(403, "Item cannot be deleted")
+
+    @Action("post", "editor", name="", password="")
+    def put_login_user(self, worker, name, password):
+        account_handle = worker.get_account()
+        return worker.execute(account_handle.path, "post", name=name, password=password)

@@ -72,5 +72,14 @@ class ItemTests(unittest.TestCase):
         item_handle = processor.item_finder.find("/new_name")
         self.assertTrue(item_handle.can_read())
 
+    def test_create_user_and_login_through_item(self):
+        processor.execute("/", "post", "/users/system", {"new_name": "test_user", "new_password": "floop"})
+        processor.execute("/", "post", "/users/system", {"name": "test_item", "type": "item"})
+        response = processor.execute("/test_item", "post", "/users/system",
+                                                    {"name": "test_user", "password": "floop"})
+        self.assertEqual(50, len(response["token"]))
+        self.assertTrue(response["expires_at"])
+
+
 if __name__ == '__main__':
     unittest.main()
