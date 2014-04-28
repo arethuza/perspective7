@@ -14,7 +14,7 @@ class Actionable():
         user_auth_level = get_authorization_level(user_auth_name)
         match_found = False
         function_name = None
-        for _, name, _, f, action_verb, action_auth_level, action_kwargs in self.__class__.actions:
+        for _, name, _, f, action_verb, action_auth_level, action_kwargs, _ in self.__class__.actions:
             if action_verb == verb and action_auth_level <= user_auth_level:
                 if len(action_kwargs) == len(kwargs):
                     if len(action_kwargs) == 0:
@@ -73,7 +73,9 @@ class Action:
         def wrapped(*args, **kwargs):
             return f(*args, **kwargs)
         _, line_number = inspect.getsourcelines(f)
-        wrapped.action_spec = [1000000, f.__name__, line_number, wrapped, self.verb, self.auth_level, self.kwargs]
+        # Make this a list as we need to update element 0 later on
+        wrapped.action_spec = [1000000, f.__name__, line_number, wrapped, self.verb, self.auth_level, self.kwargs,
+                               inspect.getdoc(f)]
         return wrapped
 
 def WithActions(cls):

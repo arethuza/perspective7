@@ -1,5 +1,5 @@
 import posixpath
-from item_loader import ItemHandle, get_authorization_level
+from item_finder import ItemHandle, get_authorization_level
 
 AUTH_LEVEL_NONE = get_authorization_level("none")
 

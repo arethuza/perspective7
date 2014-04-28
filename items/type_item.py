@@ -1,5 +1,10 @@
 from actionable import Actionable, WithActions, Action
+from items.item import Item
 
 @WithActions
-class TypeItem(Actionable):
+class TypeItem(Item):
     pass
+
+    @Action("get", "reader")
+    def get(self, worker):
+        pass

@@ -40,7 +40,6 @@ class Item(Actionable):
     @Action("post", "editor", name="", type="")
     def create_item(self, worker, name, type):
         item_handle = worker.create(name, type)
-        result = {}
         return worker.execute(item_handle.path, "get", view="meta")
 
     @Action("put", "editor", name="", _file_data="")

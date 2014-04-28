@@ -7,18 +7,22 @@ class ActionableTest(Actionable):
 
     @Action("put", "editor")
     def action1(self):
+        """doc action 1"""
         return 1
 
     @Action("post", "editor")
     def action2(self):
+        """doc action 2"""
         return 2
 
     @Action("get", "reader")
     def action0(self):
+        """doc action 0"""
         return 0
 
     @Action("get", "reader", foo='bar')
     def action3(self):
+        """doc action 3"""
         return 3
 
 
@@ -27,30 +31,37 @@ class ActionableTest2(ActionableTest):
 
     @Action("put", "editor")
     def action4(self):
+        """doc action 4"""
         return 10
 
     @Action("get", "reader", foo='bar', raz="woof")
     def action4(self):
+        """doc action 4 - 2"""
         return 20
 
     @Action("post", "reader")
     def action5(self, arg):
+        """doc action 5"""
         return 30
 
     @Action("post", "reader", foo='floop')
     def action6(self, arg):
+        """doc action 6"""
         return 40
 
     @Action("post", "editor", foo='')
     def action7(self, foo):
+        """doc action 7"""
         return foo
 
     @Action("delete", "editor", foo='int:3')
     def action8(self):
+        """doc action 8"""
         return 3
 
     @Action("options", "editor", foo='int:')
     def action9(self, foo):
+        """doc action 9"""
         return foo
 
 class ActionableTests(unittest.TestCase):
