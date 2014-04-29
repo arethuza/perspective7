@@ -7,4 +7,4 @@ class TypeItem(Item):
 
     @Action("get", "reader")
     def get(self, worker):
-        pass
+        return self.list_actions()

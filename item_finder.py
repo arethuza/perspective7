@@ -9,10 +9,16 @@ for level in range(0, len(AuthLevelNames)):
 
 account_item_handle = None
 
+
 def get_authorization_level(authorization):
     if not authorization in AuthLevels:
         raise Exception("Unknown auth level: {0}".format(authorization))
     return AuthLevels[authorization]
+
+def get_authorization_level_name(auth_level):
+    if auth_level < 0 or auth_level >= len(AuthLevelNames):
+        raise Exception("Unknown auth level: {0}".format(str(auth_level)))
+    return AuthLevelNames[auth_level]
 
 class ItemHandle:
 

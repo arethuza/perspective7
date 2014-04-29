@@ -1,6 +1,6 @@
 import inspect
 from operator import itemgetter
-from item_finder import get_authorization_level
+from item_finder import get_authorization_level, get_authorization_level_name
 import performance as perf
 
 class NoAuthorizedActionException(Exception):
@@ -14,7 +14,7 @@ class Actionable():
         user_auth_level = get_authorization_level(user_auth_name)
         match_found = False
         function_name = None
-        for _, name, _, f, action_verb, action_auth_level, action_kwargs, _ in self.__class__.actions:
+        for _, name, _, f, action_verb, action_auth_level, action_kwargs, _, _ in self.__class__.actions:
             if action_verb == verb and action_auth_level <= user_auth_level:
                 if len(action_kwargs) == len(kwargs):
                     if len(action_kwargs) == 0:
@@ -63,6 +63,9 @@ class Actionable():
         else:
             raise NoAuthorizedActionException()
 
+    def list_actions(self):
+        return [{"verb": verb, "auth_level": get_authorization_level_name(auth_level), "docs": docs, "params": params}
+                for _, _, _, _, verb, auth_level, _, docs, params in self.__class__.actions]
 
 class Action:
     def __init__(self, verb, auth_name, **kwargs):
@@ -75,7 +78,7 @@ class Action:
         _, line_number = inspect.getsourcelines(f)
         # Make this a list as we need to update element 0 later on
         wrapped.action_spec = [1000000, f.__name__, line_number, wrapped, self.verb, self.auth_level, self.kwargs,
-                               inspect.getdoc(f)]
+                               inspect.getdoc(f), f.__annotations__]
         return wrapped
 
 def WithActions(cls):
