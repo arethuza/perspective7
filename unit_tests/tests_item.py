@@ -80,6 +80,19 @@ class ItemTests(unittest.TestCase):
         self.assertEqual(50, len(response["token"]))
         self.assertTrue(response["expires_at"])
 
+    def test_create_item_twice(self):
+        processor.execute("/", "post", "/users/system", {"name": "test_item", "type": "item"})
+        with self.assertRaises(ServiceException) as cm:
+            processor.execute("/", "post", "/users/system", {"name": "test_item", "type": "item"})
+        self.assertEqual(403, cm.exception.response_code, 403)
+        self.assertEqual("Failed to create item: test_item", cm.exception.message)
+
+    def test_bad_param_name(self):
+        with self.assertRaises(ServiceException) as cm:
+            processor.execute("/", "post", "/users/system", {"name": "test_item", "typ": "item"})
+        self.assertEqual(403, cm.exception.response_code, 403)
+        self.assertEqual("No matching action", cm.exception.message)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -25,7 +25,8 @@ class Worker():
         if type_item is None:
             raise ServiceException(403, "Unknown item type:" + type_name)
         json_data = self.processor.item_loader.load_template_json(type_name)
-        self.processor.item_creator.create(self.current_item, name, type_item, json_data, self.user_handle)
+        if self.processor.item_creator.create(self.current_item, name, type_item, json_data, self.user_handle) is None:
+            raise ServiceException(403, "Failed to create item: " + name)
         path = posixpath.join(self.current_item.handle.path, name)
         self.execute(path, "init")
         return self.processor.item_finder.find(path, self.user_handle)

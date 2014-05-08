@@ -64,8 +64,19 @@ class Actionable():
             raise NoAuthorizedActionException()
 
     def list_actions(self):
-        return [{"verb": verb, "auth_level": get_authorization_level_name(auth_level), "docs": docs, "params": params}
-                for _, _, _, _, verb, auth_level, _, docs, params in self.__class__.actions]
+        actions_list = [{"verb": verb, "auth_level": get_authorization_level_name(auth_level),
+                        "docs": docs, "params": params}
+                        for _, _, _, _, verb, auth_level, _, docs, params in self.__class__.actions
+                        if verb != "init"]
+        for action in actions_list:
+            params = action["params"]
+            if "return" in params:
+                action["returns"] = params["return"]
+                del params["return"]
+            if "_file_data" in params:
+                action["request_body"] = params["_file_data"]
+                del params["_file_data"]
+        return actions_list
 
 class Action:
     def __init__(self, verb, auth_name, **kwargs):
@@ -102,7 +113,6 @@ def get_distance_from_actionable(cls):
             return result
         else:
             result += 1
-
 
 def get_class_that_defined_method(cls, name):
     for c in reversed(inspect.getmro(cls)):

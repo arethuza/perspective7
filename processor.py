@@ -13,7 +13,7 @@ from items.file_item import FileResponse
 import performance as perf
 import posixpath
 import dbgateway
-
+from actionable import NoAuthorizedActionException
 
 class Processor:
 
@@ -60,7 +60,10 @@ class Processor:
         user_auth_name = item_handle.get_auth_name()
         worker = Worker(self, item, user_handle)
         item.modified = False
-        result = item.invoke(verb, user_auth_name, [worker], **args)
+        try:
+            result = item.invoke(verb, user_auth_name, [worker], **args)
+        except NoAuthorizedActionException:
+            raise ServiceException(403, "No matching action")
         if item.modified:
             version = self.item_saver.save(item, user_handle)
             result["version"] = version

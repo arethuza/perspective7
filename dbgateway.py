@@ -63,9 +63,13 @@ class DbGateway:
                "  $4, text2ltree($5), $6, now(), $7, now(), $7, $8)"
                "returning id")
         ps = self.connection.prepare(sql)
-        rows = ps(parent_id, name, id_path, type_id, type_path, public_data, created_by, search_text)
-        perf.end(__name__, start)
-        return rows[0][0]
+        try:
+            rows = ps(parent_id, name, id_path, type_id, type_path, public_data, created_by, search_text)
+            return rows[0][0]
+        except postgresql.exceptions.UniqueError as ex:
+            return None
+        finally:
+            perf.end(__name__, start)
 
     def find_id(self, parent_id, name, select_auth=False):
         start = perf.start()

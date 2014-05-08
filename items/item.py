@@ -47,12 +47,17 @@ class Item(Actionable):
         return worker.execute(item_handle.path, "get", view="meta")
 
     @Action("put", "editor", name="", _file_data="")
-    def put_file(self, worker, name, _file_data):
-        """Put a file without"""
+    def put_file(self, worker,
+                 name: "Name for the new file",
+                 _file_data: "File data"):
+        """Put a file"""
         return self.put_file_previous(worker, name, None, _file_data)
 
     @Action("put", "editor", name="", previous="", _file_data="")
-    def put_file_previous(self, worker, name, previous, _file_data):
+    def put_file_previous(self, worker,
+                          name: "Name for the new file",
+                          previous: "Previous version",
+                          _file_data):
         """Put a file specifying a previous version"""
         item_handle = worker.find_or_create(name, "file")
         return worker.execute(item_handle.path, "put", previous=previous, _file_data=_file_data)
