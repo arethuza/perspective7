@@ -21,14 +21,14 @@ class ItemTests(unittest.TestCase):
         dbgw.reset()
 
     def test_create_item_default_type(self):
-        response = processor.execute("/", "post", "/users/system", {"name": "new_item"})
+        processor.execute("/", "post", "/users/system", {"name": "new_item"})
         item_handle = processor.item_finder.find("/new_item")
         self.assertTrue(item_handle.can_read())
         item = processor.item_loader.load(item_handle)
         self.assertEquals(item.name, "new_item")
 
     def test_create_item_with_type(self):
-        response = processor.execute("/", "post", "/users/system", {"name": "new_item", "type": "user"})
+        processor.execute("/", "post", "/users/system", {"name": "new_item", "type": "user"})
         item_handle = processor.item_finder.find("/new_item")
         self.assertTrue(item_handle.can_read())
         item = processor.item_loader.load(item_handle)
@@ -75,8 +75,8 @@ class ItemTests(unittest.TestCase):
     def test_create_user_and_login_through_item(self):
         processor.execute("/", "post", "/users/system", {"new_name": "test_user", "new_password": "floop"})
         processor.execute("/", "post", "/users/system", {"name": "test_item", "type": "item"})
-        response = processor.execute("/test_item", "post", "/users/system",
-                                                    {"name": "test_user", "password": "floop"})
+        response, return_type = processor.execute("/test_item", "post", "/users/system",
+                                                  {"name": "test_user", "password": "floop"})
         self.assertEqual(50, len(response["token"]))
         self.assertTrue(response["expires_at"])
 

@@ -41,10 +41,11 @@ class Item(Actionable):
     @Action("post", "editor", name="", type="")
     def create_item(self, worker,
                     name: "name of item to be created",
-                    type: "name of type of item to be created") -> "foo":
+                    type: "name of type of item to be created") -> "get-item":
         """Create child item with the specified name and type"""
         item_handle = worker.create(name, type)
-        return worker.execute(item_handle.path, "get", view="meta")
+        response, _ = worker.execute(item_handle.path, "get", view="meta")
+        return response
 
     @Action("put", "editor", name="", _file_data="")
     def put_file(self, worker,
@@ -57,19 +58,21 @@ class Item(Actionable):
     def put_file_previous(self, worker,
                           name: "Name for the new file",
                           previous: "Previous version",
-                          _file_data):
+                          _file_data) -> "get-file":
         """Put a file specifying a previous version"""
         item_handle = worker.find_or_create(name, "file")
-        return worker.execute(item_handle.path, "put", previous=previous, _file_data=_file_data)
+        response, _ = worker.execute(item_handle.path, "put", previous=previous, _file_data=_file_data)
+        return response
 
     @Action("put", "editor", name="")
     def rename(self, worker,
-               name: "New name for the current item"):
+               name: "New name for the current item") -> "":
         """Rename the current item"""
         worker.set_name(name)
+        return {}
 
     @Action("delete", "editor")
-    def delete(self, worker):
+    def delete(self, worker) -> "":
         """Delete the current item"""
         if self.deletable:
             worker.delete_item()
@@ -80,7 +83,8 @@ class Item(Actionable):
     @Action("post", "editor", name="", password="")
     def put_login_user(self, worker,
                        name: "User name",
-                       password: "User password"):
+                       password: "User password") -> "post-login":
         """Log in using the supplied user name and password to the nearest parent account item"""
         account_handle = worker.get_account()
-        return worker.execute(account_handle.path, "post", name=name, password=password)
+        response, _ = worker.execute(account_handle.path, "post", name=name, password=password)
+        return response

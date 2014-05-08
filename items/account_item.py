@@ -19,7 +19,7 @@ class AccountItem(FolderItem):
         user_handle = worker.find(name)
         if not user_handle.can_read():
             raise ServiceException(404, "Unknown user:{0}".format(name))
-        response = worker.execute(user_handle.path, "put", password=password)
+        response, _ = worker.execute(user_handle.path, "put", password=password)
         response["account_path"] = self.handle.path
         return response
 

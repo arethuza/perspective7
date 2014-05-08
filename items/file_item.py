@@ -42,7 +42,8 @@ class FileItem(Item):
             worker.finalize_file_version(file_version)
 
     @Action("get", "reader")
-    def get_file(self, worker):
+    def get_file(self, worker) -> "binary":
+        """ Return the current version of a file """
         return self.get_file_version(worker, self.file_version)
 
     @Action("get", "reader", view="meta")
@@ -52,7 +53,9 @@ class FileItem(Item):
         return result
 
     @Action("get", "reader", file_version="")
-    def get_file_version(self, worker, file_version):
+    def get_file_version(self, worker,
+                         file_version: "Version of the file to return") -> "binary":
+        """ Return a specified version of a file """
         file_version = int(file_version)
         file_length = worker.get_file_length(file_version)
         if file_length is None:

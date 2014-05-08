@@ -61,14 +61,14 @@ class Processor:
         worker = Worker(self, item, user_handle)
         item.modified = False
         try:
-            result = item.invoke(verb, user_auth_name, [worker], **args)
+            result, return_type = item.invoke(verb, user_auth_name, [worker], **args)
         except NoAuthorizedActionException:
             raise ServiceException(403, "No matching action")
         if item.modified:
             version = self.item_saver.save(item, user_handle)
             result["version"] = version
         perf.end(__name__, start)
-        return result
+        return result, return_type
 
     def check_login(self, item_path, verb, args):
         start = perf.start()
@@ -76,7 +76,7 @@ class Processor:
             result = None
         else:
             # We are doing a "get" and supplying a name and password -> we are trying to log in
-            result = self.execute(item_path, verb, self.item_finder.find_system_user(), args)
+            result, _ = self.execute(item_path, verb, self.item_finder.find_system_user(), args)
         perf.end(__name__, start)
         return result
 

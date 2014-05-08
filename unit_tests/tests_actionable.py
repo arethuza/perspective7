@@ -93,24 +93,24 @@ class ActionableTests(unittest.TestCase):
     def test_action_no_args(self):
         at = ActionableTest()
         self.assertEqual(len(ActionableTest.actions), 4)
-        self.assertEqual(at.invoke("get", "reader"), 0)
+        self.assertEqual(at.invoke("get", "reader"), (0, None))
 
     def test_action_with_arg(self):
         at = ActionableTest()
         self.assertEqual(len(ActionableTest.actions), 4)
-        self.assertEqual(at.invoke("get", "reader", foo="bar"), 3)
+        self.assertEqual(at.invoke("get", "reader", foo="bar"), (3, None))
 
 
     def test_action_subclass(self):
         at2 = ActionableTest2()
         self.assertEqual(len(ActionableTest2.actions), 10)
-        self.assertEqual(at2.invoke("get", "reader"), 0)
+        self.assertEqual(at2.invoke("get", "reader"), (0, None))
 
     def test_action_subclass_args(self):
         at2 = ActionableTest2()
         self.assertEqual(len(ActionableTest2.actions), 10)
-        self.assertEqual(at2.invoke("get", "reader", foo="bar"), 3)
-        self.assertEqual(at2.invoke("get", "reader", foo="bar", raz="woof"), 20)
+        self.assertEqual(at2.invoke("get", "reader", foo="bar"), (3, None))
+        self.assertEqual(at2.invoke("get", "reader", foo="bar", raz="woof"), (20, None))
 
     def test_unknown_authorization(self):
         at2 = ActionableTest2()
@@ -122,24 +122,24 @@ class ActionableTests(unittest.TestCase):
 
     def test_positional_arg(self):
         at2 = ActionableTest2()
-        self.assertEqual(at2.invoke("post", "reader", ["foo"]), 30)
+        self.assertEqual(at2.invoke("post", "reader", ["foo"]), (30, None))
 
     def test_positional_and_kw_arg(self):
         at2 = ActionableTest2()
-        self.assertEqual(at2.invoke("post", "reader", ["foo"], foo="floop"), 40)
+        self.assertEqual(at2.invoke("post", "reader", ["foo"], foo="floop"), (40, None))
 
     def test_wildcard_kw_arg(self):
         at2 = ActionableTest2()
-        self.assertEqual(at2.invoke("post", "editor", [], foo="floop"), "floop")
+        self.assertEqual(at2.invoke("post", "editor", [], foo="floop"), ("floop", None))
 
     def test_int_typed_kw_arg_with_expected_value(self):
         at2 = ActionableTest2()
-        self.assertEqual(at2.invoke("delete", "editor", [], foo="3"), 3)
+        self.assertEqual(at2.invoke("delete", "editor", [], foo="3"), (3, None))
 
     def test_int_typed_kw_arg(self):
         at2 = ActionableTest2()
-        self.assertEqual(at2.invoke("options", "editor", [], foo="1"), 1)
-        self.assertEqual(at2.invoke("options", "editor", [], foo="2"), 2)
+        self.assertEqual(at2.invoke("options", "editor", [], foo="1"), (1, None))
+        self.assertEqual(at2.invoke("options", "editor", [], foo="2"), (2, None))
 
     def test_int_typed_kw_arg_bad_argument(self):
         at2 = ActionableTest2()

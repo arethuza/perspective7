@@ -23,14 +23,14 @@ class PerspectiveService(object):
             login_response = self.processor.check_login(path, verb, cherrypy.request.params)
             if login_response is not None:
                 # Request was successful attempt to log in
-                response = _serve_json(login_response, "")
+                response = _serve_json(login_response, "post-login")
             else:
                 user_handle = self._authenticate()
                 file_data = None
                 if verb == "put" and "wsgi.input" in cherrypy.request.wsgi_environ:
                     file_data = cherrypy.request.wsgi_environ['wsgi.input'].read()
                     cherrypy.request.params["_file_data"] = file_data
-                response = self.processor.execute(path, verb, user_handle, cherrypy.request.params)
+                response, return_type = self.processor.execute(path, verb, user_handle, cherrypy.request.params)
                 if isinstance(response, FileResponse):
                     cherrypy.response.stream = True
                     cherrypy.response.headers["Content-Type"] = "application/octet-stream"
@@ -38,7 +38,7 @@ class PerspectiveService(object):
                     cherrypy.response.headers["Content-Length"] = str(response.length)
                     response = response.block_yielder()
                 else:
-                    response = _serve_json(response, "")
+                    response = _serve_json(response, return_type)
             perf.end2("service", "default", start)
             return response
         except ServiceException as exception:
