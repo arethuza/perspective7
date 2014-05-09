@@ -35,13 +35,13 @@ class Item(Actionable):
 
     @Action("post", "editor", name="")
     def create_item_default_type(self, worker,
-                                 name: "name of item to be created"):
+                                 name: "string: name of item to be created"):
         return self.create_item(worker, name, "item")
 
     @Action("post", "editor", name="", type="")
     def create_item(self, worker,
-                    name: "name of item to be created",
-                    type: "name of type of item to be created") -> "get-item":
+                    name: "string: name of item to be created",
+                    type: "string: name of type of item to be created") -> "get-item":
         """Create child item with the specified name and type"""
         item_handle = worker.create(name, type)
         response, _ = worker.execute(item_handle.path, "get", view="meta")
@@ -56,8 +56,8 @@ class Item(Actionable):
 
     @Action("put", "editor", name="", previous="", _file_data="")
     def put_file_previous(self, worker,
-                          name: "Name for the new file",
-                          previous: "Previous version",
+                          name: "string: Name for the new file",
+                          previous: "integer: Previous version",
                           _file_data) -> "get-file":
         """Put a file specifying a previous version"""
         item_handle = worker.find_or_create(name, "file")
@@ -66,7 +66,7 @@ class Item(Actionable):
 
     @Action("put", "editor", name="")
     def rename(self, worker,
-               name: "New name for the current item") -> "":
+               name: "string: New name for the current item") -> "":
         """Rename the current item"""
         worker.set_name(name)
         return {}
@@ -82,8 +82,8 @@ class Item(Actionable):
 
     @Action("post", "editor", name="", password="")
     def put_login_user(self, worker,
-                       name: "User name",
-                       password: "User password") -> "post-login":
+                       name: "string: User name",
+                       password: "string: User password") -> "post-login":
         """Log in using the supplied user name and password to the nearest parent account item"""
         account_handle = worker.get_account()
         response, _ = worker.execute(account_handle.path, "post", name=name, password=password)

@@ -17,11 +17,14 @@ class FileItem(Item):
         worker.create_initial_file_version()
 
     @Action("put", "editor", _file_data="")
-    def put_file(self, worker, _file_data):
+    def put_file(self, worker,
+                 _file_data):
         return self.put_file_previous(worker, None, _file_data)
 
     @Action("put", "editor", previous="", _file_data="")
-    def put_file_previous(self, worker, previous, _file_data):
+    def put_file_previous(self, worker,
+                          previous: "int: Previous version of the file that new version is based on.",
+                          _file_data):
         file_version, file_length, file_hash = worker.write_file_data(previous, _file_data)
         self.set_field("file_version", file_version)
         result = dict()
@@ -31,11 +34,18 @@ class FileItem(Item):
         return result
 
     @Action("put", "editor", file_version="", block_number="", _file_data="")
-    def put_file_block(self, worker, file_version, block_number, _file_data):
+    def put_file_block(self, worker,
+                       file_version: "int: Version of the file",
+                       block_number: "int: Block number",
+                       _file_data):
         worker.write_block_data(file_version, block_number, _file_data, False)
 
     @Action("put", "editor", file_version="", block_number="", last_block="", _file_data="")
-    def put_file_block_completed(self, worker, file_version, block_number, last_block, _file_data):
+    def put_file_block_completed(self, worker,
+                                 file_version: "int: Version of the file",
+                                 block_number: "int: Block number",
+                                 last_block: "bool: Is this the last block in the file?",
+                                 _file_data):
         if len(_file_data) > 0:
             worker.write_block_data(file_version, block_number, _file_data, last_block)
         if last_block:
@@ -70,7 +80,8 @@ class FileItem(Item):
         return worker.list_file_versions()
 
     @Action("post", "editor", previous="")
-    def post_file_version(self, worker, previous):
+    def post_file_version(self, worker,
+                          previous):
         result = dict()
         result["file_version"] = worker.create_file_version(previous)
         return result
