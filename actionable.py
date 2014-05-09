@@ -9,13 +9,13 @@ class NoAuthorizedActionException(Exception):
 
 class Actionable():
 
-    def invoke(self, verb, user_auth_name, args=[], **kwargs):
+    def invoke(self, http_method, user_auth_name, args=[], **kwargs):
         start = perf.start()
         user_auth_level = get_authorization_level(user_auth_name)
         match_found = False
         function_name = None
-        for _, name, _, f, action_verb, action_auth_level, action_kwargs, _, _, return_type in self.__class__.actions:
-            if action_verb == verb and action_auth_level <= user_auth_level:
+        for _, name, _, f, action_http_method, action_auth_level, action_kwargs, _, _, return_type in self.__class__.actions:
+            if action_http_method == http_method and action_auth_level <= user_auth_level:
                 if len(action_kwargs) == len(kwargs):
                     if len(action_kwargs) == 0:
                         function_name = name
@@ -63,21 +63,23 @@ class Actionable():
         else:
             raise NoAuthorizedActionException()
 
-    def list_actions(self):
-        actions_list = [{"verb": verb, "auth_level": get_authorization_level_name(auth_level),
-                        "docs": docs, "params": params, "returns": return_type}
-                        for _, _, _, _, verb, auth_level, _, docs, params, return_type in self.__class__.actions
-                        if verb != "init"]
-        for action in actions_list:
-            params = action["params"]
-            if "_file_data" in params:
-                action["request_body"] = params["_file_data"]
-                del params["_file_data"]
-        return actions_list
+
+def list_actions(cls):
+    actions_list = [{"http_method": http_method, "auth_level": get_authorization_level_name(auth_level),
+                    "docs": docs, "params": params, "returns": return_type}
+                    for _, _, _, _, http_method, auth_level, _, docs, params, return_type in cls.actions
+                    if http_method != "init"]
+    for action in actions_list:
+        params = action["params"]
+        if "_file_data" in params:
+            action["request_body"] = params["_file_data"]
+            del params["_file_data"]
+    return actions_list
+
 
 class Action:
-    def __init__(self, verb, auth_name, **kwargs):
-        self.verb = verb
+    def __init__(self, http_method, auth_name, **kwargs):
+        self.http_method = http_method
         self.auth_level = get_authorization_level(auth_name)
         self.kwargs = kwargs
     def __call__(self, f):
@@ -89,9 +91,10 @@ class Action:
             return_type = f.__annotations__["return"]
             del f.__annotations__["return"]
         # Make this a list as we need to update element 0 later on
-        wrapped.action_spec = [1000000, f.__name__, line_number, wrapped, self.verb, self.auth_level, self.kwargs,
+        wrapped.action_spec = [1000000, f.__name__, line_number, wrapped, self.http_method, self.auth_level, self.kwargs,
                                inspect.getdoc(f), f.__annotations__, return_type]
         return wrapped
+
 
 def WithActions(cls):
     cls.actions = []

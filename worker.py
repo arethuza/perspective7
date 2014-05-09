@@ -1,5 +1,8 @@
 import posixpath
 from item_finder import ItemHandle, get_authorization_level
+import item_loader
+from actionable import list_actions
+
 
 AUTH_LEVEL_NONE = get_authorization_level("none")
 
@@ -108,4 +111,8 @@ class Worker():
 
     def get_account(self):
         return self.processor.item_finder.get_account(self.current_item.handle.item_id)
+
+    def list_actions(self, class_name):
+        cls = item_loader.get_class(class_name)
+        return list_actions(cls)
 

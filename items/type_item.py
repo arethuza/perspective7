@@ -7,4 +7,6 @@ class TypeItem(Item):
 
     @Action("get", "reader")
     def get(self, worker):
-        return self.list_actions()
+        """ List the actions for the type defined by the current item """
+        class_name = self.item_data["item_class"]
+        return worker.list_actions(class_name)

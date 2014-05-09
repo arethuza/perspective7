@@ -19,18 +19,18 @@ class PerspectiveService(object):
         try:
             start = perf.start()
             path = cherrypy.request.path_info
-            verb = cherrypy.request.method.lower()
-            login_response = self.processor.check_login(path, verb, cherrypy.request.params)
+            http_method = cherrypy.request.method.lower()
+            login_response = self.processor.check_login(path, http_method, cherrypy.request.params)
             if login_response is not None:
                 # Request was successful attempt to log in
                 response = _serve_json(login_response, "post-login")
             else:
                 user_handle = self._authenticate()
                 file_data = None
-                if verb == "put" and "wsgi.input" in cherrypy.request.wsgi_environ:
+                if http_method == "put" and "wsgi.input" in cherrypy.request.wsgi_environ:
                     file_data = cherrypy.request.wsgi_environ['wsgi.input'].read()
                     cherrypy.request.params["_file_data"] = file_data
-                response, return_type = self.processor.execute(path, verb, user_handle, cherrypy.request.params)
+                response, return_type = self.processor.execute(path, http_method, user_handle, cherrypy.request.params)
                 if isinstance(response, FileResponse):
                     cherrypy.response.stream = True
                     cherrypy.response.headers["Content-Type"] = "application/octet-stream"
@@ -44,10 +44,11 @@ class PerspectiveService(object):
         except ServiceException as exception:
             cherrypy.response.status = exception.response_code
             return exception.message
-        except Exception as exception:
+        except:
             # TODO make this a bit more sensible
             cherrypy.response.status = 500
             return "Unknown error"
+
 
     def _authenticate(self):
         start = perf.start()

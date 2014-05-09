@@ -4,6 +4,14 @@ from items.type_item import TypeItem
 from item_finder import ItemHandle, get_authorization_level
 import performance as perf
 
+def get_class(name):
+    parts = name.split('.')
+    module_name = ".".join(parts[:-1])
+    m = __import__(module_name)
+    for comp in parts[1:]:
+        m = getattr(m, comp)
+    return m
+
 class ItemLoader:
 
     system_folder_id = None
@@ -88,11 +96,4 @@ class ItemLoader:
         private_data = dbgw.get_private(item_id)
         return json.loads(private_data) if private_data is not None else {}
 
-def get_class(name):
-    parts = name.split('.')
-    module_name = ".".join(parts[:-1])
-    m = __import__(module_name)
-    for comp in parts[1:]:
-        m = getattr(m, comp)
-    return m
 
