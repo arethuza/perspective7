@@ -12,7 +12,7 @@ class FileItem(Item):
         super(FileItem, self).__init__()
         self.file_version = 0
 
-    @Action("init", "system")
+    @Action("_init", "system")
     def init(self, worker):
         worker.create_initial_file_version()
 

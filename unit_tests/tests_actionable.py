@@ -1,6 +1,6 @@
 import unittest
 from actionable import WithActions, Action, Actionable, get_distance_from_actionable, \
-    get_class_that_defined_method, NoAuthorizedActionException
+    get_class_that_defined_method, NoAuthorizedActionException, list_actions
 
 @WithActions
 class ActionableTest(Actionable):
@@ -60,8 +60,13 @@ class ActionableTest2(ActionableTest):
         return 3
 
     @Action("options", "editor", foo='int:')
-    def action9(self, foo):
+    def action9(self, foo: "The foo") -> "bar":
         """doc action 9"""
+        return foo
+
+    @Action("post", "editor", foo='int:')
+    def action10(self, foo: "The foo", _file_data) -> "raz":
+        """doc action 10"""
         return foo
 
 class ActionableTests(unittest.TestCase):
@@ -103,12 +108,11 @@ class ActionableTests(unittest.TestCase):
 
     def test_action_subclass(self):
         at2 = ActionableTest2()
-        self.assertEqual(len(ActionableTest2.actions), 10)
+        self.assertEqual(len(ActionableTest2.actions), 11)
         self.assertEqual(at2.invoke("get", "reader"), (0, None))
 
     def test_action_subclass_args(self):
         at2 = ActionableTest2()
-        self.assertEqual(len(ActionableTest2.actions), 10)
         self.assertEqual(at2.invoke("get", "reader", foo="bar"), (3, None))
         self.assertEqual(at2.invoke("get", "reader", foo="bar", raz="woof"), (20, None))
 
@@ -128,24 +132,31 @@ class ActionableTests(unittest.TestCase):
         at2 = ActionableTest2()
         self.assertEqual(at2.invoke("post", "reader", ["foo"], foo="floop"), (40, None))
 
-    def test_wildcard_kw_arg(self):
-        at2 = ActionableTest2()
-        self.assertEqual(at2.invoke("post", "editor", [], foo="floop"), ("floop", None))
-
     def test_int_typed_kw_arg_with_expected_value(self):
         at2 = ActionableTest2()
         self.assertEqual(at2.invoke("delete", "editor", [], foo="3"), (3, None))
 
     def test_int_typed_kw_arg(self):
         at2 = ActionableTest2()
-        self.assertEqual(at2.invoke("options", "editor", [], foo="1"), (1, None))
-        self.assertEqual(at2.invoke("options", "editor", [], foo="2"), (2, None))
+        self.assertEqual(at2.invoke("options", "editor", [], foo="1"), (1, "bar"))
+        self.assertEqual(at2.invoke("options", "editor", [], foo="2"), (2, "bar"))
 
     def test_int_typed_kw_arg_bad_argument(self):
         at2 = ActionableTest2()
         with self.assertRaises(Exception) as cm:
             at2.invoke("options", "editor", [], foo="bar")
         self.assertEquals(cm.exception.args[0], "Bad int value: foo=bar")
+
+    def test_list_actions(self):
+        actions = list_actions(ActionableTest2)
+        action = actions[1]
+        self.assertEquals(5, len(action))
+        self.assertEquals("doc action 9", action["doc"])
+        self.assertEquals("options", action["http_method"])
+        self.assertEquals("editor", action["auth_level"])
+        self.assertEquals("bar", action["returns"])
+        self.assertEquals([{"name": "foo", "doc": "The foo"}], action["params"])
+
 
 if __name__ == '__main__':
     unittest.main()

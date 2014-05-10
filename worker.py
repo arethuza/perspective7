@@ -31,7 +31,7 @@ class Worker():
         if self.processor.item_creator.create(self.current_item, name, type_item, json_data, self.user_handle) is None:
             raise ServiceException(403, "Failed to create item: " + name)
         path = posixpath.join(self.current_item.handle.path, name)
-        self.execute(path, "init")
+        self.execute(path, "_init")
         return self.processor.item_finder.find(path, self.user_handle)
 
     def find_or_create(self, name, type_name="item"):

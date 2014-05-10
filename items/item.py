@@ -17,7 +17,7 @@ class Item(Actionable):
         if not self.modified:
             self.modified = True
 
-    @Action("init", "system")
+    @Action("_init", "system")
     def init(self, worker):
         pass
 

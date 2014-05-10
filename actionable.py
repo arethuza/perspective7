@@ -1,7 +1,8 @@
 import inspect
-from operator import itemgetter
+from operator import attrgetter
 from item_finder import get_authorization_level, get_authorization_level_name
 import performance as perf
+import copy
 
 class NoAuthorizedActionException(Exception):
     pass
@@ -13,17 +14,20 @@ class Actionable():
         start = perf.start()
         user_auth_level = get_authorization_level(user_auth_name)
         match_found = False
-        function_name = None
-        for _, name, _, f, action_http_method, action_auth_level, action_kwargs, _, _, return_type in self.__class__.actions:
-            if action_http_method == http_method and action_auth_level <= user_auth_level:
-                if len(action_kwargs) == len(kwargs):
-                    if len(action_kwargs) == 0:
-                        function_name = name
+        # Look at each ActionSpecification for the current class
+        for action_spec in self.__class__.actions:
+            # Matching HTTP method and is authorized?
+            if action_spec.http_method == http_method and action_spec.auth_level <= user_auth_level:
+                # Supplied number of arguments matches number of keyword parameters?
+                if len(action_spec.kwargs) == len(kwargs):
+                    # Not expecting any arguments?
+                    if len(action_spec.kwargs) == 0:
                         match_found = True
                         break
                     else:
+                        # Check the keyword parameters against supplied arguments
                         matching_count = 0
-                        for name, value in action_kwargs.items():
+                        for name, value in action_spec.kwargs.items():
                             if name in kwargs and value == "":
                                 # Allow any value, pass value in
                                 matching_count += 1
@@ -50,31 +54,20 @@ class Actionable():
                                                 matching_count += 1
                                         else:
                                             matching_count += 1
-                        if matching_count == len(action_kwargs):
-                            function_name = name
+                        if matching_count == len(action_spec.kwargs):
                             match_found = True
                             break
         perf.end(__name__, start)
         if match_found:
             call_start = perf.start()
-            result = f(self, *args, **kwargs), return_type
-            perf.end2(self.__class__.__name__, function_name, call_start)
+            result = action_spec.f(self, *args, **kwargs), action_spec.return_type
+            perf.end2(self.__class__.__name__, action_spec.name, call_start)
             return result
         else:
             raise NoAuthorizedActionException()
 
-
 def list_actions(cls):
-    actions_list = [{"http_method": http_method, "auth_level": get_authorization_level_name(auth_level),
-                    "docs": docs, "params": params, "returns": return_type}
-                    for _, _, _, _, http_method, auth_level, _, docs, params, return_type in cls.actions
-                    if http_method != "init"]
-    for action in actions_list:
-        params = action["params"]
-        if "_file_data" in params:
-            action["request_body"] = params["_file_data"]
-            del params["_file_data"]
-    return actions_list
+    return [action_spec.get_details() for action_spec in cls.actions if not action_spec.http_method.startswith("_")]
 
 
 class Action:
@@ -82,18 +75,41 @@ class Action:
         self.http_method = http_method
         self.auth_level = get_authorization_level(auth_name)
         self.kwargs = kwargs
+
     def __call__(self, f):
         def wrapped(*args, **kwargs):
             return f(*args, **kwargs)
-        _, line_number = inspect.getsourcelines(f)
-        return_type = None
-        if "return" in f.__annotations__:
-            return_type = f.__annotations__["return"]
-            del f.__annotations__["return"]
-        # Make this a list as we need to update element 0 later on
-        wrapped.action_spec = [1000000, f.__name__, line_number, wrapped, self.http_method, self.auth_level, self.kwargs,
-                               inspect.getdoc(f), f.__annotations__, return_type]
+        wrapped.action_spec = ActionSpecification(f, wrapped, self)
         return wrapped
+
+
+class ActionSpecification():
+
+    def __init__(self, f, wrapped, action):
+        self.distance = 1000000
+        self.f = f
+        self.name = f.__name__
+        _, self.line_number = inspect.getsourcelines(f)
+        self.wrapped = wrapped
+        self.http_method = action.http_method
+        self.auth_level = action.auth_level
+        self.kwargs = action.kwargs
+        self.return_type = f.__annotations__["return"] if "return" in f.__annotations__ else None
+        self.params = []
+        for arg in self.kwargs:
+            if not arg in f.__annotations__:
+                continue
+            doc = f.__annotations__[arg]
+            self.params.append({"name": arg, "doc": doc})
+
+    def get_details(self):
+        return {
+            "doc": inspect.getdoc(self.f),
+            "auth_level": get_authorization_level_name(self.auth_level),
+            "http_method": self.http_method,
+            "params": self.params,
+            "returns": self.return_type
+        }
 
 
 def WithActions(cls):
@@ -102,9 +118,9 @@ def WithActions(cls):
         if hasattr(method, "action_spec"):
             action_spec = getattr(method, "action_spec")
             defining_class = get_class_that_defined_method(cls, name)
-            action_spec[0] = get_distance_from_actionable(defining_class)
+            action_spec.distance = get_distance_from_actionable(defining_class)
             cls.actions.append(action_spec)
-    cls.actions.sort(key=itemgetter(0, 1), reverse=True)
+    cls.actions.sort(key=attrgetter("distance", "line_number"), reverse=True)
     return cls
 
 
