@@ -95,6 +95,8 @@ class Worker():
                 entry[field] = self.processor.item_finder.get_path(entry[field])
 
     def delete_item(self):
+        if not self.current_item.deletable:
+            raise ServiceException(403, "Item cannot be deleted")
         self.processor.item_deleter.delete_item(self.current_item.handle.item_id)
 
     def get_private(self):

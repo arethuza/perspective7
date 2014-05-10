@@ -1,5 +1,4 @@
 from actionable import Actionable, WithActions, Action
-from worker import ServiceException
 
 @WithActions
 class Item(Actionable):
@@ -74,11 +73,8 @@ class Item(Actionable):
     @Action("delete", "editor")
     def delete(self, worker) -> "":
         """Delete the current item"""
-        if self.deletable:
-            worker.delete_item()
-            return {}
-        else:
-            raise ServiceException(403, "Item cannot be deleted")
+        worker.delete_item()
+        return {}
 
     @Action("post", "editor", name="", password="")
     def put_login_user(self, worker,

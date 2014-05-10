@@ -1,6 +1,6 @@
 import cherrypy
 import json
-from worker import ServiceException
+import worker
 from processor import Processor
 from items.file_item import FileResponse
 import performance as perf
@@ -41,7 +41,7 @@ class PerspectiveService(object):
                     response = _serve_json(response, return_type)
             perf.end2("service", "default", start)
             return response
-        except ServiceException as exception:
+        except worker.ServiceException as exception:
             cherrypy.response.status = exception.response_code
             return exception.message
         except:
@@ -53,12 +53,12 @@ class PerspectiveService(object):
     def _authenticate(self):
         start = perf.start()
         if "Authorization" not in cherrypy.request.headers and "token" not in cherrypy.request.params:
-            raise ServiceException(403, "Request must contain Authorization header or parameter")
+            raise worker.ServiceException(403, "Request must contain Authorization header or parameter")
         if "Authorization" in cherrypy.request.headers:
             authorization_header = cherrypy.request.headers["Authorization"]
             a = authorization_header.split(" ")
             if len(a) != 2 or a[0] != "bearer":
-                raise ServiceException(403, "Invalid format for Authorization header")
+                raise worker.ServiceException(403, "Invalid format for Authorization header")
             token_value = a[1]
         else:
             token_value = cherrypy.request.params["token"]
@@ -69,7 +69,7 @@ class PerspectiveService(object):
             user_handle = processor.get_user_for_token(token_value)
             user_cache[token_value] = user_handle
         if user_handle is None:
-            raise ServiceException(403, "Not a valid authentication token")
+            raise worker.ServiceException(403, "Not a valid authentication token")
         perf.end(__name__, start)
         return user_handle
 
