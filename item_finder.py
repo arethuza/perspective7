@@ -108,12 +108,15 @@ class ItemFinder:
         path = "/".join([dbgw.get_item_name(int(id)) for id in id_path.split(".")])
         return path if len(path) > 0 else "/"
 
-    def list_children(self, item_id):
+    def list_children(self, item_id, return_dict):
         dbgw = dbgateway.get()
         list = dbgw.list_child_items(item_id)
-        result = []
+        result = {} if return_dict else []
         for name, type_id, public_data in list:
-            result.append({ "name": name, "type": self.get_type_name(type_id), "data": json.loads(public_data)})
+            if return_dict:
+                result[name] = {"type": self.get_type_name(type_id), "data": json.loads(public_data)}
+            else:
+                result.append({"name": name, "type": self.get_type_name(type_id), "data": json.loads(public_data)})
         return result
 
     def get_type_name(self, type_id):

@@ -54,6 +54,19 @@ class Actionable():
                                                 matching_count += 1
                                         else:
                                             matching_count += 1
+                                    elif argument_type == "bool":
+                                        try:
+                                            kwargs[name] = kwargs[name].lower() == "true"
+                                        except:
+                                            raise Exception("Bad bool value: {0}={1}".format(name, kwargs[name]))
+                                        if expected_value:
+                                            value = expected_value.lower() == "true"
+                                            if kwargs[name] == value:
+                                                del kwargs[name]
+                                                matching_count += 1
+                                        else:
+                                            matching_count += 1
+
                         if matching_count == len(action_spec.kwargs):
                             match_found = True
                             break

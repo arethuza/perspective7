@@ -105,8 +105,8 @@ class Worker():
     def set_private(self, data):
         self.processor.item_saver.set_private(self.current_item.handle, data, self.user_handle)
 
-    def list_children(self):
-        return self.processor.item_finder.list_children(self.current_item.handle.item_id)
+    def list_children(self, return_dict):
+        return self.processor.item_finder.list_children(self.current_item.handle.item_id, return_dict)
 
     def set_name(self, name):
         return self.processor.item_saver.set_item_name(self.current_item.handle, name)
