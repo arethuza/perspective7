@@ -360,7 +360,7 @@ class DbGateway:
 
     def list_child_items(self, item_id):
         start = perf.start()
-        sql = "select name, type_id, public_data from items where parent_id=$1 order by name"
+        sql = "select id, name, type_id, public_data from items where parent_id=$1 order by name"
         ps = self.connection.prepare(sql)
         rows = ps(item_id)
         perf.end(__name__, start)

@@ -13,7 +13,7 @@ processor = Processor()
 
 class FolderItemTests(unittest.TestCase):
 
-    def setUp(cls):
+    def setUp(self):
         dbgw.reset()
         init_loader.load_init_data("../database/init.json")
 
@@ -22,6 +22,7 @@ class FolderItemTests(unittest.TestCase):
 
     def test_get(self):
         response = processor.execute("/system/types", "get", "/users/system", {})
+        pass
 
 if __name__ == '__main__':
     unittest.main()

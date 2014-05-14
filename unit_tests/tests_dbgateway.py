@@ -233,8 +233,8 @@ class DbGatewayTests(unittest.TestCase):
         item_id_raz = dbgw.create_item(item_id_foo, "raz", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one ban")
         list = dbgw.list_child_items(item_id_foo)
         self.assertEquals(2, len(list))
-        self.assertEquals("bar", list[0][0])
-        self.assertEquals("raz", list[1][0])
+        self.assertEquals("bar", list[0][1])
+        self.assertEquals("raz", list[1][1])
 
     def test_set_item_name(self):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")

@@ -50,6 +50,7 @@ class Actionable():
                                         if expected_value:
                                             value = int(expected_value)
                                             if kwargs[name] == value:
+                                                # We know the value - so don't bother passing it in
                                                 del kwargs[name]
                                                 matching_count += 1
                                         else:
@@ -62,6 +63,7 @@ class Actionable():
                                         if expected_value:
                                             value = expected_value.lower() == "true"
                                             if kwargs[name] == value:
+                                                # We know the value - so don't bother passing it in
                                                 del kwargs[name]
                                                 matching_count += 1
                                         else:
