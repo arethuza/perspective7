@@ -127,5 +127,14 @@
         "data": {
             "title": "System User"
         }
+    },
+
+    # Somewhere to put non-root accounts
+    {
+        "path": "/home",
+        "type": "folder",
+        "data": {
+            "title": "Home folder where user accounts live"
+        }
     }
 ]
