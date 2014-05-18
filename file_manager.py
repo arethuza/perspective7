@@ -92,8 +92,11 @@ class FileManager():
 
 def _get_hash(data):
     if type(data) is list:
-        data = "".join([_get_hash(x.encode("utf-8")) for x in data])
-    message = hashlib.sha1()
+        if len(data) == 1:
+            return data[0]
+        else:
+            data = "".join([_get_hash(x.encode("utf-8")) for x in data])
+    message = hashlib.sha256()
     message.update(data if type(data) is not str else data.encode("utf-8"))
     return message.hexdigest()
 

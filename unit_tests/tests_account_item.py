@@ -11,7 +11,7 @@ processor = Processor()
 
 class AccountItemTests(unittest.TestCase):
 
-    def setUp(cls):
+    def setUp(self):
         dbgw.reset()
         init_loader.load_init_data("../database/init.json")
 

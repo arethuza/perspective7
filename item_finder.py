@@ -120,6 +120,7 @@ class ItemFinder:
             if return_dict:
                 result[name] = entry
             else:
+                entry["name"] = name
                 result.append(entry)
         return result
 
