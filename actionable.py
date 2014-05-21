@@ -57,7 +57,8 @@ class Actionable():
                                             matching_count += 1
                                     elif argument_type == "bool":
                                         try:
-                                            kwargs[name] = kwargs[name].lower() == "true"
+                                            if type(kwargs[name]) is str:
+                                                kwargs[name] = kwargs[name].lower() == "true"
                                         except:
                                             raise Exception("Bad bool value: {0}={1}".format(name, kwargs[name]))
                                         if expected_value:
