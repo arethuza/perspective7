@@ -40,7 +40,7 @@ class FileItem(Item):
                        _file_data):
         worker.write_block_data(file_version, block_number, _file_data, False)
 
-    @Action("put", "editor", file_version="", block_number="", last_block="", _file_data="")
+    @Action("put", "editor", file_version="int:", block_number="int:", last_block="bool:", _file_data="")
     def put_file_block_completed(self, worker,
                                  file_version: "int: Version of the file",
                                  block_number: "int: Block number",
