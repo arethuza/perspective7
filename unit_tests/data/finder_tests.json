@@ -15,9 +15,9 @@
     {
         "path": "/paris/private",
         "type": "user",
-        "data": {
-            "auth": [[ "everyone", "none"],
-                     [ "/paris/bob", "editor"]]
+        "auth": [[ "everyone", "none"],
+                 [ "/paris/bob", "editor"]],
+        "props": {
         }
     },
 
@@ -37,9 +37,9 @@
     {
         "path": "/milan/private",
         "type": "user",
-        "data": {
-            "auth": [[ "everyone", "none"],
-                     [ "/milan/alice", "editor"]]
+        "auth": [[ "everyone", "none"],
+                 [ "/milan/alice", "editor"]],
+        "props": {
         }
     }
 ]

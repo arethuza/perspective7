@@ -21,7 +21,6 @@ class UserItemTests(unittest.TestCase):
     def test_post_set_password(self):
         user_item_handle = processor.item_finder.find("/users/test_user")
         user_item = processor.item_loader.load(user_item_handle)
-        self.assertFalse(user_item.password_hash)
         processor.execute("/users/test_user", "post", "/users/test_user", {"password": "floop"})
         private_data = processor.item_loader.get_private(user_item_handle.item_id)
         self.assertTrue(private_data["password_hash"])

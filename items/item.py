@@ -4,17 +4,15 @@ from actionable import Actionable, WithActions, Action
 class Item(Actionable):
 
     def __init__(self):
-        self.modified = False
-        self.modified_field_names = []
-        self.item_data = None
+        self.name = None
+        self.type_name = None
         self.deletable = False
-
-    def set_field(self, name, value):
-        if not name in self.modified_field_names:
-            self.modified_field_names.append(name)
-        setattr(self, name, value)
-        if not self.modified:
-            self.modified = True
+        self.props = None
+        self.created_at = None
+        self.created_by_path = None
+        self.saved_at = None
+        self.saved_by_path = None
+        self.props = None
 
     @Action("_init", "system")
     def init(self, worker):
@@ -22,11 +20,16 @@ class Item(Actionable):
 
     @Action("get", "reader")
     def get(self, worker):
-        result = self.item_data
-        result["name"] = self.name
-        result["created_at"] = self.created_at.isoformat()
-        result["saved_at"] = self.saved_at.isoformat()
-        return result
+        return {
+            "name": self.name,
+            "type": self.type_name,
+            "deletable": self.deletable,
+            "props": self.props,
+            "created_at": self.created_at.isoformat(),
+            "created_by_path": self.created_by_path,
+            "saved_by_path": self.created_by_path,
+            "saved_at": self.created_at.isoformat(),
+        }
 
     @Action("get", "reader", view="meta")
     def get_meta(self, worker):

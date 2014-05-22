@@ -3,7 +3,7 @@
     {
         "path": "/users/test_user",
         "type": "user",
-        "data": {
+        "props": {
             "password_hash": ""
         }
     }

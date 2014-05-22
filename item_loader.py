@@ -12,6 +12,7 @@ def get_class(name):
         m = getattr(m, comp)
     return m
 
+
 class ItemLoader:
 
     system_folder_id = None
@@ -23,21 +24,19 @@ class ItemLoader:
         if not handle.item_id:
             return None
         dbgw = dbgateway.get()
-        item_class_name, name, json_data, created_at, saved_at, deletable = dbgw.load(handle.item_id)
-        cls = get_class(item_class_name)
+        type_id, name, json_data, created_at, saved_at, deletable = dbgw.load(handle.item_id)
+        cls, type_name = self.get_class_from_type_id(type_id)
         item = cls()
         item.handle = handle
         item.name = name
+        item.type_name = type_name
         item.created_at = created_at
         item.saved_at = saved_at
         item.deletable = deletable
         item_data = json.loads(json_data)
-        item.item_data = item_data
-        field_names = []
-        for name, value in item_data.items():
-            setattr(item, name, value)
-            field_names.append(name)
-        item.field_names = field_names
+        item.props = item_data["props"]
+        item.created_by_path = item_data["created_by_path"]
+        item.saved_by_path = item_data["saved_by_path"]
         perf.end(__name__, start)
         return item
 
@@ -59,6 +58,15 @@ class ItemLoader:
             setattr(type_item, name, value)
         setattr(type_item, "type_path", self.find_type_path(type_item))
         return type_item
+
+    def get_class_from_type_id(self, type_id):
+        dbgw = dbgateway.get()
+        _, name, json_data, _, _, _ = dbgw.load(type_id)
+        item_data = json.loads(json_data)
+        props = item_data["props"]
+        class_name = props["item_class"]
+        return get_class(class_name), name
+
 
     def find_type_path(self, type_item):
         if hasattr(type_item, "base_type"):

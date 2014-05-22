@@ -75,7 +75,7 @@ class DbGateway:
         start = perf.start()
         sql = ("select "
                "{0} "
-               "from public.items "
+               "from items "
                "where "
                "parent_id = $1 and name = $2")
         sql = sql.format("id, public_data->'auth', version" if select_auth else "id, id_path, version")
@@ -109,22 +109,21 @@ class DbGateway:
     def load(self, item_id):
         start = perf.start()
         sql = ("select "
-               "   type_item.public_data->>'item_class', "
-               "   item_instance.name, "
-               "   item_instance.public_data, "
-               "   item_instance.created_at, "
-               "   item_instance.saved_at, "
-               "   item_instance.deletable "
-               "from items item_instance inner join items type_item "
-               "on item_instance.type_id = type_item.id "
-               "and item_instance.id = $1")
+               "   type_id, "
+               "   name, "
+               "   public_data, "
+               "   created_at, "
+               "   saved_at, "
+               "   deletable "
+               "from items "
+               "where id = $1")
         ps = self.connection.prepare(sql)
         rows=ps(item_id)
         perf.end(__name__, start)
         if len(rows) == 0:
             return None, None, None, None, None, None
         else:
-            return rows[0][0], rows[0][1], rows[0][2], rows[0][3], rows[0][4], rows[0][5]
+            return rows[0]
 
     def save_item_version(self, item_id):
         start = perf.start()

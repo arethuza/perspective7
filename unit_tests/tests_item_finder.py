@@ -90,12 +90,12 @@ class ItemFinderTestsInitData(unittest.TestCase):
     def test_alice_read_milan_private(self):
         alice_handle = finder.find("/milan/alice")
         private_handle = finder.find("/milan/private", alice_handle)
-        self.assertEquals(private_handle.auth_level, item_finder.AuthLevels["editor"])
+        self.assertEquals(item_finder.AuthLevels["editor"], private_handle.auth_level)
 
     def test_bob_fail_milan_private(self):
         alice_handle = finder.find("/milan/alice")
         private_handle = finder.find("/paris/private", alice_handle)
-        self.assertEquals(private_handle.auth_level, item_finder.AuthLevels["none"])
+        self.assertEquals(item_finder.AuthLevels["none"], private_handle.auth_level)
 
     def test_find_no_item(self):
         alice_handle = finder.find("/milan/alice")

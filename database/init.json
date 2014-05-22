@@ -4,25 +4,19 @@
     {
         "path": "/",
         "type": "account",
-        "data": {
-            "title": "Root Account"
-        }
+        "title": "Root Account"
     },
     # /system folder
     {
         "path": "/system",
         "type": "folder",
-        "data": {
-            "title": "System folder holding items used by Perspective"
-        }
+        "title": "System folder holding items used by Perspective"
     },
     # /system/types folder
     {
         "path": "/system/types",
         "type": "folder",
-        "data": {
-            "title": "Items defining types for Items"
-        }
+        "title": "Items defining types for Items"
     },
 
     # Types ------------------
@@ -31,8 +25,8 @@
     {
         "path": "/system/types/item",
         "type": "type",
-        "data": {
-            "title": "Item Type",
+        "title": "Item Type",
+        "props": {
             "item_class": "items.item.Item"
         }
     },
@@ -41,17 +35,15 @@
     {
         "path": "/system/types/item/template",
         "type": "item",
-        "data": {
-            "title": "New Item"
-        }
+        "title": "New Item"
     },
 
     # type type
     {
         "path": "/system/types/type",
         "type": "type",
-        "data": {
-            "title": "Type Type",
+        "title": "Type Type",
+        "props": {
             "item_class": "items.type_item.TypeItem"
         }
     },
@@ -59,8 +51,8 @@
     {
         "path": "/system/types/account",
         "type": "type",
-        "data": {
-            "title": "Account Type",
+        "title": "Account Type",
+        "props": {
             "item_class": "items.account_item.AccountItem"
         }
     },
@@ -68,8 +60,8 @@
     {
         "path": "/system/types/folder",
         "type": "type",
-        "data": {
-            "title": "Folder Type",
+        "title": "Folder Type",
+        "props": {
             "item_class": "items.folder_item.FolderItem"
         }
     },
@@ -78,8 +70,8 @@
     {
         "path": "/system/types/user",
         "type": "type",
-        "data": {
-            "title": "User Type",
+        "title": "User Type",
+        "props": {
             "item_class": "items.user_item.UserItem"
         }
     },
@@ -88,7 +80,7 @@
     {
         "path": "/system/types/user/template",
         "type": "user",
-        "data": {
+        "props": {
             "password_hash": ""
         }
     },
@@ -97,8 +89,8 @@
     {
         "path": "/system/types/file",
         "type": "type",
-        "data": {
-            "title": "File Type",
+        "title": "File Type",
+        "props": {
             "item_class": "items.file_item.FileItem"
         }
     },
@@ -107,7 +99,7 @@
     {
         "path": "/system/types/file/template",
         "type": "user",
-        "data": {
+        "props": {
             "file_version": 0
         }
     },
@@ -116,25 +108,19 @@
     {
         "path": "/users",
         "type": "folder",
-        "data": {
-            "title": "Users folder"
-        }
+        "title": "Users folder"
     },
 
     {
         "path": "/users/system",
         "type": "user",
-        "data": {
-            "title": "System User"
-        }
+        "title": "System User"
     },
 
     # Somewhere to put non-root accounts
     {
         "path": "/home",
         "type": "folder",
-        "data": {
-            "title": "Home folder where user accounts live"
-        }
+        "title": "Home folder where user accounts live"
     }
 ]

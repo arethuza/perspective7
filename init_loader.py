@@ -24,8 +24,10 @@ def load_init_data(path):
     type_names_to_class_names = {}
     for data in init_data:
         item_path = data["path"]
-        item_data = data["data"] if "data" in data else {}
+        item_props = data["props"] if "props" in data else {}
+        item_auth = data["auth"] if "auth" in data else {}
         item_type = data["type"]
+        item_title = data["title"] if "title" in data else {}
         item_name = os.path.basename(item_path)
         if item_path == "/":
             parent_id = None
@@ -35,13 +37,19 @@ def load_init_data(path):
             parent_path = os.path.dirname(item_path)
             parent_id, parent_id_path = find_item_id(dbgw, parent_path)
         search_text = item_name
-        if "title" in item_data:
-            search_text += " " + item_data["title"]
-        item_data["created_by"] = item_data["saved_by"] = "/users/system"
+        if item_title:
+            search_text += " " + item_title
+        item_data = {
+            "auth": item_auth,
+            "props": item_props,
+            "saved_by_path": "/users/system",
+            "created_by_path": "/users/system",
+            "title": item_title
+        }
         dbgw.create_item_initial(parent_id, item_name, parent_id_path, json.dumps(item_data), search_text)
         types_to_resolve.append((item_path, item_type))
         if item_type == "type":
-            class_name = item_data["item_class"]
+            class_name = item_props["item_class"]
             type_names_to_class_names[item_name] = class_name
     type_type_id, _ = find_item_id(dbgw, "/system/types/type")
     system_user_id, _ = find_item_id(dbgw, "/users/system")
@@ -52,7 +60,8 @@ def load_init_data(path):
         if item_type in type_names_to_class_names:
             item_class = type_names_to_class_names[item_type]
         else:
-            item_class = dbgw.load(type_id)[0]
+            item_data = json.loads(dbgw.load(type_id)[2])
+            item_class = item_data["props"]["item_class"]
         type_id_path = find_type_path(dbgw, item_class)
         dbgw.set_item_type_user(item_id, type_id, type_id_path, system_user_id)
 

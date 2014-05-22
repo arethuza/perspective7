@@ -26,12 +26,10 @@ class FileItem(Item):
                           previous: "int: Previous version of the file that new version is based on.",
                           _file_data):
         file_version, file_length, file_hash = worker.write_file_data(previous, _file_data)
-        self.set_field("file_version", file_version)
-        result = dict()
-        result["file_version"] = file_version
-        result["file_length"] = file_length
-        result["file_hash"] = file_hash
-        return result
+        self.props["file_version"] = file_version
+        self.props["file_length"] = file_length
+        self.props["file_hash"] = file_hash
+        return self
 
     @Action("put", "editor", file_version="", block_number="", _file_data="")
     def put_file_block(self, worker,
@@ -58,9 +56,7 @@ class FileItem(Item):
 
     @Action("get", "reader", view="meta")
     def get_file_meta(self, worker):
-        result = self.get_meta(worker)
-        result["file_version"] = self.file_version
-        return result
+        return self
 
     @Action("get", "reader", file_version="")
     def get_file_version(self, worker,
@@ -79,7 +75,7 @@ class FileItem(Item):
     def list_versions(self, worker):
         return worker.list_file_versions()
 
-    @Action("post", "editor", previous="")
+    @Action("post", "editor", previous=":int")
     def post_file_version(self, worker,
                           previous):
         result = dict()
