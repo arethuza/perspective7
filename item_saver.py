@@ -5,7 +5,12 @@ import json
 class ItemSaver():
 
     def save(self, item, user_handle):
-        json_data = json.dumps(item.props)
+        item_data = {
+            "props": item.props,
+            "saved_by_path": user_handle.path,
+            "created_by_path": item.created_by_path
+        }
+        json_data = json.dumps(item_data)
         dbgw = dbgateway.get()
         dbgw.save_item_version(item.handle.item_id)
         return dbgw.update_item(item.handle.item_id, json_data, user_handle.item_id)

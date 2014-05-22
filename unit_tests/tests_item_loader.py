@@ -70,9 +70,9 @@ class ItemLoaderTests(unittest.TestCase):
         init_loader.load_init_data("../database/init.json")
         loader = item_loader.ItemLoader()
         data = json.loads(loader.load_template_json("not a type name"))
-        self.assertEqual(data["props"]["title"], "New Item")
+        self.assertEqual(data["title"], "New Item")
         data = json.loads(loader.load_template_json("item"))
-        self.assertEqual(data["props"]["title"], "New Item")
+        self.assertEqual(data["title"], "New Item")
 
 if __name__ == '__main__':
     unittest.main()

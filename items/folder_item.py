@@ -10,10 +10,7 @@ class FolderItem(Item):
 
     @Action("get", "reader", return_dict="bool:")
     def get2(self, worker, return_dict):
-        result = self.item_data
-        result["name"] = self.name
-        result["created_at"] = self.created_at.isoformat()
-        result["saved_at"] = self.saved_at.isoformat()
+        result = self.get(worker)
         result["children"] = worker.list_children(return_dict)
         return result
 

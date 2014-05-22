@@ -23,7 +23,6 @@ class Item(Actionable):
         return {
             "name": self.name,
             "type": self.type_name,
-            "deletable": self.deletable,
             "props": self.props,
             "created_at": self.created_at.isoformat(),
             "created_by_path": self.created_by_path,
