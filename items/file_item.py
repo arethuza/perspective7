@@ -10,7 +10,6 @@ class FileItem(Item):
 
     def __init__(self):
         super(FileItem, self).__init__()
-        self.file_version = 0
 
     @Action("_init", "system")
     def init(self, worker):
@@ -29,7 +28,8 @@ class FileItem(Item):
         self.props["file_version"] = file_version
         self.props["file_length"] = file_length
         self.props["file_hash"] = file_hash
-        return self
+        self.modified=True
+        return self.get_metadata(worker)
 
     @Action("put", "editor", file_version="", block_number="", _file_data="")
     def put_file_block(self, worker,
@@ -52,11 +52,11 @@ class FileItem(Item):
     @Action("get", "reader")
     def get_file(self, worker) -> "binary":
         """ Return the current version of a file """
-        return self.get_file_version(worker, self.file_version)
+        return self.get_file_version(worker, self.props["file_version"])
 
     @Action("get", "reader", view="meta")
     def get_file_meta(self, worker):
-        return self
+        return self.get(worker)
 
     @Action("get", "reader", file_version="")
     def get_file_version(self, worker,
@@ -75,7 +75,7 @@ class FileItem(Item):
     def list_versions(self, worker):
         return worker.list_file_versions()
 
-    @Action("post", "editor", previous=":int")
+    @Action("post", "editor", previous="int:")
     def post_file_version(self, worker,
                           previous):
         result = dict()

@@ -32,27 +32,23 @@ class FileItemTests(unittest.TestCase):
     def test_put_file_multiple_versions(self):
         # Put data to create a file - creates a new FileItem at /floop
         response, _ = processor.execute("/floop", "put", "/users/system", {"_file_data": b'00000'})
-        self.assertEquals(4, len(response))
-        self.assertEquals(1, response["file_version"])
-        self.assertEquals(1, response["file_version"])
-        self.assertEquals(5, response["file_length"])
-        self.assertEquals("e7042ac7d09c7bc41c8cfa5749e41858f6980643bc0db1a83cc793d3e24d3f77", response["file_hash"])
+        self.assertEquals(1, response["props"]["file_version"])
+        self.assertEquals(5, response["props"]["file_length"])
+        self.assertEquals("e7042ac7d09c7bc41c8cfa5749e41858f6980643bc0db1a83cc793d3e24d3f77", response["props"]["file_hash"])
         item_handle = processor.item_finder.find("/floop")
         self.assertEquals(1, item_handle.version)
         file_item = processor.item_loader.load(item_handle)
-        self.assertEquals(1, file_item.file_version)
+        self.assertEquals(1, file_item.props["file_version"])
         file_data = processor.execute("/floop", "get", "/users/system", {})
         # Put data again to the same path, creating another version of the same file
         response, _ = processor.execute("/floop", "put", "/users/system", {"_file_data": b'11111111111'})
-        self.assertEquals(4, len(response))
-        self.assertEquals(2, response["file_version"])
-        self.assertEquals(2, response["file_version"])
-        self.assertEquals(11, response["file_length"])
-        self.assertEquals("534a4a8eafcd8489af32356d5a7a25f88c70cfe0448539a7c42964c1b897a359", response["file_hash"])
+        self.assertEquals(2, response["props"]["file_version"])
+        self.assertEquals(11, response["props"]["file_length"])
+        self.assertEquals("534a4a8eafcd8489af32356d5a7a25f88c70cfe0448539a7c42964c1b897a359", response["props"]["file_hash"])
         item_handle = processor.item_finder.find("/floop")
         self.assertEquals(2, item_handle.version)
         file_item = processor.item_loader.load(item_handle)
-        self.assertEquals(2, file_item.file_version)
+        self.assertEquals(2, file_item.props["file_version"])
 
     def test_get_file_versions(self):
         processor.execute("/floop", "put", "/users/system", {"_file_data": b'0'})
@@ -102,7 +98,7 @@ class FileItemTests(unittest.TestCase):
     def test_post_file_put_blocks(self):
         # Create a file item by a POST
         response, _ = processor.execute("/", "post", "/users/system", {"name": "floop", "type": "file"})
-        self.assertEquals(response["file_version"], 0)
+        self.assertEquals(response["props"]["file_version"], 0)
         # Write blocks of data
         processor.execute("/floop", "put", "/users/system",
                           {"file_version": 0,
@@ -143,7 +139,7 @@ class FileItemTests(unittest.TestCase):
     def test_post_file_put_completed_repeat_fails(self):
         # Create a file item by a POST
         response, _ = processor.execute("/", "post", "/users/system", {"name": "floop", "type": "file"})
-        self.assertEquals(response["file_version"], 0)
+        self.assertEquals(response["props"]["file_version"], 0)
         # Write blocks of data
         processor.execute("/floop", "put", "/users/system",
                           {"file_version": 0,
@@ -162,7 +158,7 @@ class FileItemTests(unittest.TestCase):
     def test_post_file_put_repeat(self):
         # Create a file item by a POST
         response, _ = processor.execute("/", "post", "/users/system", {"name": "floop", "type": "file"})
-        self.assertEquals(response["file_version"], 0)
+        self.assertEquals(response["props"]["file_version"], 0)
         # Write blocks of data
         processor.execute("/floop", "put", "/users/system",
                           {"file_version": 0,
@@ -195,7 +191,7 @@ class FileItemTests(unittest.TestCase):
     def test_post_put_versions_single_block_update(self):
         # Create a file item by a POST
         response, _ = processor.execute("/", "post", "/users/system", {"name": "floop", "type": "file"})
-        self.assertEquals(response["file_version"], 0)
+        self.assertEquals(response["props"]["file_version"], 0)
         # Create file_version 0
         # Write blocks of data to version 0
         processor.execute("/floop", "put", "/users/system",

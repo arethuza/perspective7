@@ -23,7 +23,7 @@ class TypeItemTests(unittest.TestCase):
 
     def test_list_actions(self):
         response, _ = processor.execute("/system/types/item", "get", "/users/system", {})
-        self.assertEquals(9, len(response))
+        self.assertEquals(7, len(response))
 
 if __name__ == '__main__':
     unittest.main()

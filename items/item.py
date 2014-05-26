@@ -13,13 +13,14 @@ class Item(Actionable):
         self.saved_at = None
         self.saved_by_path = None
         self.props = None
+        self.modified = False
 
     @Action("_init", "system")
     def init(self, worker):
         pass
 
     @Action("get", "reader")
-    def get(self, worker):
+    def get_metadata(self, worker):
         return {
             "name": self.name,
             "type": self.type_name,
@@ -31,8 +32,8 @@ class Item(Actionable):
         }
 
     @Action("get", "reader", view="meta")
-    def get_meta(self, worker):
-        return self.get(worker)
+    def get(self, worker):
+        return self.get_metadata(worker)
 
     @Action("post", "editor", name="")
     def create_item_default_type(self, worker,
