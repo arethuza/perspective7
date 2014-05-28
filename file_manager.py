@@ -32,7 +32,15 @@ class FileManager():
 
     def list_blocks(self, item_id, file_version):
         dbgw = dbgateway.get()
-        return dbgw.list_file_blocks(item_id, file_version)
+        result = []
+        for block_number, _, block_length, block_hash, created_at in dbgw.list_file_blocks(item_id, file_version):
+            result.append({
+                "block_number": block_number,
+                "block_length": block_length,
+                "block_hash": block_hash,
+                "created_at": created_at.isoformat()
+            })
+        return result
 
     def get_block_data(self, item_id, file_version, block_number):
         dbgw = dbgateway.get()
@@ -54,14 +62,16 @@ class FileManager():
         else:
             # Create a new block
             dbgw.create_file_block(item_id, file_version, block_number, block_hash, block_data)
+        return block_hash
 
     def _is_file_version_completed(self, dbgw, item_id, file_version):
         _, hash, _ = dbgw.get_file_version(item_id, file_version)
         return not hash is None
 
     def finalize_version(self, item_id, file_version):
+        dbgw = dbgateway.get()
         file_length = 0
-        blocks = self.list_blocks(item_id, file_version)
+        blocks = dbgw.list_file_blocks(item_id, file_version)
         block_hashes = []
         for _, _, block_length, block_hash, _ in blocks:
             file_length += block_length

@@ -44,10 +44,14 @@ class FileItem(Item):
                                  block_number: "int: Block number",
                                  last_block: "bool: Is this the last block in the file?",
                                  _file_data):
+        result = dict()
         if len(_file_data) > 0:
-            worker.write_block_data(file_version, block_number, _file_data, last_block)
+            result["block_hash"] = worker.write_block_data(file_version, block_number, _file_data, last_block)
         if last_block:
-            worker.finalize_file_version(file_version)
+            file_length, file_hash = worker.finalize_file_version(file_version)
+            result["file_length"] = file_length
+            result["file_hash"] = file_hash
+        return result
 
     @Action("get", "reader")
     def get_file(self, worker) -> "binary":
@@ -81,4 +85,8 @@ class FileItem(Item):
         result = dict()
         result["file_version"] = worker.create_file_version(previous)
         return result
+
+    @Action("get", "reader", list_blocks="true", file_version="int:")
+    def list_blocks(self, worker, file_version):
+        return worker.list_file_blocks(file_version)
 
