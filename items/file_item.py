@@ -71,7 +71,7 @@ class FileItem(Item):
         if file_length is None:
             raise ServiceException(404, "Bad file_version: {}".format(file_version))
         def get_blocks():
-            for block_number in [a[0] for a in worker.list_file_blocks(file_version)]:
+            for block_number in [block_info["block_number"] for block_info in worker.list_file_blocks(file_version)]:
                 yield worker.get_block_data(file_version, block_number)
         return FileResponse(self.name, file_length, get_blocks)
 

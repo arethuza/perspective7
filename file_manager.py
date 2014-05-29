@@ -55,7 +55,7 @@ class FileManager():
         dbgw = dbgateway.get()
         if self._is_file_version_completed(dbgw, item_id, file_version):
             raise ServiceException(403, "File version is complete")
-        block_hash = _get_hash(block_data)
+        block_hash = _get_data_hash(block_data)
         if dbgw.get_file_block_hash(item_id, file_version, block_number):
             # Already a block at this location, so update existing block to overwrite existing data
             dbgw.update_file_block(item_id, file_version, block_number, block_hash, block_data)
@@ -76,7 +76,7 @@ class FileManager():
         for _, _, block_length, block_hash, _ in blocks:
             file_length += block_length
             block_hashes.append(block_hash)
-        file_hash = _get_hash(block_hashes)
+        file_hash = _get_blocks_hash(block_hashes)
         dbgw = dbgateway.get()
         dbgw.set_file_version_length_hash(item_id, file_version, file_length, file_hash)
         return file_length, file_hash
@@ -100,15 +100,15 @@ class FileManager():
             })
         return result
 
-def _get_hash(data):
-    if type(data) is list:
-        if len(data) == 1:
-            return data[0]
-        else:
-            data = "".join([_get_hash(x.encode("utf-8")) for x in data])
+def _get_data_hash(data):
     message = hashlib.sha256()
-    message.update(data if type(data) is not str else data.encode("utf-8"))
+    message.update(data)
     return message.hexdigest()
+
+def _get_blocks_hash(block_hashes):
+    all_hashes = "".join(block_hashes)
+    return _get_data_hash(all_hashes.encode("utf-8"))
+
 
 
 
