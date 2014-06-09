@@ -220,7 +220,7 @@ class FileItemTests(unittest.TestCase):
         self.assertEquals(block1,  b'1'*BLOCK_LENGTH)
         self.assertEquals(block2,  b'2222222222222222222')
         # post to create a new version of the file item
-        response, _ = processor.execute("/floop", "post", "/users/system", {"previous": 0})
+        response, _ = processor.execute("/floop", "post", "/users/system", {"previous_version": 0})
         self.assertEquals(1, response["file_version"])
         # Write a single block of data to version 1
         processor.execute("/floop", "put", "/users/system",
@@ -240,7 +240,7 @@ class FileItemTests(unittest.TestCase):
         block0 = next(generator)
         block1 = next(generator)
         block2 = next(generator)
-        # self.assertEquals(block0,  b'3'*BLOCK_LENGTH)
+        self.assertEquals(block0,  b'3'*BLOCK_LENGTH)
         self.assertEquals(block1,  b'1'*BLOCK_LENGTH)
         self.assertEquals(block2,  b'2222222222222222222')
 

@@ -45,12 +45,20 @@ class FileItem(Item):
                                  last_block: "bool: Is this the last block in the file?",
                                  _file_data):
         result = dict()
+        block_hash = None
         if len(_file_data) > 0:
-            result["block_hash"] = worker.write_block_data(file_version, block_number, _file_data, last_block)
+            block_hash = worker.write_block_data(file_version, block_number, _file_data, last_block)
         if last_block:
             file_length, file_hash = worker.finalize_file_version(file_version)
-            result["file_length"] = file_length
-            result["file_hash"] = file_hash
+            self.props["file_length"] = file_length
+            self.props["file_hash"] = file_hash
+            self.props["file_version"] = file_version
+            self.modified = True
+            result = self.get_metadata(worker)
+            if block_hash:
+                result["props"]["block_hash"] = block_hash
+        else:
+            result["block_hash"] = block_hash
         return result
 
     @Action("get", "reader")
@@ -79,11 +87,11 @@ class FileItem(Item):
     def list_versions(self, worker):
         return worker.list_file_versions()
 
-    @Action("post", "editor", previous="int:")
+    @Action("post", "editor", previous_version="int:")
     def post_file_version(self, worker,
-                          previous):
+                          previous_version):
         result = dict()
-        result["file_version"] = worker.create_file_version(previous)
+        result["file_version"] = worker.create_file_version(previous_version)
         return result
 
     @Action("get", "reader", list_blocks="true", file_version="int:")

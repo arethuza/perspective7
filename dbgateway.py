@@ -257,7 +257,7 @@ class DbGateway:
     def update_file_block(self, item_id, file_version, block_number, block_hash, block_data):
         start = perf.start()
         sql = ("update file_blocks "
-               "set length=$4, hash=$5, created_at=now(), data=$6 "
+               "set length=$4, hash=$5, created_at=now(), data=$6, data_file_version=null "
                "where item_id=$1 and file_version=$2 and block_number=$3")
         ps = self.connection.prepare(sql)
         perf.end(__name__, start)
