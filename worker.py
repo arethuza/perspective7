@@ -60,6 +60,7 @@ class Worker():
     def write_file_data(self, previous_version, file_data):
         return self.processor.file_manager.write_file_data(self.current_item.handle.item_id, previous_version,
                                                            file_data, self.user_handle)
+
     def create_file_version(self, previous_version):
         return self.processor.file_manager.create_file_version(self.current_item.handle.item_id, previous_version,
                                                                self.user_handle)
@@ -78,8 +79,9 @@ class Worker():
         return self.processor.file_manager.write_file_block(self.current_item.handle.item_id, file_version, block_number,
                                                             block_data, last_block)
 
-    def finalize_file_version(self, file_version):
-        return self.processor.file_manager.finalize_version(self.current_item.handle.item_id, file_version)
+    def finalize_file_version(self, file_version, last_block_number):
+        return self.processor.file_manager.finalize_version(self.current_item.handle.item_id, file_version,
+                                                            last_block_number)
 
     def list_file_versions(self):
         result = self.processor.file_manager.list_versions(self.current_item.handle.item_id)

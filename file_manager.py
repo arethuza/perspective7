@@ -22,12 +22,13 @@ class FileManager():
         return file_version
 
     def write_file_data(self, item_id, previous_version, file_data, user_handle):
+        file_length = len(file_data)
         file_version = self.create_file_version(item_id, previous_version, user_handle)
-        blocks = [file_data[i:i+BLOCK_LENGTH] for i in range(0, len(file_data), BLOCK_LENGTH)]
+        blocks = [file_data[i:i+BLOCK_LENGTH] for i in range(0, file_length, BLOCK_LENGTH)]
         last_block_number = len(blocks) - 1
         for block_number, block_data in enumerate(blocks):
             self.write_file_block(item_id, file_version, block_number, block_data, block_number == last_block_number)
-        file_length, file_hash = self.finalize_version(item_id, file_version)
+        file_length, file_hash = self.finalize_version(item_id, file_version, None)
         return file_version, file_length, file_hash
 
     def list_blocks(self, item_id, file_version):
@@ -68,8 +69,10 @@ class FileManager():
         _, hash, _ = dbgw.get_file_version(item_id, file_version)
         return not hash is None
 
-    def finalize_version(self, item_id, file_version):
+    def finalize_version(self, item_id, file_version, last_block_number):
         dbgw = dbgateway.get()
+        if last_block_number is not None:
+            dbgw.delete_trailing_file_blocks(item_id, file_version, last_block_number)
         file_length = 0
         blocks = dbgw.list_file_blocks(item_id, file_version)
         block_hashes = []
@@ -77,7 +80,6 @@ class FileManager():
             file_length += block_length
             block_hashes.append(block_hash)
         file_hash = _get_blocks_hash(block_hashes)
-        dbgw = dbgateway.get()
         dbgw.set_file_version_length_hash(item_id, file_version, file_length, file_hash)
         return file_length, file_hash
 

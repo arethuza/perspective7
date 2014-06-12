@@ -263,6 +263,15 @@ class DbGateway:
         perf.end(__name__, start)
         ps(item_id, file_version, block_number, len(block_data), block_hash, block_data)
 
+    def delete_trailing_file_blocks(self, item_id, file_version, block_number):
+        start = perf.start()
+        sql = ("delete from file_blocks "
+               "where item_id=$1 and file_version=$2 and block_number>$3")
+        ps = self.connection.prepare(sql)
+        perf.end(__name__, start)
+        ps(item_id, file_version, block_number)
+
+
     def get_file_block_data(self, item_id, file_version, block_number):
         start = perf.start()
         sql = ("select data "
@@ -339,6 +348,15 @@ class DbGateway:
             return rows[0][0], rows[0][1], rows[0][2]
         else:
             return None, None, None, None
+
+    def set_file_version_length(self, item_id, file_version, file_length):
+        start = perf.start()
+        sql = ("update file_versions "
+               "set length=$3 "
+               "where item_id=$1 and file_version=$2")
+        ps = self.connection.prepare(sql)
+        ps(item_id, file_version, file_length)
+        perf.end(__name__, start)
 
     def set_file_version_length_hash(self, item_id, file_version, file_length, file_hash):
         start = perf.start()

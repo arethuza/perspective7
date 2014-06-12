@@ -49,7 +49,7 @@ class FileItem(Item):
         if len(_file_data) > 0:
             block_hash = worker.write_block_data(file_version, block_number, _file_data, last_block)
         if last_block:
-            file_length, file_hash = worker.finalize_file_version(file_version)
+            file_length, file_hash = worker.finalize_file_version(file_version, block_number)
             self.props["file_length"] = file_length
             self.props["file_hash"] = file_hash
             self.props["file_version"] = file_version
@@ -88,8 +88,9 @@ class FileItem(Item):
         return worker.list_file_versions()
 
     @Action("post", "editor", previous_version="int:")
-    def post_file_version(self, worker,
-                          previous_version):
+    def post_file_version_length(self, worker,
+                                 previous_version):
+        """ Create a new file based on a previous version """
         result = dict()
         result["file_version"] = worker.create_file_version(previous_version)
         return result
