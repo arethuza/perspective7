@@ -65,4 +65,4 @@ def get_json(test, path, failure_status=None, failure_message=None, send_auth_he
     return r.json
 
 def _get_auth_header():
-        return "bearer " + auth_token
+        return "Bearer " + auth_token

@@ -57,7 +57,7 @@ class PerspectiveService(object):
         if "Authorization" in cherrypy.request.headers:
             authorization_header = cherrypy.request.headers["Authorization"]
             a = authorization_header.split(" ")
-            if len(a) != 2 or a[0] != "bearer":
+            if len(a) != 2 or a[0] != "Bearer":
                 raise worker.ServiceException(403, "Invalid format for Authorization header")
             token_value = a[1]
         else:
