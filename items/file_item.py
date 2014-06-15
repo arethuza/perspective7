@@ -99,3 +99,12 @@ class FileItem(Item):
     def list_blocks(self, worker, file_version):
         return worker.list_file_blocks(file_version)
 
+    @staticmethod
+    def list_property_selector(public_data):
+        result = dict()
+        props = public_data["props"]
+        result["file_version"] = props["file_version"]
+        result["file_hash"] = props["file_hash"]
+        result["file_length"] = props["file_length"]
+        return result
+

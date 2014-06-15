@@ -20,11 +20,6 @@ class ItemLoaderTests(unittest.TestCase):
     def tearDown(self):
         self.setUp()
 
-    def test_get_class(self):
-        cls = item_loader.get_class("tests_item_loader.Floop")
-        instance = cls()
-        self.assertIsInstance(instance, Floop)
-
     def test_load_item(self):
         item_id = dbgw.create_item_initial(1, "test item", None,
                                            json.dumps({
@@ -48,10 +43,6 @@ class ItemLoaderTests(unittest.TestCase):
         self.assertEquals(len(item.props["b"]), 3)
         self.assertEquals(item.props["c"]["raz"], "alpha")
         self.assertFalse(isinstance(item.props["c"], Floop))
-
-    def test_get_classes(self):
-        self.assertIsNotNone(item_loader.get_class("items.item.Item"))
-        self.assertIsNotNone(item_loader.get_class("items.account_item.AccountItem"))
 
     def test_load_item_type(self):
         init_loader.load_init_data("../database/init.json")

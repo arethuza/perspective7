@@ -1,6 +1,5 @@
 import posixpath
-from item_finder import ItemHandle, get_authorization_level
-import item_loader
+from item_finder import ItemHandle, get_authorization_level, get_class
 from actionable import list_actions
 
 
@@ -117,6 +116,6 @@ class Worker():
         return self.processor.item_finder.get_account(self.current_item.handle.item_id)
 
     def list_actions(self, class_name):
-        cls = item_loader.get_class(class_name)
+        cls = get_class(class_name)
         return list_actions(cls)
 

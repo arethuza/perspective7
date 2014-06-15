@@ -3,7 +3,7 @@ import os
 import dbgateway
 import inspect
 
-from item_loader import get_class
+from item_finder import get_class
 
 
 def load_json_with_comments(path):

@@ -1,17 +1,8 @@
 import json
 import dbgateway
 from items.type_item import TypeItem
-from item_finder import ItemHandle, get_authorization_level
+from item_finder import ItemHandle, get_authorization_level, get_class_from_type_id
 import performance as perf
-
-def get_class(name):
-    parts = name.split('.')
-    module_name = ".".join(parts[:-1])
-    m = __import__(module_name)
-    for comp in parts[1:]:
-        m = getattr(m, comp)
-    return m
-
 
 class ItemLoader:
 
@@ -25,7 +16,7 @@ class ItemLoader:
             return None
         dbgw = dbgateway.get()
         type_id, name, json_data, created_at, saved_at, deletable = dbgw.load(handle.item_id)
-        cls, type_name = self.get_class_from_type_id(type_id)
+        cls, type_name = get_class_from_type_id(type_id)
         item = cls()
         item.handle = handle
         item.name = name
@@ -58,15 +49,6 @@ class ItemLoader:
             setattr(type_item, name, value)
         setattr(type_item, "type_path", self.find_type_path(type_item))
         return type_item
-
-    def get_class_from_type_id(self, type_id):
-        dbgw = dbgateway.get()
-        _, name, json_data, _, _, _ = dbgw.load(type_id)
-        item_data = json.loads(json_data)
-        props = item_data["props"]
-        class_name = props["item_class"]
-        return get_class(class_name), name
-
 
     def find_type_path(self, type_item):
         if hasattr(type_item, "base_type"):

@@ -110,5 +110,11 @@ class ItemFinderTestsInitData(unittest.TestCase):
         path = finder.get_path(alice_handle.item_id)
         self.assertEquals("/milan/alice", path)
 
+    def test_get_class(self):
+        cls = item_finder.get_class("tests_item_loader.Floop")
+        instance = cls()
+        self.assertIsNotNone(instance)
+
+
 if __name__ == '__main__':
     unittest.main()

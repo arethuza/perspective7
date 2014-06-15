@@ -94,9 +94,9 @@ class FileManager():
         for file_version, previous_version, length, hash, created_at, created_by in dbgw.list_file_versions(item_id):
             result.append({
                 "file_version": file_version,
-                "previous": previous_version,
-                "length": length,
-                "hash": hash,
+                "previous_version": previous_version,
+                "file_length": length,
+                "file_hash": hash,
                 "created_at": created_at.isoformat(),
                 "created_by": created_by
             })

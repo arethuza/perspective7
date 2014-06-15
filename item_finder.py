@@ -114,9 +114,14 @@ class ItemFinder:
         for item_id, name, type_id, public_data in dbgw.list_child_items(item_id):
             entry = {
                 "server_id": "#" + str(item_id),
-                "type": self.get_type_name(type_id),
-                "data": json.loads(public_data)
+                "type": self.get_type_name(type_id)
             }
+            props = None
+            cls, _ = get_class_from_type_id(type_id)
+            if hasattr(cls, "list_property_selector"):
+                list_property_selector = getattr(cls, "list_property_selector")
+                props = list_property_selector(json.loads(public_data))
+            entry["props"] = props
             if return_dict:
                 result[name] = entry
             else:
@@ -141,6 +146,22 @@ def authorize_root(user_handle):
     if user_handle and user_handle.path == "/users/system":
         return AuthLevels["system"]
     return AuthLevels["reader"]
+
+def get_class_from_type_id(type_id):
+    dbgw = dbgateway.get()
+    _, name, json_data, _, _, _ = dbgw.load(type_id)
+    item_data = json.loads(json_data)
+    props = item_data["props"]
+    class_name = props["item_class"]
+    return get_class(class_name), name
+
+def get_class(name):
+    parts = name.split('.')
+    module_name = ".".join(parts[:-1])
+    m = __import__(module_name)
+    for comp in parts[1:]:
+        m = getattr(m, comp)
+    return m
 
 
 
