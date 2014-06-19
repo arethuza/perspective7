@@ -188,13 +188,231 @@ class DbGatewayTests(unittest.TestCase):
         self.assertEquals(blocks[1][0], 1)
         self.assertEquals(blocks[2][0], 2)
         # File version where data actually resides
-        self.assertEquals(blocks[0][1], 0)
-        self.assertEquals(blocks[1][1], 0)
-        self.assertEquals(blocks[2][1], 0)
+        self.assertEquals(0, blocks[0][1])
+        self.assertEquals(0, blocks[1][1])
+        self.assertEquals(0, blocks[2][1])
         # Block lengths
         self.assertEquals(blocks[0][2], 8)
         self.assertEquals(blocks[1][2], 10)
         self.assertEquals(blocks[2][2], 13)
+        # Update block 1
+        dbgw.update_file_block(item_id, file_version, 1, "foo", b'\77' * 45)
+        # Check the blocks
+        blocks = dbgw.list_file_blocks(item_id, file_version)
+        self.assertEquals(len(blocks), 3)
+        # Block numbers
+        self.assertEquals(blocks[0][0], 0)
+        self.assertEquals(blocks[1][0], 1)
+        self.assertEquals(blocks[2][0], 2)
+        # File version where data actually resides
+        self.assertEquals(blocks[0][1], 0)
+        self.assertIsNone(blocks[1][1])
+        self.assertEquals(blocks[2][1], 0)
+        # Block lengths
+        self.assertEquals(blocks[0][2], 8)
+        self.assertEquals(blocks[1][2], 45)
+        self.assertEquals(blocks[2][2], 13)
+
+    def test_list_file_version_blocks(self):
+        type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")
+        user_id = dbgw.create_item_initial(None, "test user", None, "{}", "")
+        item_id = dbgw.create_item(3, "bar", "6.7", type_id, "3.4", "{ \"raz\": 1 }", user_id, "one banana")
+        # Create version 0 of file and populate some blocks - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        self.assertEquals(0, dbgw.create_file_version(item_id, None, user_id))
+        dbgw.create_file_block(item_id, 0, 0, "0123", b'\xff\xf8\x00\x00\x00\x00\x00\x00')
+        dbgw.create_file_block(item_id, 0, 1, "0124", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00')
+        dbgw.create_file_block(item_id, 0, 2, "0125", b'\xff\xf8\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
+        blocks = dbgw.list_file_blocks(item_id, 0)
+        self.assertEquals(len(blocks), 3)
+        # Block numbers
+        self.assertEquals(blocks[0][0], 0)
+        self.assertEquals(blocks[1][0], 1)
+        self.assertEquals(blocks[2][0], 2)
+        # File version where data actually resides
+        self.assertIsNone(blocks[0][1])
+        self.assertIsNone(blocks[1][1])
+        self.assertIsNone(blocks[2][1])
+        # Block lengths
+        self.assertEquals(blocks[0][2], 8)
+        self.assertEquals(blocks[1][2], 10)
+        self.assertEquals(blocks[2][2], 13)
+        # Create version 1 of file, copy blocks and update one block - - - - - - - - - - - - - - - - - - - - - - - - - -
+        self.assertEquals(1, dbgw.create_file_version(item_id, 0, user_id))
+        dbgw.copy_file_blocks(item_id, 1, 0)
+        dbgw.update_file_block(item_id, 1, 1, "abcd", b'\xff' * 34)
+        blocks = dbgw.list_file_blocks(item_id, 1)
+        self.assertEquals(len(blocks), 3)
+        # Block numbers
+        self.assertEquals(blocks[0][0], 0)
+        self.assertEquals(blocks[1][0], 1)
+        self.assertEquals(blocks[2][0], 2)
+        # File version where data actually resides
+        self.assertEquals(0, blocks[0][1])
+        self.assertIsNone(   blocks[1][1])
+        self.assertEquals(0, blocks[2][1])
+        # Block lengths
+        self.assertEquals(blocks[0][2], 8)
+        self.assertEquals(blocks[1][2], 34)
+        self.assertEquals(blocks[2][2], 13)
+        # Create version 2 of file, copy blocks and update two blocks - - - - - - - - - - - - - - - - - - - - - - - - -
+        self.assertEquals(2, dbgw.create_file_version(item_id, 1, user_id))
+        dbgw.copy_file_blocks(item_id, 2, 1)
+        dbgw.update_file_block(item_id, 2, 0, "hijk", b'\x33' * 123)
+        dbgw.update_file_block(item_id, 2, 1, "abcd", b'\x77' * 234)
+        blocks = dbgw.list_file_blocks(item_id, 2)
+        self.assertEquals(len(blocks), 3)
+        # Block numbers
+        self.assertEquals(blocks[0][0], 0)
+        self.assertEquals(blocks[1][0], 1)
+        self.assertEquals(blocks[2][0], 2)
+        # File version where data actually resides
+        self.assertIsNone(   blocks[0][1])
+        self.assertIsNone(   blocks[1][1])
+        self.assertEquals(0, blocks[2][1])
+        # Block lengths
+        self.assertEquals(blocks[0][2], 123)
+        self.assertEquals(blocks[1][2], 234)
+        self.assertEquals(blocks[2][2], 13)
+        # Create version 3 of file, copy blocks and update one block - - - - - - - - - - - - - - - - - - - - - - - - - -
+        self.assertEquals(3, dbgw.create_file_version(item_id, 2, user_id))
+        dbgw.copy_file_blocks(item_id, 3, 2)
+        dbgw.update_file_block(item_id, 3, 2, "hijk", b'\x99' * 1021)
+        blocks = dbgw.list_file_blocks(item_id, 3)
+        self.assertEquals(len(blocks), 3)
+        # Block numbers
+        self.assertEquals(blocks[0][0], 0)
+        self.assertEquals(blocks[1][0], 1)
+        self.assertEquals(blocks[2][0], 2)
+        # File version where data actually resides
+        self.assertEquals(2, blocks[0][1])
+        self.assertEquals(2, blocks[1][1])
+        self.assertIsNone(   blocks[2][1])
+        # Block lengths
+        self.assertEquals(blocks[0][2], 123)
+        self.assertEquals(blocks[1][2], 234)
+        self.assertEquals(blocks[2][2], 1021)
+        # Now have 4 versions
+        # Version 0 -> 0
+        version_blocks = dbgw.list_file_version_blocks(item_id, 0, 0)
+        self.assertEquals(len(version_blocks), 3)
+        # File versions
+        self.assertEquals(0, version_blocks[0][0])
+        self.assertEquals(0, version_blocks[1][0])
+        self.assertEquals(0, version_blocks[2][0])
+        # Block numbers
+        self.assertEquals(0, version_blocks[0][1])
+        self.assertEquals(1, version_blocks[1][1])
+        self.assertEquals(2, version_blocks[2][1])
+        # File version where data actually resides
+        self.assertIsNone(version_blocks[0][2])
+        self.assertIsNone(version_blocks[1][2])
+        self.assertIsNone(version_blocks[2][2])
+        # Version 0 -> 1
+        version_blocks = dbgw.list_file_version_blocks(item_id, 0, 1)
+        self.assertEquals(len(version_blocks), 6)
+        # File versions
+        self.assertEquals(0, version_blocks[0][0])
+        self.assertEquals(0, version_blocks[1][0])
+        self.assertEquals(0, version_blocks[2][0])
+        self.assertEquals(1, version_blocks[3][0])
+        self.assertEquals(1, version_blocks[4][0])
+        self.assertEquals(1, version_blocks[5][0])
+        # Block numbers
+        self.assertEquals(0, version_blocks[0][1])
+        self.assertEquals(1, version_blocks[1][1])
+        self.assertEquals(2, version_blocks[2][1])
+        self.assertEquals(0, version_blocks[3][1])
+        self.assertEquals(1, version_blocks[4][1])
+        self.assertEquals(2, version_blocks[5][1])
+        # File version where data actually resides
+        self.assertIsNone(   version_blocks[0][2])
+        self.assertIsNone(   version_blocks[1][2])
+        self.assertIsNone(   version_blocks[2][2])
+        self.assertEquals(0, version_blocks[3][2])
+        self.assertIsNone(   version_blocks[4][2]) # Only modified block 1 in version 1
+        self.assertEquals(0, version_blocks[5][2])
+        # Version 0 -> 2
+        version_blocks = dbgw.list_file_version_blocks(item_id, 0, 2)
+        self.assertEquals(len(version_blocks), 9)
+        # File versions
+        self.assertEquals(0, version_blocks[0][0])
+        self.assertEquals(0, version_blocks[1][0])
+        self.assertEquals(0, version_blocks[2][0])
+        self.assertEquals(1, version_blocks[3][0])
+        self.assertEquals(1, version_blocks[4][0])
+        self.assertEquals(1, version_blocks[5][0])
+        self.assertEquals(2, version_blocks[6][0])
+        self.assertEquals(2, version_blocks[7][0])
+        self.assertEquals(2, version_blocks[8][0])
+        # Block numbers
+        self.assertEquals(0, version_blocks[0][1])
+        self.assertEquals(1, version_blocks[1][1])
+        self.assertEquals(2, version_blocks[2][1])
+        self.assertEquals(0, version_blocks[3][1])
+        self.assertEquals(1, version_blocks[4][1])
+        self.assertEquals(2, version_blocks[5][1])
+        self.assertEquals(0, version_blocks[6][1])
+        self.assertEquals(1, version_blocks[7][1])
+        self.assertEquals(2, version_blocks[8][1])
+        # File version where data actually resides
+        self.assertIsNone(   version_blocks[0][2])
+        self.assertIsNone(   version_blocks[1][2])
+        self.assertIsNone(   version_blocks[2][2])
+        self.assertEquals(0, version_blocks[3][2])
+        # Only modified block 1 in version 1
+        self.assertIsNone(   version_blocks[4][2])
+        self.assertEquals(0, version_blocks[5][2])
+        # Modified block 0 and 1 in version 2
+        self.assertIsNone(   version_blocks[6][2])
+        self.assertIsNone(   version_blocks[7][2])
+        self.assertEquals(0, version_blocks[8][2])
+        # Version 0 -> 3
+        version_blocks = dbgw.list_file_version_blocks(item_id, 0, 3)
+        self.assertEquals(len(version_blocks), 12)
+        # File versions
+        self.assertEquals(0, version_blocks[0][0])
+        self.assertEquals(0, version_blocks[1][0])
+        self.assertEquals(0, version_blocks[2][0])
+        self.assertEquals(1, version_blocks[3][0])
+        self.assertEquals(1, version_blocks[4][0])
+        self.assertEquals(1, version_blocks[5][0])
+        self.assertEquals(2, version_blocks[6][0])
+        self.assertEquals(2, version_blocks[7][0])
+        self.assertEquals(2, version_blocks[8][0])
+        self.assertEquals(3, version_blocks[9][0])
+        self.assertEquals(3, version_blocks[10][0])
+        self.assertEquals(3, version_blocks[11][0])
+        # Block numbers
+        self.assertEquals(0, version_blocks[0][1])
+        self.assertEquals(1, version_blocks[1][1])
+        self.assertEquals(2, version_blocks[2][1])
+        self.assertEquals(0, version_blocks[3][1])
+        self.assertEquals(1, version_blocks[4][1])
+        self.assertEquals(2, version_blocks[5][1])
+        self.assertEquals(0, version_blocks[6][1])
+        self.assertEquals(1, version_blocks[7][1])
+        self.assertEquals(2, version_blocks[8][1])
+        self.assertEquals(0, version_blocks[9][1])
+        self.assertEquals(1, version_blocks[10][1])
+        self.assertEquals(2, version_blocks[11][1])
+        # File version where data actually resides
+        self.assertIsNone(   version_blocks[0][2])
+        self.assertIsNone(   version_blocks[1][2])
+        self.assertIsNone(   version_blocks[2][2])
+        self.assertEquals(0, version_blocks[3][2])
+        # Only modified block 1 in version 1
+        self.assertIsNone(   version_blocks[4][2])
+        self.assertEquals(0, version_blocks[5][2])
+        # Modified block 0 and 1 in version 2
+        self.assertIsNone(   version_blocks[6][2])
+        self.assertIsNone(   version_blocks[7][2])
+        self.assertEquals(0, version_blocks[8][2])
+        # Modified block 2 in version 3
+        self.assertEquals(2, version_blocks[9][2])
+        self.assertEquals(2, version_blocks[10][2])
+        self.assertIsNone(   version_blocks[11][2])
+
+
 
     def test_get_item_id_path(self):
         type_id = dbgw.create_item_initial(None, "test type", None, "{ \"item_class\": \"foo\" }", "")

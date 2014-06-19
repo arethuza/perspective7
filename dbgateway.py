@@ -238,7 +238,9 @@ class DbGateway:
         start = perf.start()
         sql = ("insert into file_blocks"
                "(item_id, file_version, block_number, data_file_version, length, hash, created_at) "
-               "select item_id, $3, block_number, $2, length, hash, now()"
+               "select item_id, $3, block_number, "
+               "       case when $2 = 0 then 0 else coalesce(data_file_version, $2) end, "
+               "       length, hash, now()"
                "from file_blocks "
                "where item_id = $1 and file_version = $2")
         ps = self.connection.prepare(sql)
@@ -307,14 +309,26 @@ class DbGateway:
 
     def list_file_blocks(self, item_id, file_version):
         start = perf.start()
-        sql = ("select block_number, data_file_version, length, file_blocks.hash, file_blocks.created_at "
+        sql = ("select block_number, data_file_version, length, hash, created_at "
                "from file_blocks "
-               "where item_id=$1 and file_version=$2 "
+               "where item_id=$1 and file_version=$2"
                "order by block_number asc")
         ps = self.connection.prepare(sql)
         rows = ps(item_id, file_version)
         perf.end(__name__, start)
         return rows
+
+    def list_file_version_blocks(self, item_id, start_version, end_version):
+        start = perf.start()
+        sql = ("select file_version, block_number, data_file_version, length, hash, created_at "
+               "from file_blocks "
+               "where item_id=$1 and file_version >= $2 and file_version <= $3"
+               "order by file_version, block_number asc")
+        ps = self.connection.prepare(sql)
+        rows = ps(item_id, start_version, end_version)
+        perf.end(__name__, start)
+        return rows
+
 
     def delete_file_block(self, item_id, file_version, block_number):
         start = perf.start()
