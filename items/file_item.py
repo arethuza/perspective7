@@ -70,11 +70,10 @@ class FileItem(Item):
     def get_file_meta(self, worker):
         return self.get(worker)
 
-    @Action("get", "reader", file_version="")
+    @Action("get", "reader", file_version="int:")
     def get_file_version(self, worker,
                          file_version: "Version of the file to return") -> "binary":
         """ Return a specified version of a file """
-        file_version = int(file_version)
         file_length = worker.get_file_length(file_version)
         if file_length is None:
             raise ServiceException(404, "Bad file_version: {}".format(file_version))
@@ -95,9 +94,16 @@ class FileItem(Item):
         result["file_version"] = worker.create_file_version(previous_version)
         return result
 
-    @Action("get", "reader", list_blocks="true", file_version="int:")
+    @Action("get", "reader", list_blocks="bool:true", file_version="int:")
     def list_blocks(self, worker, file_version):
         return worker.list_file_blocks(file_version)
+
+    @Action("get", "reader", file_version="int:", block_number="int:")
+    def get_file_block(self, worker, file_version, block_number):
+        block_data = worker.get_block_data(file_version, block_number)
+        def get_blocks():
+                yield block_data
+        return FileResponse(self.name, len(block_data), get_blocks)
 
     @staticmethod
     def list_property_selector(public_data):

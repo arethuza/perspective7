@@ -273,7 +273,6 @@ class DbGateway:
         perf.end(__name__, start)
         ps(item_id, file_version, block_number)
 
-
     def get_file_block_data(self, item_id, file_version, block_number):
         start = perf.start()
         sql = ("select data "

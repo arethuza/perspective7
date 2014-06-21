@@ -34,10 +34,11 @@ class FileManager():
     def list_blocks(self, item_id, file_version):
         dbgw = dbgateway.get()
         result = []
-        for block_number, data_file_version, block_length, block_hash, created_at in dbgw.list_file_blocks(item_id, file_version):
+        for block_number, data_file_version, block_length, block_hash, created_at in \
+                dbgw.list_file_blocks(item_id, file_version):
             result.append({
                 "block_number": block_number,
-                "data_file_version": data_file_version,
+                "data_file_version": data_file_version if data_file_version is not None else file_version,
                 "block_length": block_length,
                 "block_hash": block_hash,
                 "created_at": created_at.isoformat()
